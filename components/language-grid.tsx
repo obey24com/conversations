@@ -1,8 +1,8 @@
 "use client";
 
-import { Button } from '@/components/ui/button';
-import { supportedLanguages } from '@/lib/languages';
-import { cn } from '@/lib/utils';
+import { Button } from "@/components/ui/button";
+import { supportedLanguages } from "@/lib/languages";
+import { cn } from "@/lib/utils";
 
 interface LanguageGridProps {
   selectedLang: string;
@@ -11,11 +11,11 @@ interface LanguageGridProps {
 
 export function LanguageGrid({ selectedLang, onSelect }: LanguageGridProps) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 bg-red">
       {supportedLanguages.map((lang) => (
         <Button
           key={lang.code}
-          variant="ghost"
+          variant="outline"
           className={cn(
             "h-16 flex flex-col items-center justify-center gap-1 hover:bg-accent",
             selectedLang === lang.code && "bg-accent"
@@ -23,7 +23,9 @@ export function LanguageGrid({ selectedLang, onSelect }: LanguageGridProps) {
           onClick={() => onSelect(lang.code)}
         >
           <span className="text-base text-center">{lang.name}</span>
-          <span className="text-xs text-muted-foreground">{lang.code.toUpperCase()}</span>
+          <span className="text-xs text-muted-foreground">
+            {lang.code.toUpperCase()}
+          </span>
         </Button>
       ))}
     </div>
