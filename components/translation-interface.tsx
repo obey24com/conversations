@@ -39,6 +39,8 @@ export function TranslationInterface() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const { toast } = useToast();
 
+  const streamRef = useRef<MediaStream | null>(null);
+
   const handleSend = async () => {
     if (!inputText.trim()) return;
 
@@ -95,6 +97,8 @@ export function TranslationInterface() {
   const toggleRecording = () => {
     if (isRecording) {
       mediaRecorderRef.current?.stop();
+      // Stop the microphone stream after stopping the recording
+      streamRef.current?.getTracks().forEach((track) => track.stop());
       setIsRecording(false);
     } else {
       startRecording();
@@ -226,6 +230,7 @@ export function TranslationInterface() {
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream; // Store the stream reference
       const mediaRecorder = new MediaRecorder(stream);
 
       mediaRecorderRef.current = mediaRecorder;
