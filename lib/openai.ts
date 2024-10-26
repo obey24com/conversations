@@ -34,7 +34,7 @@ Only include the CONTEXT section if there are important cultural nuances to expl
           content: text,
         },
       ],
-      temperature: 0.7,
+      temperature: 0.8,
       max_tokens: 1000,
     });
 
