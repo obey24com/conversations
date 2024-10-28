@@ -56,7 +56,7 @@ export function LanguageControls({
         </DialogContent>
       </Dialog>
 
-      <Button variant="ghost" size="icon" onClick={onSwap} className="shrink-0">
+      <Button variant="ghost" size="icon" className="shrink-0">
         <ArrowLeftRight className="h-4 w-4" />
       </Button>
 
