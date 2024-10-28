@@ -265,7 +265,7 @@ export function TranslationInterface() {
     <div className="flex flex-col h-screen bg-[#fafafa]">
       <div className="sticky top-0 backdrop-blur-[8px] bg-white/30 border-b border-white/10 z-50">
         <div className="text-[10px] text-muted-foreground/70 p-4 max-w-5xl mx-auto w-full text-center">
-          Ulocat is powered by Obey24.com
+          Ulocat is powered by <a href="https://obey24.com/" target="_blank">Obey24.com</a>
         </div>
       </div>
 
