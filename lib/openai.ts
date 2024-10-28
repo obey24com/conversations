@@ -35,7 +35,7 @@ Only include the CONTEXT section if there are important cultural nuances to expl
         },
       ],
       temperature: 0.8,
-      max_tokens: 1000,
+      max_tokens: 2000,
     });
 
     return completion.choices[0]?.message?.content;
