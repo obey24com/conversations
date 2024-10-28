@@ -6,8 +6,8 @@ import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Translation App',
-  description: 'A modern translation application powered by OpenAI',
+  title: 'ULOCAT – Speak Naturally, Connect Globally.',
+  description: 'AI-powered translation for natural, seamless conversations across languages.',
 };
 
 export default function RootLayout({
