@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,12 +10,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Mic, Send, ArrowLeftRight, Volume2, Menu, Copy } from "lucide-react";
+import { Mic, Send, ArrowLeftRight, Volume2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { supportedLanguages } from "@/lib/languages";
 import { ScrollArea } from "./ui/scroll-area";
-import Header from "./header";
 
 interface Message {
   text: string;
@@ -34,12 +33,6 @@ export function TranslationInterface() {
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState<number | null>(null);
   const [currentTime, setCurrentTime] = useState<number>(0); // Store current playback time
-
-  const scrollRef = useRef<HTMLDivElement>(null); // Reference to the scroll area
-
-  const [isSwapActive, setIsSwapActive] = useState(false); // State to track if swap is active
-  const [isSwapActiveFirst, setIsSwapActiveFirst] = useState(true); // State to track if swap is active
-  const [swapMessage, setSwapMessage] = useState(""); // State for the swap message
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -83,9 +76,7 @@ export function TranslationInterface() {
         ]);
 
         setInputText("");
-        if (isSwapActive) {
-          handleSwapLanguages();
-        }
+        handleSwapLanguages();
       }
     } catch (error) {
       toast({
@@ -99,29 +90,8 @@ export function TranslationInterface() {
   };
 
   const handleSwapLanguages = () => {
-    // Swap languages
     setFromLang(toLang);
     setToLang(fromLang);
-  };
-
-  const toggleSwapActive = () => {
-    setIsSwapActive((prev) => !prev); // Toggle the swap state
-  };
-
-  const handleDoubleClick = () => {
-    toggleSwapActive(); // Toggle auto-switcher
-
-    setIsSwapActiveFirst(false);
-    setSwapMessage(isSwapActive ? "Auto Switch is OFF" : "Auto Switch is ON");
-
-    // Hide swap message after 3 seconds
-    setTimeout(() => {
-      setSwapMessage("");
-    }, 3000);
-  };
-
-  const handleSingleClick = () => {
-    handleSwapLanguages(); // Swap languages
   };
 
   const toggleRecording = () => {
@@ -196,16 +166,11 @@ export function TranslationInterface() {
     }
   };
 
-  const handleSpeechToText = async (
-    audioBlob: Blob,
-    language: string = "en"
-  ) => {
+  const handleSpeechToText = async (audioBlob: Blob) => {
     try {
       setIsLoading(true);
       const formData = new FormData();
-      // formData.append("audio", audioBlob, "audio.mp3"); ==> Old
-      formData.append("audio", audioBlob); // ===> New
-      formData.append("language", fromLang); // Add language to FormData
+      formData.append("audio", audioBlob, "audio.mp3");
 
       const response = await fetch("/api/speech-to-text", {
         method: "POST",
@@ -247,9 +212,7 @@ export function TranslationInterface() {
             },
           ]);
 
-          if (isSwapActive) {
-            handleSwapLanguages();
-          }
+          handleSwapLanguages();
         }
       }
     } catch (error) {
@@ -266,15 +229,7 @@ export function TranslationInterface() {
 
   const startRecording = async () => {
     try {
-      // const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          sampleRate: 44100, // CD quality
-          sampleSize: 16, // 16-bit audio
-          noiseSuppression: true,
-          echoCancellation: true,
-        },
-      });
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream; // Store the stream reference
       const mediaRecorder = new MediaRecorder(stream);
 
@@ -289,7 +244,7 @@ export function TranslationInterface() {
 
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, {
-          type: "audio/wav",
+          type: "audio/mp3",
         });
         handleSpeechToText(audioBlob);
       };
@@ -306,63 +261,21 @@ export function TranslationInterface() {
     }
   };
 
-  const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (event.detail === 2) {
-      // Double click
-      handleDoubleClick();
-    } else if (event.detail === 1) {
-      // Single click
-      setTimeout(() => {
-        if (event.detail === 1) {
-          handleSingleClick();
-        }
-      }, 500); // Small delay to distinguish between single and double clicks
-    }
-  };
-
-  // Auto-scroll and fade-in effect for new translations
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({
-        top: scrollRef.current.scrollHeight,
-        behavior: "smooth", // Smooth scrolling
-      });
-    }
-  }, [messages]);
-
-  // Copy To Clipboard for a message
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard
-      .writeText(text)
-      .then(() => {
-        toast({
-          title: "Copied!",
-          description: "The translated text has been copied to your clipboard.",
-        });
-      })
-      .catch(() => {
-        toast({
-          title: "Error",
-          description: "Failed to copy text.",
-          variant: "destructive",
-        });
-      });
-  };
-
   return (
     <div className="flex flex-col h-screen bg-[#fafafa]">
       {/* ===== Header Start ===== */}
-      <Header />
+      <div className="sticky top-0 backdrop-blur-[8px] bg-white/30 border-b border-white/10 z-50">
+        <div className="text-[10px] text-muted-foreground/70 p-4 max-w-5xl mx-auto w-full text-center">
+          Ulocat is powered by{" "}
+          <a href="https://obey24.com/" target="_blank">
+            Obey24.com
+          </a>
+        </div>
+      </div>
+      {/* ===== Header End ===== */}
 
       {/* ===== Transalated Text Showing Box Start ===== */}
-      <div
-        className="relative flex-1 overflow-hidden"
-        style={{
-          background: "linear-gradient(to top, #efefef, #ffffff)",
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
-        }}
-      >
+      <div className="relative flex-1 overflow-hidden">
         {isLoading && (
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex items-center justify-center">
             <div className="flex items-center space-x-2">
@@ -373,54 +286,38 @@ export function TranslationInterface() {
           </div>
         )}
 
-        <div
-          ref={scrollRef}
-          className="max-w-5xl mx-auto w-full h-full overflow-y-auto space-y-4 px-4 mb-4 "
-        >
+        <div className="max-w-5xl mx-auto w-full h-full overflow-y-auto space-y-4 px-4 mb-4 scroll-smooth">
           {messages.map((message, index) => (
             <div
               key={index}
               className={cn(
-                "p-4 rounded-lg max-w-[85%] mx-auto transition-opacity duration-500",
-                "bg-white text-slate-900 border border-[#AAAAAA]",
-                index === 0 ? "mt-4" : "",
-                "opacity-0 animate-fade-in opacity-100"
+                "p-4 rounded-lg max-w-[85%] mx-auto transition-all duration-300",
+                "bg-primary/90 text-primary-foreground",
+                "animate-in slide-in-from-bottom-2"
               )}
             >
               <p className="text-sm opacity-70">{message.text}</p>
-              <div className="mt-2 flex flex-col items-start gap-2 relative">
+              <div className="mt-2 flex items-start gap-2">
                 <p className="font-medium flex-1">{message.translation}</p>
-                {/* <div className="flex flex-row absolute -top-8 -right-4 bg-slate-100/50 rounded-lg"> */}
-                <div className="flex justify-end w-full border-y border-[#AAAAAA]">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="shrink-0 text-[#AAAAAA] hover:text-black hover:bg-[#AAAAAA]"
-                    onClick={() => {
-                      if (isPlaying === index) {
-                        pauseTranslation();
-                      } else {
-                        playTranslation(message.translation, index);
-                      }
-                    }}
-                  >
-                    <Volume2
-                      className={cn(
-                        "h-4 w-4",
-                        isPlaying === index && "animate-pulse"
-                      )}
-                    />
-                  </Button>
-                  <Button
-                    onClick={() => copyToClipboard(message.translation)}
-                    className="shrink-0 text-[#AAAAAA] hover:text-black hover:bg-[#AAAAAA]"
-                    aria-label="Copy translation"
-                    variant="ghost"
-                    size="icon"
-                  >
-                    <Copy className="h-4 w-4" /> {/* Copy icon */}
-                  </Button>
-                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                  onClick={() => {
+                    if (isPlaying === index) {
+                      pauseTranslation();
+                    } else {
+                      playTranslation(message.translation, index);
+                    }
+                  }}
+                >
+                  <Volume2
+                    className={cn(
+                      "h-4 w-4",
+                      isPlaying === index && "animate-pulse"
+                    )}
+                  />
+                </Button>
               </div>
               {message.cultural && (
                 <p className="mt-2 text-sm opacity-70 border-t border-primary-foreground/20 pt-2">
@@ -439,13 +336,13 @@ export function TranslationInterface() {
           {/* ===== Language Switcher Start ===== */}
           <div className="flex gap-2 justify-between w-full">
             <Select value={fromLang} onValueChange={setFromLang}>
-              <SelectTrigger className="w-[120px] sm:w-full">
+              <SelectTrigger className="w-[120px] sm:w-[150px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <ScrollArea className="h-[85vh] max-h-[75vh] md:max-h-[80vh] md:w-full max-w-[90vw]">
-                  <div className="p-4 w-full">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 bg-red md:w-full w-[80%]">
+                <ScrollArea className="h-[70vh] max-h-[75vh]">
+                  <div className="p-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 bg-red">
                       {supportedLanguages.map((lang) => (
                         <SelectItem key={lang.code} value={lang.code}>
                           {lang.name}
@@ -458,44 +355,23 @@ export function TranslationInterface() {
             </Select>
 
             {/* Language Switcher Button */}
-            {/* <Button
+            <Button
               variant="ghost"
               size="icon"
               onClick={handleSwapLanguages}
               className="shrink-0"
             >
               <ArrowLeftRight className="h-4 w-4" />
-            </Button> */}
-            <div className="relative">
-              <Button
-                variant="outline"
-                className={cn(
-                  "flex items-center justify-center mx-2 relative",
-                  isSwapActiveFirst
-                    ? "bg-transparent"
-                    : isSwapActive
-                    ? "bg-green-600 text-white"
-                    : "bg-red-600 text-white"
-                )}
-                onClick={handleButtonClick} // Use handleButtonClick for single/double click
-              >
-                <ArrowLeftRight />
-                {swapMessage && (
-                  <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-2 px-3 w-[135px]">
-                    {swapMessage}
-                  </div>
-                )}
-              </Button>
-            </div>
+            </Button>
 
             <Select value={toLang} onValueChange={setToLang}>
-              <SelectTrigger className="w-[120px] sm:w-full">
+              <SelectTrigger className="w-[120px] sm:w-[150px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <ScrollArea className="h-[85vh] max-h-[75vh] md:max-h-[80vh] md:w-full max-w-[90vw]">
-                  <div className="p-4 w-full">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 bg-red md:w-full w-[80%]">
+                <ScrollArea className="h-[70vh] max-h-[75vh]">
+                  <div className="p-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 bg-red">
                       {supportedLanguages.map((lang) => (
                         <SelectItem key={lang.code} value={lang.code}>
                           {lang.name}
