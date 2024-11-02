@@ -7,6 +7,7 @@ import { MessageBubble } from "@/components/message-bubble";
 import { InputControls } from "@/components/input-controls";
 import { LanguageControls } from "@/components/language-controls";
 import { cn } from "@/lib/utils";
+import { supportedLanguages } from "@/lib/languages";
 
 interface Message {
   text: string;
@@ -16,10 +17,24 @@ interface Message {
   cultural?: string;
 }
 
+const STORAGE_KEYS = {
+  FROM_LANG: 'ulocat-from-lang',
+  TO_LANG: 'ulocat-to-lang'
+} as const;
+
+function getStoredLanguage(key: string, fallback: string): string {
+  if (typeof window === 'undefined') return fallback;
+  
+  const stored = localStorage.getItem(key);
+  if (!stored) return fallback;
+  
+  // Validate that the stored language code is supported
+  return supportedLanguages.some(lang => lang.code === stored) ? stored : fallback;
+}
+
 export function TranslationInterface() {
-  // Rest of the component remains exactly the same
-  const [fromLang, setFromLang] = useState("en");
-  const [toLang, setToLang] = useState("es");
+  const [fromLang, setFromLang] = useState(() => getStoredLanguage(STORAGE_KEYS.FROM_LANG, "en"));
+  const [toLang, setToLang] = useState(() => getStoredLanguage(STORAGE_KEYS.TO_LANG, "es"));
   const [inputText, setInputText] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isRecording, setIsRecording] = useState(false);
@@ -33,6 +48,24 @@ export function TranslationInterface() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const { toast } = useToast();
+
+  // Persist language selections
+  const handleFromLangChange = (lang: string) => {
+    setFromLang(lang);
+    localStorage.setItem(STORAGE_KEYS.FROM_LANG, lang);
+  };
+
+  const handleToLangChange = (lang: string) => {
+    setToLang(lang);
+    localStorage.setItem(STORAGE_KEYS.TO_LANG, lang);
+  };
+
+  const handleSwapLanguages = () => {
+    setFromLang(toLang);
+    setToLang(fromLang);
+    localStorage.setItem(STORAGE_KEYS.FROM_LANG, toLang);
+    localStorage.setItem(STORAGE_KEYS.TO_LANG, fromLang);
+  };
 
   const handleSend = async () => {
     if (!inputText.trim()) return;
@@ -77,11 +110,6 @@ export function TranslationInterface() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleSwapLanguages = () => {
-    setFromLang(toLang);
-    setToLang(fromLang);
   };
 
   const toggleRecording = () => {
@@ -266,8 +294,8 @@ export function TranslationInterface() {
           <LanguageControls
             fromLang={fromLang}
             toLang={toLang}
-            onFromLangChange={setFromLang}
-            onToLangChange={setToLang}
+            onFromLangChange={handleFromLangChange}
+            onToLangChange={handleToLangChange}
             onSwap={handleSwapLanguages}
           />
 
