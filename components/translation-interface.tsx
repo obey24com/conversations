@@ -26,27 +26,55 @@ interface Message {
   cultural?: string;
 }
 
+const STORAGE_KEYS = {
+  FROM_LANG: 'ulocat-from-lang',
+  TO_LANG: 'ulocat-to-lang',
+  AUTO_SWITCH: 'ulocat-auto-switch'
+} as const;
+
+function getStoredLanguage(key: string, fallback: string): string {
+  if (typeof window === 'undefined') return fallback;
+  const stored = localStorage.getItem(key);
+  if (!stored) return fallback;
+  return supportedLanguages.some(lang => lang.code === stored) ? stored : fallback;
+}
+
+function getStoredAutoSwitch(): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem(STORAGE_KEYS.AUTO_SWITCH) === 'true';
+}
+
 export function TranslationInterface() {
   useZoomControl();
-  
-  const [fromLang, setFromLang] = useState("en");
-  const [toLang, setToLang] = useState("es");
+
+  const [fromLang, setFromLang] = useState(() => getStoredLanguage(STORAGE_KEYS.FROM_LANG, "en"));
+  const [toLang, setToLang] = useState(() => getStoredLanguage(STORAGE_KEYS.TO_LANG, "es"));
   const [inputText, setInputText] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState<number | null>(null);
   const [currentTime, setCurrentTime] = useState<number>(0);
-
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [isSwapActive, setIsSwapActive] = useState(false);
+  const [isSwapActive, setIsSwapActive] = useState(() => getStoredAutoSwitch());
   const [isSwapActiveFirst, setIsSwapActiveFirst] = useState(true);
   const [swapMessage, setSwapMessage] = useState("");
+
+  const scrollRef = useRef<HTMLDivElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const { toast } = useToast();
   const streamRef = useRef<MediaStream | null>(null);
+  const { toast } = useToast();
+
+  const handleFromLangChange = (lang: string) => {
+    setFromLang(lang);
+    localStorage.setItem(STORAGE_KEYS.FROM_LANG, lang);
+  };
+
+  const handleToLangChange = (lang: string) => {
+    setToLang(lang);
+    localStorage.setItem(STORAGE_KEYS.TO_LANG, lang);
+  };
 
   const handleSend = async () => {
     if (!inputText.trim()) return;
@@ -96,12 +124,20 @@ export function TranslationInterface() {
   };
 
   const handleSwapLanguages = () => {
-    setFromLang(toLang);
-    setToLang(fromLang);
+    const newFromLang = toLang;
+    const newToLang = fromLang;
+    setFromLang(newFromLang);
+    setToLang(newToLang);
+    localStorage.setItem(STORAGE_KEYS.FROM_LANG, newFromLang);
+    localStorage.setItem(STORAGE_KEYS.TO_LANG, newToLang);
   };
 
   const toggleSwapActive = () => {
-    setIsSwapActive((prev) => !prev);
+    setIsSwapActive(prev => {
+      const newValue = !prev;
+      localStorage.setItem(STORAGE_KEYS.AUTO_SWITCH, String(newValue));
+      return newValue;
+    });
   };
 
   const handleDoubleClick = () => {
@@ -115,16 +151,6 @@ export function TranslationInterface() {
 
   const handleSingleClick = () => {
     handleSwapLanguages();
-  };
-
-  const toggleRecording = () => {
-    if (isRecording) {
-      mediaRecorderRef.current?.stop();
-      streamRef.current?.getTracks().forEach((track) => track.stop());
-      setIsRecording(false);
-    } else {
-      startRecording();
-    }
   };
 
   const playTranslation = async (text: string, index: number) => {
@@ -269,6 +295,16 @@ export function TranslationInterface() {
     }
   };
 
+  const toggleRecording = () => {
+    if (isRecording) {
+      mediaRecorderRef.current?.stop();
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+      setIsRecording(false);
+    } else {
+      startRecording();
+    }
+  };
+
   const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (event.detail === 2) {
       handleDoubleClick();
@@ -280,15 +316,6 @@ export function TranslationInterface() {
       }, 500);
     }
   };
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({
-        top: scrollRef.current.scrollHeight,
-        behavior: "smooth",
-      });
-    }
-  }, [messages]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard
@@ -307,6 +334,15 @@ export function TranslationInterface() {
         });
       });
   };
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [messages]);
 
   return (
     <div className="flex flex-col h-screen bg-[#fafafa]">
@@ -392,7 +428,7 @@ export function TranslationInterface() {
       <div className="sticky bottom-0 bg-background shadow-[0_-1px_3px_rgba(0,0,0,0.1)] px-4 py-3 space-y-3">
         <div className="max-w-5xl mx-auto w-full space-y-3">
           <div className="flex gap-2 justify-between w-full">
-            <Select value={fromLang} onValueChange={setFromLang}>
+            <Select value={fromLang} onValueChange={handleFromLangChange}>
               <SelectTrigger className="w-[120px] sm:w-full">
                 <SelectValue />
               </SelectTrigger>
@@ -433,7 +469,7 @@ export function TranslationInterface() {
               </Button>
             </div>
 
-            <Select value={toLang} onValueChange={setToLang}>
+            <Select value={toLang} onValueChange={handleToLangChange}>
               <SelectTrigger className="w-[120px] sm:w-full">
                 <SelectValue />
               </SelectTrigger>
@@ -495,4 +531,4 @@ export function TranslationInterface() {
       <audio ref={audioRef} className="hidden" />
     </div>
   );
-} 
+}
