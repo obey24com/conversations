@@ -10,6 +10,7 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'ULOCAT – Speak Naturally, Connect Globally.',
   description: 'AI-powered translation for natural, seamless conversations across languages.',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
 };
 
 export default function RootLayout({
