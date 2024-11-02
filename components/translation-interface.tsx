@@ -10,12 +10,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Mic, Send, ArrowLeftRight, Volume2, Menu, Copy } from "lucide-react";
+import { Mic, Send, ArrowLeftRight, Volume2, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { supportedLanguages } from "@/lib/languages";
 import { ScrollArea } from "./ui/scroll-area";
 import Header from "./header";
+import { useZoomControl } from "@/hooks/use-zoom-control";
 
 interface Message {
   text: string;
@@ -26,6 +27,8 @@ interface Message {
 }
 
 export function TranslationInterface() {
+  useZoomControl();
+  
   const [fromLang, setFromLang] = useState("en");
   const [toLang, setToLang] = useState("es");
   const [inputText, setInputText] = useState("");
@@ -33,19 +36,16 @@ export function TranslationInterface() {
   const [isRecording, setIsRecording] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState<number | null>(null);
-  const [currentTime, setCurrentTime] = useState<number>(0); // Store current playback time
+  const [currentTime, setCurrentTime] = useState<number>(0);
 
-  const scrollRef = useRef<HTMLDivElement>(null); // Reference to the scroll area
-
-  const [isSwapActive, setIsSwapActive] = useState(false); // State to track if swap is active
-  const [isSwapActiveFirst, setIsSwapActiveFirst] = useState(true); // State to track if swap is active
-  const [swapMessage, setSwapMessage] = useState(""); // State for the swap message
-
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isSwapActive, setIsSwapActive] = useState(false);
+  const [isSwapActiveFirst, setIsSwapActiveFirst] = useState(true);
+  const [swapMessage, setSwapMessage] = useState("");
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const audioRef = useRef<HTMLAudioElement>(null);
   const { toast } = useToast();
-
   const streamRef = useRef<MediaStream | null>(null);
 
   const handleSend = async () => {
@@ -66,17 +66,14 @@ export function TranslationInterface() {
       const data = await response.json();
 
       if (data.translation) {
-        const [translation, ...culturalNotes] =
-          data.translation.split("\nCONTEXT:");
+        const [translation, ...culturalNotes] = data.translation.split("\nCONTEXT:");
 
         setMessages((prev) => [
           ...prev,
           {
             text: inputText,
             translation: translation.replace("TRANSLATION:", "").trim(),
-            cultural: culturalNotes.length
-              ? culturalNotes.join("\n").trim()
-              : undefined,
+            cultural: culturalNotes.length ? culturalNotes.join("\n").trim() : undefined,
             fromLang,
             toLang,
           },
@@ -99,35 +96,30 @@ export function TranslationInterface() {
   };
 
   const handleSwapLanguages = () => {
-    // Swap languages
     setFromLang(toLang);
     setToLang(fromLang);
   };
 
   const toggleSwapActive = () => {
-    setIsSwapActive((prev) => !prev); // Toggle the swap state
+    setIsSwapActive((prev) => !prev);
   };
 
   const handleDoubleClick = () => {
-    toggleSwapActive(); // Toggle auto-switcher
-
+    toggleSwapActive();
     setIsSwapActiveFirst(false);
     setSwapMessage(isSwapActive ? "Auto Switch is OFF" : "Auto Switch is ON");
-
-    // Hide swap message after 3 seconds
     setTimeout(() => {
       setSwapMessage("");
     }, 3000);
   };
 
   const handleSingleClick = () => {
-    handleSwapLanguages(); // Swap languages
+    handleSwapLanguages();
   };
 
   const toggleRecording = () => {
     if (isRecording) {
       mediaRecorderRef.current?.stop();
-      // Stop the microphone stream after stopping the recording
       streamRef.current?.getTracks().forEach((track) => track.stop());
       setIsRecording(false);
     } else {
@@ -151,24 +143,17 @@ export function TranslationInterface() {
 
       if (audioRef.current) {
         audioRef.current.src = audioUrl;
-
-        // Resetting currentTime if the audio has ended
         audioRef.current.onended = () => {
           setIsPlaying(null);
           setCurrentTime(0);
           URL.revokeObjectURL(audioUrl);
         };
-
-        // Set the current playback time if resuming
         audioRef.current.currentTime = currentTime;
-
         await audioRef.current.play();
 
-        // Update currentTime while playing
         const updateTime = () => {
           setCurrentTime(audioRef.current?.currentTime || 0);
         };
-
         audioRef.current.ontimeupdate = updateTime;
       }
     } catch (error) {
@@ -178,34 +163,16 @@ export function TranslationInterface() {
         variant: "destructive",
       });
       setIsPlaying(null);
-      setCurrentTime(0); // Reset current time on error
+      setCurrentTime(0);
     }
   };
 
-  const pauseTranslation = () => {
-    if (audioRef.current && isPlaying !== null) {
-      audioRef.current.pause();
-      setIsPlaying(null); // Optionally clear the playing index
-    }
-  };
-
-  const resumeTranslation = () => {
-    if (audioRef.current && currentTime > 0) {
-      audioRef.current.play();
-      setIsPlaying(isPlaying); // Restore the index when resuming
-    }
-  };
-
-  const handleSpeechToText = async (
-    audioBlob: Blob,
-    language: string = "en"
-  ) => {
+  const handleSpeechToText = async (audioBlob: Blob) => {
     try {
       setIsLoading(true);
       const formData = new FormData();
-      // formData.append("audio", audioBlob, "audio.mp3"); ==> Old
-      formData.append("audio", audioBlob); // ===> New
-      formData.append("language", fromLang); // Add language to FormData
+      formData.append("audio", audioBlob);
+      formData.append("language", fromLang);
 
       const response = await fetch("/api/speech-to-text", {
         method: "POST",
@@ -231,17 +198,14 @@ export function TranslationInterface() {
         const translationData = await translationResponse.json();
 
         if (translationData.translation) {
-          const [translation, ...culturalNotes] =
-            translationData.translation.split("\nCONTEXT:");
+          const [translation, ...culturalNotes] = translationData.translation.split("\nCONTEXT:");
 
           setMessages((prev) => [
             ...prev,
             {
               text: data.text,
               translation: translation.replace("TRANSLATION:", "").trim(),
-              cultural: culturalNotes.length
-                ? culturalNotes.join("\n").trim()
-                : undefined,
+              cultural: culturalNotes.length ? culturalNotes.join("\n").trim() : undefined,
               fromLang,
               toLang,
             },
@@ -266,16 +230,15 @@ export function TranslationInterface() {
 
   const startRecording = async () => {
     try {
-      // const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
-          sampleRate: 44100, // CD quality
-          sampleSize: 16, // 16-bit audio
+          sampleRate: 44100,
+          sampleSize: 16,
           noiseSuppression: true,
           echoCancellation: true,
         },
       });
-      streamRef.current = stream; // Store the stream reference
+      streamRef.current = stream;
       const mediaRecorder = new MediaRecorder(stream);
 
       mediaRecorderRef.current = mediaRecorder;
@@ -308,29 +271,25 @@ export function TranslationInterface() {
 
   const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (event.detail === 2) {
-      // Double click
       handleDoubleClick();
     } else if (event.detail === 1) {
-      // Single click
       setTimeout(() => {
         if (event.detail === 1) {
           handleSingleClick();
         }
-      }, 500); // Small delay to distinguish between single and double clicks
+      }, 500);
     }
   };
 
-  // Auto-scroll and fade-in effect for new translations
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({
         top: scrollRef.current.scrollHeight,
-        behavior: "smooth", // Smooth scrolling
+        behavior: "smooth",
       });
     }
   }, [messages]);
 
-  // Copy To Clipboard for a message
   const copyToClipboard = (text: string) => {
     navigator.clipboard
       .writeText(text)
@@ -351,10 +310,8 @@ export function TranslationInterface() {
 
   return (
     <div className="flex flex-col h-screen bg-[#fafafa]">
-      {/* ===== Header Start ===== */}
       <Header />
 
-      {/* ===== Transalated Text Showing Box Start ===== */}
       <div
         className="relative flex-1 overflow-hidden"
         style={{
@@ -375,7 +332,7 @@ export function TranslationInterface() {
 
         <div
           ref={scrollRef}
-          className="max-w-5xl mx-auto w-full h-full overflow-y-auto space-y-4 px-4 mb-4 "
+          className="max-w-5xl mx-auto w-full h-full overflow-y-auto space-y-4 px-4 mb-4"
         >
           {messages.map((message, index) => (
             <div
@@ -390,7 +347,6 @@ export function TranslationInterface() {
               <p className="text-sm opacity-70">{message.text}</p>
               <div className="mt-2 flex flex-col items-start gap-2 relative">
                 <p className="font-medium flex-1">{message.translation}</p>
-                {/* <div className="flex flex-row absolute -top-8 -right-4 bg-slate-100/50 rounded-lg"> */}
                 <div className="flex justify-end w-full border-y border-[#AAAAAA]">
                   <Button
                     variant="ghost"
@@ -398,7 +354,8 @@ export function TranslationInterface() {
                     className="shrink-0 text-[#AAAAAA] hover:text-black hover:bg-[#AAAAAA]"
                     onClick={() => {
                       if (isPlaying === index) {
-                        pauseTranslation();
+                        audioRef.current?.pause();
+                        setIsPlaying(null);
                       } else {
                         playTranslation(message.translation, index);
                       }
@@ -418,7 +375,7 @@ export function TranslationInterface() {
                     variant="ghost"
                     size="icon"
                   >
-                    <Copy className="h-4 w-4" /> {/* Copy icon */}
+                    <Copy className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -431,12 +388,9 @@ export function TranslationInterface() {
           ))}
         </div>
       </div>
-      {/* ===== Transalated Text Showing Box End ===== */}
 
-      {/* ===== Bottom Part Start ===== */}
       <div className="sticky bottom-0 bg-background shadow-[0_-1px_3px_rgba(0,0,0,0.1)] px-4 py-3 space-y-3">
         <div className="max-w-5xl mx-auto w-full space-y-3">
-          {/* ===== Language Switcher Start ===== */}
           <div className="flex gap-2 justify-between w-full">
             <Select value={fromLang} onValueChange={setFromLang}>
               <SelectTrigger className="w-[120px] sm:w-full">
@@ -457,15 +411,6 @@ export function TranslationInterface() {
               </SelectContent>
             </Select>
 
-            {/* Language Switcher Button */}
-            {/* <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSwapLanguages}
-              className="shrink-0"
-            >
-              <ArrowLeftRight className="h-4 w-4" />
-            </Button> */}
             <div className="relative">
               <Button
                 variant="outline"
@@ -477,7 +422,7 @@ export function TranslationInterface() {
                     ? "bg-green-600 text-white"
                     : "bg-red-600 text-white"
                 )}
-                onClick={handleButtonClick} // Use handleButtonClick for single/double click
+                onClick={handleButtonClick}
               >
                 <ArrowLeftRight />
                 {swapMessage && (
@@ -507,18 +452,15 @@ export function TranslationInterface() {
               </SelectContent>
             </Select>
           </div>
-          {/* ===== Language Switcher End ===== */}
 
-          {/* ===== Prompt and microphone section Start ===== */}
           <div className="flex gap-2 w-full">
             <Input
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Type your message..."
-              onKeyDown={(e) =>
-                e.key === "Enter" && !e.shiftKey && handleSend()
-              }
-              className="flex-1"
+              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+              className="flex-1 text-lg"
+              style={{ fontSize: "16px" }}
               disabled={isLoading}
             />
 
@@ -547,12 +489,10 @@ export function TranslationInterface() {
               <Send className="h-4 w-4" />
             </Button>
           </div>
-          {/* ===== Prompt and microphone section End ===== */}
         </div>
       </div>
-      {/* ===== Bottom Part End ===== */}
 
       <audio ref={audioRef} className="hidden" />
     </div>
   );
-}
+} 
