@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Toaster } from "@/components/ui/toaster";
 import Script from 'next/script';
+import { CookieBanner } from '@/components/cookie-banner';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -35,11 +36,21 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-JPBWCGZ3MK');
+            
+            // Default to denied
+            gtag('consent', 'default', {
+              'analytics_storage': 'denied',
+              'ad_storage': 'denied'
+            });
+
+            gtag('config', 'G-JPBWCGZ3MK', {
+              'anonymize_ip': true
+            });
           `}
         </Script>
       </head>
       <body className={inter.className}>
+        <CookieBanner />
         {children}
         <Toaster />
       </body>
