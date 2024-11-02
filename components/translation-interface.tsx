@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { Header } from "@/components/header";
+import Header from "@/components/header";
 import { MessageBubble } from "@/components/message-bubble";
 import { InputControls } from "@/components/input-controls";
 import { LanguageControls } from "@/components/language-controls";
@@ -17,6 +17,7 @@ interface Message {
 }
 
 export function TranslationInterface() {
+  // Rest of the component remains exactly the same
   const [fromLang, setFromLang] = useState("en");
   const [toLang, setToLang] = useState("es");
   const [inputText, setInputText] = useState("");
