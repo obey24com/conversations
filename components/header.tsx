@@ -89,7 +89,7 @@ export default function Header() {
                 Imprint
               </a>
               <a
-                href="mailto:yourmail@gmail.com"
+                href="mailto:info@ulocat.com"
                 className="py-2 text-center text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                 target="_blank"
                 rel="noopener noreferrer"
