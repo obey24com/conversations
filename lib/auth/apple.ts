@@ -21,6 +21,14 @@ interface AppleJWTPayload {
   nonce_supported?: boolean;
 }
 
+interface AppleDecodedToken {
+  header: {
+    kid: string;
+    alg: string;
+  };
+  payload: AppleJWTPayload;
+}
+
 const APPLE_PUBLIC_KEYS_URL = "https://appleid.apple.com/auth/keys";
 
 export async function verifyAppleNotification(
@@ -36,8 +44,8 @@ export async function verifyAppleNotification(
     const { keys } = await response.json();
 
     // Find the key used to sign this JWT
-    const decodedToken = jwt.decode(token, { complete: true });
-    if (!decodedToken) return false;
+    const decodedToken = jwt.decode(token, { complete: true }) as AppleDecodedToken | null;
+    if (!decodedToken?.header?.kid) return false;
 
     const kid = decodedToken.header.kid;
     const signingKey = keys.find((k: { kid: string }) => k.kid === kid);
@@ -47,11 +55,13 @@ export async function verifyAppleNotification(
     const keystore = await JWK.asKeyStore({
       keys: [signingKey]
     });
-    const key = keystore.get(kid);
+
+    // Get the key with proper type checking
+    const key = keystore.get({ kid: kid, use: 'sig' });
     if (!key) return false;
 
     // Verify the JWT signature and claims
-    const verified = await JWS.createVerify(key).verify(token);
+    const verified = await JWS.createVerify(keystore).verify(token);
     if (!verified) return false;
 
     // Verify additional claims as needed
@@ -66,7 +76,7 @@ export async function verifyAppleNotification(
 
     // Verify the audience matches your client ID
     const clientId = process.env.APPLE_CLIENT_ID;
-    if (claims.aud !== clientId) return false;
+    if (!clientId || claims.aud !== clientId) return false;
 
     return true;
   } catch (error) {
