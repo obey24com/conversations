@@ -1,11 +1,31 @@
 import jwt from "jsonwebtoken";
 import { JWK, JWS } from "node-jose";
 
+interface AppleNotificationPayload {
+  type: "email-disabled" | "consent-revoked" | "account-delete";
+  sub: string;
+  email?: string;
+}
+
+interface AppleJWTPayload {
+  iss: string;
+  aud: string;
+  exp: number;
+  iat: number;
+  sub: string;
+  at_hash?: string;
+  email?: string;
+  email_verified?: string;
+  is_private_email?: boolean;
+  auth_time?: number;
+  nonce_supported?: boolean;
+}
+
 const APPLE_PUBLIC_KEYS_URL = "https://appleid.apple.com/auth/keys";
 
 export async function verifyAppleNotification(
   authorization: string,
-  payload: any
+  payload: AppleNotificationPayload
 ): Promise<boolean> {
   try {
     // Extract the JWT token from the Authorization header
@@ -20,7 +40,7 @@ export async function verifyAppleNotification(
     if (!decodedToken) return false;
 
     const kid = decodedToken.header.kid;
-    const signingKey = keys.find((k: any) => k.kid === kid);
+    const signingKey = keys.find((k: { kid: string }) => k.kid === kid);
     if (!signingKey) return false;
 
     // Convert the JWK to PEM format
@@ -35,7 +55,7 @@ export async function verifyAppleNotification(
     if (!verified) return false;
 
     // Verify additional claims as needed
-    const claims = jwt.decode(token) as any;
+    const claims = jwt.decode(token) as AppleJWTPayload;
     
     // Verify the token was issued by Apple
     if (claims.iss !== "https://appleid.apple.com") return false;
