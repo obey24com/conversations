@@ -27,7 +27,7 @@ export function InputControls({
       <Input
         value={inputText}
         onChange={(e) => onInputChange(e.target.value)}
-        placeholder="Type your message..."
+        placeholder=" Speak naturally and let ULOCAT translate it for you ..."
         onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && onSend()}
         className="flex-1"
         disabled={isLoading}
