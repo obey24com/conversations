@@ -26,10 +26,7 @@ export default function Header() {
     <div className="sticky top-0 flex items-center justify-between bg-white/30 border-b border-white/10 z-50 p-2 max-w-5xl mx-auto w-full">
       <div className="text-left flex-1 md:flex hidden">
         <span className="text-[10px] text-muted-foreground/70">
-          Ulocat is powered by{" "}
-          <a href="https://obey24.com/" target="_blank" rel="noopener noreferrer">
-            Obey24.com
-          </a>
+          Speak Naturally. Connect Globally.
         </span>
       </div>
       <div className="flex-1 text-center">
