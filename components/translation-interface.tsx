@@ -42,7 +42,17 @@ export function TranslationInterface() {
   const [swapMessage, setSwapMessage] = useState(""); // State for the swap message
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+
   const audioChunksRef = useRef<Blob[]>([]);
+  const [recordingTimeout, setRecordingTimeout] =
+    useState<NodeJS.Timeout | null>(null);
+  const [minRecordingDurationTimeout, setMinRecordingDurationTimeout] =
+    useState<boolean>(false);
+  const [recordingTimeoutId, setRecordingTimeoutId] =
+    useState<NodeJS.Timeout | null>(null);
+
+  // const [audioChunksRef, setAudioChunksRef] = useState<Blob[]>([]);
+
   const audioRef = useRef<HTMLAudioElement>(null);
   const { toast } = useToast();
 
@@ -196,6 +206,76 @@ export function TranslationInterface() {
     }
   };
 
+  // const handleSpeechToText = async (
+  //   audioBlob: Blob,
+  //   language: string = "en"
+  // ) => {
+  //   try {
+  //     setIsLoading(true);
+  //     const formData = new FormData();
+  //     // formData.append("audio", audioBlob, "audio.mp3"); ==> Old
+  //     formData.append("audio", audioBlob); // ===> New
+  //     formData.append("language", fromLang); // Add language to FormData
+
+  //     const response = await fetch("/api/speech-to-text", {
+  //       method: "POST",
+  //       body: formData,
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error! status: ${response.status}`);
+  //     }
+
+  //     const data = await response.json();
+  //     if (data.text) {
+  //       const translationResponse = await fetch("/api/translate", {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({
+  //           text: data.text,
+  //           fromLang,
+  //           toLang,
+  //         }),
+  //       });
+
+  //       const translationData = await translationResponse.json();
+
+  //       if (translationData.translation) {
+  //         const [translation, ...culturalNotes] =
+  //           translationData.translation.split("\nCONTEXT:");
+
+  //         setMessages((prev) => [
+  //           ...prev,
+  //           {
+  //             text: data.text,
+  //             translation: translation.replace("TRANSLATION:", "").trim(),
+  //             cultural: culturalNotes.length
+  //               ? culturalNotes.join("\n").trim()
+  //               : undefined,
+  //             fromLang,
+  //             toLang,
+  //           },
+  //         ]);
+
+  //         if (isSwapActive) {
+  //           handleSwapLanguages();
+  //         }
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Speech to text error:", error);
+  //     toast({
+  //       title: "Error",
+  //       description: "Failed to process speech",
+  //       variant: "destructive",
+  //     });
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  // Example of handleSpeechToText function
+
   const handleSpeechToText = async (
     audioBlob: Blob,
     language: string = "en"
@@ -203,8 +283,7 @@ export function TranslationInterface() {
     try {
       setIsLoading(true);
       const formData = new FormData();
-      // formData.append("audio", audioBlob, "audio.mp3"); ==> Old
-      formData.append("audio", audioBlob); // ===> New
+      formData.append("audio", audioBlob);
       formData.append("language", fromLang); // Add language to FormData
 
       const response = await fetch("/api/speech-to-text", {
@@ -212,12 +291,15 @@ export function TranslationInterface() {
         body: formData,
       });
 
+      // Check if the response is ok (status code 200-299)
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      if (data.text) {
+
+      // Check if there is any text in the response
+      if (data.text && data.text.trim().length > 0) {
         const translationResponse = await fetch("/api/translate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -251,6 +333,13 @@ export function TranslationInterface() {
             handleSwapLanguages();
           }
         }
+      } else {
+        // No transcription was received
+        toast({
+          title: "No Transcription",
+          description: "There was nothing to transcribe.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error("Speech to text error:", error);
@@ -264,20 +353,60 @@ export function TranslationInterface() {
     }
   };
 
+  // const startRecording = async () => {
+  //   try {
+  //     // const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  //     const stream = await navigator.mediaDevices.getUserMedia({
+  //       audio: {
+  //         sampleRate: 44100, // CD quality
+  //         sampleSize: 16, // 16-bit audio
+  //         noiseSuppression: true,
+  //         echoCancellation: true,
+  //       },
+  //     });
+  //     streamRef.current = stream; // Store the stream reference
+  //     const mediaRecorder = new MediaRecorder(stream);
+
+  //     mediaRecorderRef.current = mediaRecorder;
+  //     audioChunksRef.current = [];
+
+  //     mediaRecorder.ondataavailable = (event) => {
+  //       if (event.data.size > 0) {
+  //         audioChunksRef.current.push(event.data);
+  //       }
+  //     };
+
+  //     mediaRecorder.onstop = async () => {
+  //       const audioBlob = new Blob(audioChunksRef.current, {
+  //         type: "audio/wav",
+  //       });
+  //       handleSpeechToText(audioBlob);
+  //     };
+
+  //     mediaRecorder.start();
+  //     setIsRecording(true);
+  //   } catch (error) {
+  //     console.error("Error accessing microphone:", error);
+  //     toast({
+  //       title: "Error",
+  //       description: "Could not access microphone",
+  //       variant: "destructive",
+  //     });
+  //   }
+  // };
+
   const startRecording = async () => {
     try {
-      // const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
-          sampleRate: 44100, // CD quality
-          sampleSize: 16, // 16-bit audio
+          sampleRate: 44100,
+          sampleSize: 16,
           noiseSuppression: true,
           echoCancellation: true,
         },
       });
-      streamRef.current = stream; // Store the stream reference
+      streamRef.current = stream;
       const mediaRecorder = new MediaRecorder(stream);
-
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
@@ -288,6 +417,17 @@ export function TranslationInterface() {
       };
 
       mediaRecorder.onstop = async () => {
+        // Check if we have recorded any audio
+        if (audioChunksRef.current.length === 0) {
+          toast({
+            title: "No Audio Detected",
+            description: "There was nothing to transcribe.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // If audio was recorded, process it
         const audioBlob = new Blob(audioChunksRef.current, {
           type: "audio/wav",
         });
@@ -305,6 +445,99 @@ export function TranslationInterface() {
       });
     }
   };
+
+  const stopRecording = () => {
+    if (isRecording) {
+      mediaRecorderRef.current?.stop();
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+      setIsRecording(false);
+
+      if (recordingTimeout) clearTimeout(recordingTimeout);
+    }
+  };
+
+  const handleMouseDown = () => {
+    // Start a timeout to trigger recording after a short delay
+    const timeoutId = setTimeout(() => {
+      startRecording();
+    }, 300); // Adjust the delay as needed (300ms in this case)
+    setRecordingTimeoutId(timeoutId);
+    setIsRecording(true); // Ensure the recording state is set
+  };
+
+  const handleMouseUp = () => {
+    // Clear the timeout to prevent recording if released early
+    if (recordingTimeoutId) {
+      clearTimeout(recordingTimeoutId);
+      setRecordingTimeoutId(null);
+    }
+
+    // Stop recording if currently recording
+    stopRecording();
+    setIsRecording(false); // Ensure the recording state is reset
+  };
+
+  // const stopRecording = () => {
+  //   if (isRecording) {
+  //     mediaRecorderRef.current?.stop();
+  //     streamRef.current?.getTracks().forEach((track) => track.stop());
+  //     setIsRecording(false);
+
+  //     if (recordingTimeout) clearTimeout(recordingTimeout);
+  //   }
+  // };
+
+  // const startRecording = async () => {
+  //   try {
+  //     const stream = await navigator.mediaDevices.getUserMedia({
+  //       audio: {
+  //         sampleRate: 44100,
+  //         sampleSize: 16,
+  //         noiseSuppression: true,
+  //         echoCancellation: true,
+  //       },
+  //     });
+  //     streamRef.current = stream;
+  //     const mediaRecorder = new MediaRecorder(stream);
+
+  //     mediaRecorderRef.current = mediaRecorder;
+  //     audioChunksRef.current = [];
+
+  //     mediaRecorder.ondataavailable = (event) => {
+  //       if (event.data.size > 0) {
+  //         audioChunksRef.current.push(event.data);
+  //       }
+  //     };
+
+  //     mediaRecorder.onstop = async () => {
+  //       const audioBlob = new Blob(audioChunksRef.current, {
+  //         type: "audio/wav",
+  //       });
+  //       await handleSpeechToText(audioBlob);
+  //     };
+
+  //     mediaRecorder.start();
+  //     setIsRecording(true);
+  //   } catch (error) {
+  //     console.error("Error accessing microphone:", error);
+  //     toast({
+  //       title: "Error",
+  //       description: "Could not access microphone",
+  //       variant: "destructive",
+  //     });
+  //   }
+  // };
+
+  // const stopRecording = () => {
+  //   if (
+  //     mediaRecorderRef.current &&
+  //     mediaRecorderRef.current.state !== "inactive"
+  //   ) {
+  //     mediaRecorderRef.current.stop();
+  //     streamRef.current?.getTracks().forEach((track) => track.stop());
+  //     setIsRecording(false);
+  //   }
+  // };
 
   const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (event.detail === 2) {
@@ -522,7 +755,8 @@ export function TranslationInterface() {
               disabled={isLoading}
             />
 
-            <Button
+            {/* Recording button */}
+            {/* <Button
               variant="outline"
               size="icon"
               onClick={toggleRecording}
@@ -530,6 +764,25 @@ export function TranslationInterface() {
                 "shrink-0 transition-colors duration-200",
                 isRecording &&
                   "bg-red-500 text-white border-red-500 hover:bg-red-600 hover:text-white"
+              )}
+              disabled={isLoading}
+            >
+              <Mic className={cn("h-4 w-4", isRecording && "animate-pulse")} />
+            </Button> */}
+
+            {/* Recording button */}
+            <Button
+              variant="outline"
+              size="icon"
+              // onMouseDown={startRecording} // Start recording on button press
+              // onMouseUp={stopRecording} // Stop recording on button release
+              onMouseDown={handleMouseDown} // Start recording on button press
+              onMouseUp={handleMouseUp} // Stop recording on button release
+              className={cn(
+                "shrink-0 transition-transform duration-200 transform",
+                isRecording
+                  ? "scale-110 !bg-red-500 !text-white border-red-500" // Ensure this class is applied when isRecording is true
+                  : "hover:scale-105 bg-transparent border-gray-400" // Fallback for the inactive state
               )}
               disabled={isLoading}
             >
