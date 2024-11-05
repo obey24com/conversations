@@ -778,6 +778,8 @@ export function TranslationInterface() {
               // onMouseUp={stopRecording} // Stop recording on button release
               onMouseDown={handleMouseDown} // Start recording on button press
               onMouseUp={handleMouseUp} // Stop recording on button release
+              onTouchStart={handleMouseDown} // Mobile: Start recording on touch press
+              onTouchEnd={handleMouseUp} // Mobile: Stop recording on touch release
               className={cn(
                 "shrink-0 transition-transform duration-200 transform",
                 isRecording
