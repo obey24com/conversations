@@ -109,10 +109,30 @@ export function TranslationInterface() {
   };
 
   const handleSwapLanguages = () => {
-    // Swap languages
+    localStorage.setItem(
+      "translation-interface-language",
+      JSON.stringify({ fromLang: toLang, toLang: fromLang })
+    );
     setFromLang(toLang);
     setToLang(fromLang);
   };
+
+  useEffect(() => {
+    const savedLanguages = localStorage.getItem(
+      "translation-interface-language"
+    );
+    if (savedLanguages) {
+      try {
+        const parsedLanguages = JSON.parse(savedLanguages);
+        if (parsedLanguages.fromLang && parsedLanguages.toLang) {
+          setFromLang(parsedLanguages.fromLang);
+          setToLang(parsedLanguages.toLang);
+        }
+      } catch (error) {
+        console.error("Error parsing stored language data:", error);
+      }
+    }
+  }, []);
 
   const toggleSwapActive = () => {
     setIsSwapActive((prev) => !prev); // Toggle the swap state
@@ -671,7 +691,16 @@ export function TranslationInterface() {
         <div className="max-w-5xl mx-auto w-full space-y-3">
           {/* ===== Language Switcher Start ===== */}
           <div className="flex gap-2 justify-between w-full">
-            <Select value={fromLang} onValueChange={setFromLang}>
+            <Select
+              value={fromLang}
+              onValueChange={(newLang) => {
+                setFromLang(newLang);
+                localStorage.setItem(
+                  "translation-interface-language",
+                  JSON.stringify({ fromLang: newLang, toLang: toLang })
+                );
+              }}
+            >
               <SelectTrigger className="w-[120px] sm:w-full">
                 <SelectValue />
               </SelectTrigger>
@@ -721,7 +750,16 @@ export function TranslationInterface() {
               </Button>
             </div>
 
-            <Select value={toLang} onValueChange={setToLang}>
+            <Select
+              value={toLang}
+              onValueChange={(newLang) => {
+                setToLang(newLang);
+                localStorage.setItem(
+                  "translation-interface-language",
+                  JSON.stringify({ fromLang: fromLang, toLang: newLang })
+                );
+              }}
+            >
               <SelectTrigger className="w-[120px] sm:w-full">
                 <SelectValue />
               </SelectTrigger>
@@ -784,7 +822,7 @@ export function TranslationInterface() {
                 "shrink-0 transition-transform duration-200 transform",
                 isRecording
                   ? "scale-110 !bg-red-500 !text-white border-red-500" // Ensure this class is applied when isRecording is true
-                  : "hover:scale-105 bg-transparent border-gray-400" // Fallback for the inactive state
+                  : "hover:scale-105 bg-transparent " // Fallback for the inactive state
               )}
               disabled={isLoading}
             >
