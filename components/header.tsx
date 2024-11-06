@@ -51,9 +51,26 @@ export default function Header() {
         <div className="fixed inset-0 z-50 bg-black bg-opacity-70 flex justify-center items-center transition-opacity duration-300 ease-in-out">
           <div
             ref={menuRef}
-            className="bg-white rounded-lg shadow-lg p-6 w-11/12 md:w-1/3 max-w-md transform transition-transform duration-300 ease-in-out"
+            className="bg-white rounded-lg shadow-lg p-6 w-11/12 md:w-[600px] max-w-[600px] transform transition-transform duration-300 ease-in-out mx-4"
           >
-            <h2 className="text-xl font-semibold text-center mb-4">Menu</h2>
+            <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50 text-center">
+              <h3 className="text-lg font-semibold mb-4 text-gray-800">Quick Tips</h3>
+              <div className="space-y-4">
+                <div className="flex flex-col items-center">
+                  <span className="text-sm text-gray-600">
+                    <span className="font-medium block mb-1">Voice Input</span>
+                    Tap microphone → Speak → Tap again
+                  </span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-sm text-gray-600">
+                    <span className="font-medium block mb-1">Auto Switch</span>
+                    Double-click switch icon to toggle
+                  </span>
+                </div>
+              </div>
+            </div>
+
             <div className="flex flex-col space-y-2">
               <a
                 href="/"
