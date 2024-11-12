@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { Menu } from "lucide-react";
 import Image from 'next/image';
 import Script from 'next/script';
+import Link from "next/link";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -31,8 +32,8 @@ export default function Header() {
         crossOrigin="anonymous"
         strategy="afterInteractive"
       />
-      
-      <div className="sticky top-0 flex items-center justify-between bg-white/30 border-b border-white/10 z-50 p-2 max-w-5xl mx-auto w-full">
+
+      <div className="sticky top-0 flex items-center justify-between border-b border-white/10 z-50 p-2 max-w-5xl mx-auto w-full">
         <div className="text-left flex-1 md:flex hidden">
           <span className="text-[10px] text-muted-foreground/70">
             Speak Naturally. Connect Globally.
@@ -87,6 +88,13 @@ export default function Header() {
                 >
                   Home
                 </a>
+                <Link
+                href="/news"
+                className="py-2 text-center text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                onClick={() => setMenuOpen(false)}
+              >
+                News
+              </Link>
                 <a
                   href="https://obey24.com/agbs/"
                   className="py-2 text-center text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"

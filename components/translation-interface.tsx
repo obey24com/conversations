@@ -346,7 +346,6 @@ export function TranslationInterface() {
 
   return (
     <div className="flex flex-col h-screen bg-[#fafafa]">
-      <Header />
 
       <div
         className="relative flex-1 overflow-hidden"
