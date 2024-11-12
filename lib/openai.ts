@@ -17,18 +17,22 @@ export async function translateText(
 ) {
   try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [
-        {
-          role: 'system',
-          content: `Translate the following text from ${fromLang} to ${toLang}. Format your response as follows:
-          
+  model: 'gpt-4o',
+  messages: [
+    {
+      role: 'system',
+      content: `Translate the following text from ${fromLang} to ${toLang}. Ensure that the translation conveys the intended meaning clearly in ${toLang}, so that it is understandable to the reader. If there are connections or references to previous translations, please incorporate them appropriately to maintain coherence.
+
+Format your response as follows:
+
 TRANSLATION: [Your translation here]
 
-CONTEXT: [Any cultural context, idioms, or additional notes - if applicable] Write the context in ${toLang} language.
+CONTEXT: [Any cultural context, idioms, or additional notes - if applicable]. Write the context in ${toLang}.
 
-Only include the CONTEXT section if there are important cultural nuances to explain.Translate the content as accurately as possible, but primarily in a way that conveys the intended meaning. Due to cultural and linguistic differences, it may be necessary to phrase, word, or structure sentences differently while maintaining the same message. I want you to function as a professional translator.`,
-        },
+Only include the CONTEXT section if there are important cultural nuances to explain.
+
+As a professional translator, focus on delivering a meaningful and contextually appropriate translation.`,
+    },
         {
           role: 'user',
           content: text,
