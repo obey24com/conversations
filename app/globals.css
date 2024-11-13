@@ -75,3 +75,23 @@
     transform: translateY(0);
   }
 }
+
+.animated-dots {
+  background-color: #fafafa;
+  background-image: radial-gradient(circle at 1px 1px, #e0e0e0 1px, transparent 0);
+  background-size: 30px 30px;
+  animation: zoomBackground 30s linear infinite;
+  position: relative;
+}
+
+@keyframes zoomBackground {
+  0% {
+    background-size: 30px 30px;
+  }
+  50% {
+    background-size: 32px 32px;
+  }
+  100% {
+    background-size: 30px 30px;
+  }
+}
