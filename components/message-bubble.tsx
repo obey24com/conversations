@@ -14,11 +14,10 @@ interface MessageBubbleProps {
 
 export function MessageBubble({ text, translation, cultural, isPlaying, onPlay }: MessageBubbleProps) {
   return (
-    <div className="w-full flex justify-center mb-4 opacity-0 animate-[fadeIn_0.5s_ease-out_forwards]">
+    <div className="w-full flex justify-center mb-4 message-bubble">
       <div className={cn(
-        "p-4 rounded-lg w-[85%] max-w-2xl",
-        "bg-primary/90 text-primary-foreground",
-        "transform translate-y-4 animate-[slideUp_0.5s_ease-out_forwards]"
+        "p-4 rounded-lg w-[85%] max-w-2xl message-bubble-content",
+        "bg-primary/90 text-primary-foreground"
       )}>
         <p className="text-sm opacity-70">{text}</p>
         <div className="mt-2 flex items-start gap-2">
