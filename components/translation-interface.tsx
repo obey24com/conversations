@@ -58,7 +58,6 @@ export function TranslationInterface() {
   const [isSwapActiveFirst, setIsSwapActiveFirst] = useState(true);
   const [swapMessage, setSwapMessage] = useState("");
 
-  const scrollRef = useRef<HTMLDivElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -330,14 +329,16 @@ export function TranslationInterface() {
       });
   };
 
+  const messagesEndRef = useRef<null | HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({
-        top: scrollRef.current.scrollHeight,
-        behavior: "smooth",
-      });
-    }
+    scrollToBottom();
   }, [messages]);
+
   return (
     <div className="flex grow flex-col">
       <div className="relative flex-1 overflow-hidden">
@@ -351,16 +352,14 @@ export function TranslationInterface() {
           </div>
         )}
 
-        <div
-          ref={scrollRef}
-          className="mx-auto mb-4 h-full w-full max-w-5xl space-y-4 overflow-y-auto px-4"
-        >
-          {messages.map((message, index) => (
+        <div className="mx-auto mb-4 flex h-full w-full max-w-5xl flex-col-reverse space-y-4 overflow-y-auto px-4">
+          <div ref={messagesEndRef} />
+          {[...messages].reverse().map((message, index) => (
             <div
               key={index}
               className={cn(
                 "mx-auto max-w-[85%] rounded-lg p-4",
-                "border border-[#F9F9F9] bg-white text-slate-900",
+                "w-full border border-[#F9F9F9] bg-white text-slate-900",
                 index === 0 ? "mt-4" : "",
                 "animate-in fade-in duration-700",
               )}
