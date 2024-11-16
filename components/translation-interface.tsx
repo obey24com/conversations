@@ -338,17 +338,9 @@ export function TranslationInterface() {
       });
     }
   }, [messages]);
-
   return (
-    <div className="flex h-screen flex-col bg-[#fafafa]">
-      <div
-        className="relative flex-1 overflow-hidden"
-        style={{
-          background: "linear-gradient(to top, #efefef, #ffffff)",
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
-        }}
-      >
+    <div className="flex grow flex-col">
+      <div className="relative flex-1 overflow-hidden">
         {isLoading && (
           <div className="bg-background/80 absolute inset-0 z-10 flex items-center justify-center backdrop-blur-sm">
             <div className="flex items-center space-x-2">
