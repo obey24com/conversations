@@ -3,20 +3,13 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Mic, Send, ArrowLeftRight, Volume2, Copy } from "lucide-react";
+
+import { Mic, Send, ArrowLeftRight, Volume2, Copy, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { supportedLanguages } from "@/lib/languages";
-import { ScrollArea } from "./ui/scroll-area";
-import Header from "./header";
 import { useZoomControl } from "@/hooks/use-zoom-control";
+import { LanguageSelect } from "./language-select";
 
 interface Message {
   text: string;
@@ -71,16 +64,6 @@ export function TranslationInterface() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const { toast } = useToast();
-
-  const handleFromLangChange = (lang: string) => {
-    setFromLang(lang);
-    localStorage.setItem(STORAGE_KEYS.FROM_LANG, lang);
-  };
-
-  const handleToLangChange = (lang: string) => {
-    setToLang(lang);
-    localStorage.setItem(STORAGE_KEYS.TO_LANG, lang);
-  };
 
   const handleSend = async () => {
     if (!inputText.trim()) return;
@@ -438,25 +421,13 @@ export function TranslationInterface() {
       <div className="bg-background sticky bottom-0 space-y-3 px-4 py-3 shadow-[0_-1px_3px_rgba(0,0,0,0.1)]">
         <div className="mx-auto w-full max-w-5xl space-y-3">
           <div className="flex w-full justify-between gap-2">
-            <Select value={fromLang} onValueChange={handleFromLangChange}>
-              <SelectTrigger className="w-[120px] sm:w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <ScrollArea className="h-[85vh] max-h-[75vh] max-w-[90vw] md:max-h-[80vh] md:w-full">
-                  <div className="w-full p-4">
-                    <div className="bg-red grid w-[80%] grid-cols-2 gap-2 sm:grid-cols-3 md:w-full md:grid-cols-4 lg:grid-cols-5">
-                      {supportedLanguages.map((lang) => (
-                        <SelectItem key={lang.code} value={lang.code}>
-                          {lang.name}
-                        </SelectItem>
-                      ))}
-                    </div>
-                  </div>
-                </ScrollArea>
-              </SelectContent>
-            </Select>
-
+            <LanguageSelect
+              value={fromLang}
+              setValue={setFromLang}
+              onValueChange={(value) =>
+                localStorage.setItem(STORAGE_KEYS.FROM_LANG, value)
+              }
+            />
             <div className="relative">
               <Button
                 variant="outline"
@@ -478,25 +449,13 @@ export function TranslationInterface() {
                 )}
               </Button>
             </div>
-
-            <Select value={toLang} onValueChange={handleToLangChange}>
-              <SelectTrigger className="w-[120px] sm:w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <ScrollArea className="h-[85vh] max-h-[75vh] max-w-[90vw] md:max-h-[80vh] md:w-full">
-                  <div className="w-full p-4">
-                    <div className="bg-red grid w-[80%] grid-cols-2 gap-2 sm:grid-cols-3 md:w-full md:grid-cols-4 lg:grid-cols-5">
-                      {supportedLanguages.map((lang) => (
-                        <SelectItem key={lang.code} value={lang.code}>
-                          {lang.name}
-                        </SelectItem>
-                      ))}
-                    </div>
-                  </div>
-                </ScrollArea>
-              </SelectContent>
-            </Select>
+            <LanguageSelect
+              value={toLang}
+              setValue={setToLang}
+              onValueChange={(value) =>
+                localStorage.setItem(STORAGE_KEYS.TO_LANG, value)
+              }
+            />
           </div>
 
           <div className="flex w-full gap-2">
