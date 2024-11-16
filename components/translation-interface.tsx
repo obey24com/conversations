@@ -396,7 +396,7 @@ export function TranslationInterface() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="shrink-0 text-[#AAAAAA] hover:bg-[#AAAAAA] hover:text-black"
+                    className="shrink-0 text-[#AAAAAA] hover:text-black"
                     onClick={() => {
                       if (isPlaying === index) {
                         audioRef.current?.pause();
@@ -415,7 +415,7 @@ export function TranslationInterface() {
                   </Button>
                   <Button
                     onClick={() => copyToClipboard(message.translation)}
-                    className="shrink-0 text-[#AAAAAA] hover:bg-[#AAAAAA] hover:text-black"
+                    className="shrink-0 text-[#AAAAAA] hover:text-black"
                     aria-label="Copy translation"
                     variant="ghost"
                     size="icon"
