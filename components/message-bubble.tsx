@@ -1,8 +1,9 @@
 "use client";
 
 import { Button } from '@/components/ui/button';
-import { Volume2 } from 'lucide-react';
+import { Volume2, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/components/ui/use-toast';
 
 interface MessageBubbleProps {
   text: string;
@@ -13,32 +14,65 @@ interface MessageBubbleProps {
 }
 
 export function MessageBubble({ text, translation, cultural, isPlaying, onPlay }: MessageBubbleProps) {
+  const { toast } = useToast();
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast({
+        title: "Copied!",
+        description: "Text copied to clipboard",
+      });
+    });
+  };
+
   return (
-    <div className="w-full flex justify-center mb-4 message-bubble">
+    <div className="w-full flex justify-center mb-4 opacity-0 animate-[fadeIn_0.5s_ease-out_forwards]">
       <div className={cn(
-        "p-4 rounded-lg w-[85%] max-w-2xl message-bubble-content",
-        "bg-primary/90 text-primary-foreground"
+        "p-6 rounded-2xl w-[85%] max-w-2xl shadow-lg",
+        "bg-white border border-gray-100",
+        "transform translate-y-4 animate-[slideUp_0.5s_ease-out_forwards]",
+        "hover:shadow-xl transition-shadow duration-300"
       )}>
-        <p className="text-sm opacity-70">{text}</p>
-        <div className="mt-2 flex items-start gap-2">
-          <p className="font-medium flex-1">{translation}</p>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="shrink-0 text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10"
-            onClick={onPlay}
-          >
-            <Volume2 className={cn(
-              "h-4 w-4",
-              isPlaying && "animate-pulse"
-            )} />
-          </Button>
+        <p className="text-sm text-gray-500 mb-3">{text}</p>
+        <div className="mt-2 space-y-3">
+          <p className="text-lg font-medium text-gray-900">{translation}</p>
+          
+          <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "hover:bg-gray-100 transition-colors duration-200",
+                isPlaying && "text-blue-600"
+              )}
+              onClick={onPlay}
+            >
+              <Volume2 className={cn(
+                "h-4 w-4 mr-2",
+                isPlaying && "animate-[pulse_1.5s_ease-in-out_infinite]"
+              )} />
+              {isPlaying ? "Playing..." : "Listen"}
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="hover:bg-gray-100 transition-colors duration-200"
+              onClick={() => copyToClipboard(translation)}
+            >
+              <Copy className="h-4 w-4 mr-2" />
+              Copy
+            </Button>
+          </div>
+
+          {cultural && (
+            <div className="mt-3 pt-3 border-t border-gray-100">
+              <p className="text-sm text-gray-600 italic">
+                {cultural}
+              </p>
+            </div>
+          )}
         </div>
-        {cultural && (
-          <p className="mt-2 text-sm opacity-70 border-t border-primary-foreground/20 pt-2">
-            {cultural}
-          </p>
-        )}
       </div>
     </div>
   );

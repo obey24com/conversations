@@ -368,7 +368,7 @@ export function TranslationInterface() {
               key={index}
               className={cn(
                 "mx-auto max-w-[85%] rounded-lg p-4 transition-opacity duration-500",
-                "border border-[#AAAAAA] bg-white text-slate-900",
+                "border border-[#F9F9F9] bg-white text-slate-900",
                 index === 0 ? "mt-4" : "",
                 "animate-fade-in opacity-0 opacity-100",
               )}
@@ -380,7 +380,7 @@ export function TranslationInterface() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="shrink-0 text-[#AAAAAA] hover:bg-[#AAAAAA] hover:text-black"
+                    className="shrink-0 text-[#AAAAAA] hover:text-black"
                     onClick={() => {
                       if (isPlaying === index) {
                         audioRef.current?.pause();
@@ -399,7 +399,7 @@ export function TranslationInterface() {
                   </Button>
                   <Button
                     onClick={() => copyToClipboard(message.translation)}
-                    className="shrink-0 text-[#AAAAAA] hover:bg-[#AAAAAA] hover:text-black"
+                    className="shrink-0 text-[#AAAAAA] hover:text-black"
                     aria-label="Copy translation"
                     variant="ghost"
                     size="icon"
