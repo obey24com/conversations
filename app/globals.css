@@ -61,18 +61,22 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @keyframes slideUp {
   from {
     transform: translateY(20px);
+    opacity: 0;
   }
   to {
     transform: translateY(0);
+    opacity: 1;
   }
 }
 
@@ -94,4 +98,14 @@
   100% {
     background-size: 30px 30px;
   }
+}
+
+.message-bubble {
+  animation: fadeIn 0.5s ease-out forwards;
+  will-change: transform, opacity;
+}
+
+.message-bubble-content {
+  animation: slideUp 0.5s ease-out forwards;
+  will-change: transform, opacity;
 }
