@@ -27,28 +27,34 @@ interface Message {
 }
 
 const STORAGE_KEYS = {
-  FROM_LANG: 'ulocat-from-lang',
-  TO_LANG: 'ulocat-to-lang',
-  AUTO_SWITCH: 'ulocat-auto-switch'
+  FROM_LANG: "ulocat-from-lang",
+  TO_LANG: "ulocat-to-lang",
+  AUTO_SWITCH: "ulocat-auto-switch",
 } as const;
 
 function getStoredLanguage(key: string, fallback: string): string {
-  if (typeof window === 'undefined') return fallback;
+  if (typeof window === "undefined") return fallback;
   const stored = localStorage.getItem(key);
   if (!stored) return fallback;
-  return supportedLanguages.some(lang => lang.code === stored) ? stored : fallback;
+  return supportedLanguages.some((lang) => lang.code === stored)
+    ? stored
+    : fallback;
 }
 
 function getStoredAutoSwitch(): boolean {
-  if (typeof window === 'undefined') return false;
-  return localStorage.getItem(STORAGE_KEYS.AUTO_SWITCH) === 'true';
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem(STORAGE_KEYS.AUTO_SWITCH) === "true";
 }
 
 export function TranslationInterface() {
   useZoomControl();
 
-  const [fromLang, setFromLang] = useState(() => getStoredLanguage(STORAGE_KEYS.FROM_LANG, "en"));
-  const [toLang, setToLang] = useState(() => getStoredLanguage(STORAGE_KEYS.TO_LANG, "es"));
+  const [fromLang, setFromLang] = useState(() =>
+    getStoredLanguage(STORAGE_KEYS.FROM_LANG, "en"),
+  );
+  const [toLang, setToLang] = useState(() =>
+    getStoredLanguage(STORAGE_KEYS.TO_LANG, "es"),
+  );
   const [inputText, setInputText] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isRecording, setIsRecording] = useState(false);
@@ -94,14 +100,17 @@ export function TranslationInterface() {
       const data = await response.json();
 
       if (data.translation) {
-        const [translation, ...culturalNotes] = data.translation.split("\nCONTEXT:");
+        const [translation, ...culturalNotes] =
+          data.translation.split("\nCONTEXT:");
 
         setMessages((prev) => [
           ...prev,
           {
             text: inputText,
             translation: translation.replace("TRANSLATION:", "").trim(),
-            cultural: culturalNotes.length ? culturalNotes.join("\n").trim() : undefined,
+            cultural: culturalNotes.length
+              ? culturalNotes.join("\n").trim()
+              : undefined,
             fromLang,
             toLang,
           },
@@ -133,7 +142,7 @@ export function TranslationInterface() {
   };
 
   const toggleSwapActive = () => {
-    setIsSwapActive(prev => {
+    setIsSwapActive((prev) => {
       const newValue = !prev;
       localStorage.setItem(STORAGE_KEYS.AUTO_SWITCH, String(newValue));
       return newValue;
@@ -224,14 +233,17 @@ export function TranslationInterface() {
         const translationData = await translationResponse.json();
 
         if (translationData.translation) {
-          const [translation, ...culturalNotes] = translationData.translation.split("\nCONTEXT:");
+          const [translation, ...culturalNotes] =
+            translationData.translation.split("\nCONTEXT:");
 
           setMessages((prev) => [
             ...prev,
             {
               text: data.text,
               translation: translation.replace("TRANSLATION:", "").trim(),
-              cultural: culturalNotes.length ? culturalNotes.join("\n").trim() : undefined,
+              cultural: culturalNotes.length
+                ? culturalNotes.join("\n").trim()
+                : undefined,
               fromLang,
               toLang,
             },
@@ -278,12 +290,12 @@ export function TranslationInterface() {
 
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, {
-          type: "audio/wav",
+          type: "audio/mp3",
         });
         handleSpeechToText(audioBlob);
       };
 
-      mediaRecorder.start();
+      mediaRecorder.start(1000);
       setIsRecording(true);
     } catch (error) {
       console.error("Error accessing microphone:", error);
@@ -345,8 +357,7 @@ export function TranslationInterface() {
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-screen bg-[#fafafa]">
-
+    <div className="flex h-screen flex-col bg-[#fafafa]">
       <div
         className="relative flex-1 overflow-hidden"
         style={{
@@ -356,37 +367,37 @@ export function TranslationInterface() {
         }}
       >
         {isLoading && (
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex items-center justify-center">
+          <div className="bg-background/80 absolute inset-0 z-10 flex items-center justify-center backdrop-blur-sm">
             <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-primary rounded-full animate-bounce" />
-              <div className="w-3 h-3 bg-primary rounded-full animate-bounce [animation-delay:0.2s]" />
-              <div className="w-3 h-3 bg-primary rounded-full animate-bounce [animation-delay:0.4s]" />
+              <div className="bg-primary h-3 w-3 animate-bounce rounded-full" />
+              <div className="bg-primary h-3 w-3 animate-bounce rounded-full [animation-delay:0.2s]" />
+              <div className="bg-primary h-3 w-3 animate-bounce rounded-full [animation-delay:0.4s]" />
             </div>
           </div>
         )}
 
         <div
           ref={scrollRef}
-          className="max-w-5xl mx-auto w-full h-full overflow-y-auto space-y-4 px-4 mb-4"
+          className="mx-auto mb-4 h-full w-full max-w-5xl space-y-4 overflow-y-auto px-4"
         >
           {messages.map((message, index) => (
             <div
               key={index}
               className={cn(
-                "p-4 rounded-lg max-w-[85%] mx-auto transition-opacity duration-500",
-                "bg-white text-slate-900 border border-[#AAAAAA]",
+                "mx-auto max-w-[85%] rounded-lg p-4 transition-opacity duration-500",
+                "border border-[#AAAAAA] bg-white text-slate-900",
                 index === 0 ? "mt-4" : "",
-                "opacity-0 animate-fade-in opacity-100"
+                "animate-fade-in opacity-0 opacity-100",
               )}
             >
               <p className="text-sm opacity-70">{message.text}</p>
-              <div className="mt-2 flex flex-col items-start gap-2 relative">
-                <p className="font-medium flex-1">{message.translation}</p>
-                <div className="flex justify-end w-full border-y border-[#AAAAAA]">
+              <div className="relative mt-2 flex flex-col items-start gap-2">
+                <p className="flex-1 font-medium">{message.translation}</p>
+                <div className="flex w-full justify-end border-y border-[#AAAAAA]">
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="shrink-0 text-[#AAAAAA] hover:text-black hover:bg-[#AAAAAA]"
+                    className="shrink-0 text-[#AAAAAA] hover:bg-[#AAAAAA] hover:text-black"
                     onClick={() => {
                       if (isPlaying === index) {
                         audioRef.current?.pause();
@@ -399,13 +410,13 @@ export function TranslationInterface() {
                     <Volume2
                       className={cn(
                         "h-4 w-4",
-                        isPlaying === index && "animate-pulse"
+                        isPlaying === index && "animate-pulse",
                       )}
                     />
                   </Button>
                   <Button
                     onClick={() => copyToClipboard(message.translation)}
-                    className="shrink-0 text-[#AAAAAA] hover:text-black hover:bg-[#AAAAAA]"
+                    className="shrink-0 text-[#AAAAAA] hover:bg-[#AAAAAA] hover:text-black"
                     aria-label="Copy translation"
                     variant="ghost"
                     size="icon"
@@ -415,7 +426,7 @@ export function TranslationInterface() {
                 </div>
               </div>
               {message.cultural && (
-                <p className="mt-2 text-sm opacity-70 border-t border-primary-foreground/20 pt-2">
+                <p className="border-primary-foreground/20 mt-2 border-t pt-2 text-sm opacity-70">
                   {message.cultural}
                 </p>
               )}
@@ -424,17 +435,17 @@ export function TranslationInterface() {
         </div>
       </div>
 
-      <div className="sticky bottom-0 bg-background shadow-[0_-1px_3px_rgba(0,0,0,0.1)] px-4 py-3 space-y-3">
-        <div className="max-w-5xl mx-auto w-full space-y-3">
-          <div className="flex gap-2 justify-between w-full">
+      <div className="bg-background sticky bottom-0 space-y-3 px-4 py-3 shadow-[0_-1px_3px_rgba(0,0,0,0.1)]">
+        <div className="mx-auto w-full max-w-5xl space-y-3">
+          <div className="flex w-full justify-between gap-2">
             <Select value={fromLang} onValueChange={handleFromLangChange}>
               <SelectTrigger className="w-[120px] sm:w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <ScrollArea className="h-[85vh] max-h-[75vh] md:max-h-[80vh] md:w-full max-w-[90vw]">
-                  <div className="p-4 w-full">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 bg-red md:w-full w-[80%]">
+                <ScrollArea className="h-[85vh] max-h-[75vh] max-w-[90vw] md:max-h-[80vh] md:w-full">
+                  <div className="w-full p-4">
+                    <div className="bg-red grid w-[80%] grid-cols-2 gap-2 sm:grid-cols-3 md:w-full md:grid-cols-4 lg:grid-cols-5">
                       {supportedLanguages.map((lang) => (
                         <SelectItem key={lang.code} value={lang.code}>
                           {lang.name}
@@ -450,18 +461,18 @@ export function TranslationInterface() {
               <Button
                 variant="outline"
                 className={cn(
-                  "flex items-center justify-center mx-2 relative",
+                  "relative mx-2 flex items-center justify-center",
                   isSwapActiveFirst
                     ? "bg-transparent"
                     : isSwapActive
-                    ? "bg-green-600 text-white"
-                    : "bg-red-600 text-white"
+                      ? "bg-green-600 text-white"
+                      : "bg-red-600 text-white",
                 )}
                 onClick={handleButtonClick}
               >
                 <ArrowLeftRight />
                 {swapMessage && (
-                  <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-2 px-3 w-[135px]">
+                  <div className="absolute -top-10 left-1/2 w-[135px] -translate-x-1/2 transform rounded bg-black px-3 py-2 text-xs text-white">
                     {swapMessage}
                   </div>
                 )}
@@ -473,9 +484,9 @@ export function TranslationInterface() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <ScrollArea className="h-[85vh] max-h-[75vh] md:max-h-[80vh] md:w-full max-w-[90vw]">
-                  <div className="p-4 w-full">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 bg-red md:w-full w-[80%]">
+                <ScrollArea className="h-[85vh] max-h-[75vh] max-w-[90vw] md:max-h-[80vh] md:w-full">
+                  <div className="w-full p-4">
+                    <div className="bg-red grid w-[80%] grid-cols-2 gap-2 sm:grid-cols-3 md:w-full md:grid-cols-4 lg:grid-cols-5">
                       {supportedLanguages.map((lang) => (
                         <SelectItem key={lang.code} value={lang.code}>
                           {lang.name}
@@ -488,12 +499,14 @@ export function TranslationInterface() {
             </Select>
           </div>
 
-          <div className="flex gap-2 w-full">
+          <div className="flex w-full gap-2">
             <Input
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Type your message..."
-              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+              onKeyDown={(e) =>
+                e.key === "Enter" && !e.shiftKey && handleSend()
+              }
               className="flex-1 text-lg"
               style={{ fontSize: "16px" }}
               disabled={isLoading}
@@ -506,7 +519,7 @@ export function TranslationInterface() {
               className={cn(
                 "shrink-0 transition-colors duration-200",
                 isRecording &&
-                  "bg-red-500 text-white border-red-500 hover:bg-red-600 hover:text-white"
+                  "border-red-500 bg-red-500 text-white hover:bg-red-600 hover:text-white",
               )}
               disabled={isLoading}
             >
@@ -518,7 +531,7 @@ export function TranslationInterface() {
               disabled={!inputText.trim() || isLoading}
               className={cn(
                 "shrink-0 transition-all duration-200",
-                isLoading && "opacity-70"
+                isLoading && "opacity-70",
               )}
             >
               <Send className="h-4 w-4" />
