@@ -1,33 +1,43 @@
-import './globals.css';
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import "./globals.css";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/toaster";
-import Script from 'next/script';
-import { CookieBanner } from '@/components/cookie-banner';
-import Header from '@/components/header';
+import Script from "next/script";
+import { CookieBanner } from "@/components/cookie-banner";
+import Header from "@/components/header";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://ulocat.com'),
+  metadataBase: new URL("https://ulocat.com"),
   title: {
-    default: 'ULOCAT – AI-Powered Natural Language Translation',
-    template: '%s | ULOCAT'
+    default: "ULOCAT – AI-Powered Natural Language Translation",
+    template: "%s | ULOCAT",
   },
-  description: 'Experience seamless, natural language translation powered by advanced AI. ULOCAT helps you communicate effortlessly across languages with high accuracy and cultural context.',
-  keywords: ['language translation', 'AI translation', 'natural language processing', 'real-time translation', 'voice translation', 'cultural context translation'],
+  description:
+    "Experience seamless, natural language translation powered by advanced AI. ULOCAT helps you communicate effortlessly across languages with high accuracy and cultural context.",
+  keywords: [
+    "language translation",
+    "AI translation",
+    "natural language processing",
+    "real-time translation",
+    "voice translation",
+    "cultural context translation",
+  ],
   openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://ulocat.com',
-    title: 'ULOCAT – AI-Powered Natural Language Translation',
-    description: 'Experience seamless, natural language translation powered by advanced AI. Break language barriers with accurate, context-aware translations.',
-    siteName: 'ULOCAT'
+    type: "website",
+    locale: "en_US",
+    url: "https://ulocat.com",
+    title: "ULOCAT – AI-Powered Natural Language Translation",
+    description:
+      "Experience seamless, natural language translation powered by advanced AI. Break language barriers with accurate, context-aware translations.",
+    siteName: "ULOCAT",
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'ULOCAT – AI-Powered Natural Language Translation',
-    description: 'Experience seamless, natural language translation powered by advanced AI. Break language barriers with accurate, context-aware translations.'
+    card: "summary_large_image",
+    title: "ULOCAT – AI-Powered Natural Language Translation",
+    description:
+      "Experience seamless, natural language translation powered by advanced AI. Break language barriers with accurate, context-aware translations.",
   },
   robots: {
     index: true,
@@ -35,9 +45,9 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
 };
@@ -82,10 +92,10 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <CookieBanner />
-        <div className='bg-zinc-50 sticky top-0 z-50'>
-        <Header />
+        <div className="fixed inset-x-0 top-0 z-50 bg-zinc-50">
+          <Header />
         </div>
-        {children}
+        <div className="pt-[65px]">{children}</div>
         <Toaster />
       </body>
     </html>
