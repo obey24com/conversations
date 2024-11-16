@@ -367,10 +367,10 @@ export function TranslationInterface() {
             <div
               key={index}
               className={cn(
-                "mx-auto max-w-[85%] rounded-lg p-4 transition-opacity duration-500",
+                "mx-auto max-w-[85%] rounded-lg p-4",
                 "border border-[#F9F9F9] bg-white text-slate-900",
                 index === 0 ? "mt-4" : "",
-                "animate-fade-in opacity-0 opacity-100",
+                "animate-in fade-in duration-700",
               )}
             >
               <p className="text-sm opacity-70">{message.text}</p>

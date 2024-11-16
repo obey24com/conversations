@@ -3,19 +3,26 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Menu } from "lucide-react";
-import Image from 'next/image';
-import Script from 'next/script';
+import Image from "next/image";
+import Script from "next/script";
 import Link from "next/link";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
-  const handleClickOutside = useCallback((event: MouseEvent) => {
-    if (menuOpen && menuRef.current && !menuRef.current.contains(event.target as Node)) {
-      setMenuOpen(false);
-    }
-  }, [menuOpen]);
+  const handleClickOutside = useCallback(
+    (event: MouseEvent) => {
+      if (
+        menuOpen &&
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node)
+      ) {
+        setMenuOpen(false);
+      }
+    },
+    [menuOpen],
+  );
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
@@ -33,22 +40,24 @@ export default function Header() {
         strategy="afterInteractive"
       />
 
-      <div className="sticky top-0 flex items-center justify-between border-b border-white/10 z-50 p-2 max-w-5xl mx-auto w-full">
-        <div className="text-left flex-1 md:flex hidden">
-          <span className="text-[10px] text-muted-foreground/70">
+      <div className="sticky top-0 z-50 mx-auto flex w-full max-w-5xl items-center justify-between border-b border-white/10 p-2">
+        <div className="hidden flex-1 text-left md:flex">
+          <span className="text-muted-foreground/70 text-[10px]">
             Speak Naturally. Connect Globally.
           </span>
         </div>
         <div className="flex-1 text-center">
           <div className="relative h-12 w-auto">
-            <Image
-              src="/img/logo.png"
-              alt="Logo"
-              width={48}
-              height={48}
-              className="md:mx-auto"
-              priority
-            />
+            <Link href="/">
+              <Image
+                src="/img/logo.png"
+                alt="Logo"
+                width={48}
+                height={48}
+                className="md:mx-auto"
+                priority
+              />
+            </Link>
           </div>
         </div>
         <div className="flex-1 text-end">
@@ -58,23 +67,29 @@ export default function Header() {
         </div>
 
         {menuOpen && (
-          <div className="fixed inset-0 z-50 bg-black bg-opacity-70 flex justify-center items-center transition-opacity duration-300 ease-in-out">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 transition-opacity duration-300 ease-in-out">
             <div
               ref={menuRef}
-              className="bg-white rounded-lg shadow-lg p-6 w-11/12 md:w-[600px] max-w-[600px] transform transition-transform duration-300 ease-in-out mx-4"
+              className="mx-4 w-11/12 max-w-[600px] transform rounded-lg bg-white p-6 shadow-lg transition-transform duration-300 ease-in-out md:w-[600px]"
             >
-              <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50 text-center">
-                <h3 className="text-lg font-semibold mb-4 text-gray-800">Quick Tips</h3>
+              <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4 text-center">
+                <h3 className="mb-4 text-lg font-semibold text-gray-800">
+                  Quick Tips
+                </h3>
                 <div className="space-y-4">
                   <div className="flex flex-col items-center">
                     <span className="text-sm text-gray-600">
-                      <span className="font-medium block mb-1">Voice Input</span>
+                      <span className="mb-1 block font-medium">
+                        Voice Input
+                      </span>
                       Tap microphone → Speak → Tap again
                     </span>
                   </div>
                   <div className="flex flex-col items-center">
                     <span className="text-sm text-gray-600">
-                      <span className="font-medium block mb-1">Auto Switch</span>
+                      <span className="mb-1 block font-medium">
+                        Auto Switch
+                      </span>
                       Double-click switch icon to toggle
                     </span>
                   </div>
@@ -84,20 +99,20 @@ export default function Header() {
               <div className="flex flex-col space-y-2">
                 <a
                   href="/"
-                  className="py-2 text-center text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100"
                 >
                   Home
                 </a>
                 <Link
-                href="/news"
-                className="py-2 text-center text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                onClick={() => setMenuOpen(false)}
-              >
-                News
-              </Link>
+                  href="/news"
+                  className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  News
+                </Link>
                 <a
                   href="https://obey24.com/agbs/"
-                  className="py-2 text-center text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -105,7 +120,7 @@ export default function Header() {
                 </a>
                 <a
                   href="https://obey24.com/datenschutz/"
-                  className="py-2 text-center text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -113,7 +128,7 @@ export default function Header() {
                 </a>
                 <a
                   href="https://obey24.com/impressum/"
-                  className="py-2 text-center text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -121,7 +136,7 @@ export default function Header() {
                 </a>
                 <a
                   href="mailto:info@ulocat.com"
-                  className="py-2 text-center text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -135,7 +150,7 @@ export default function Header() {
                   Close Menu
                 </Button>
                 <div className="text-center">
-                  <span className="text-[10px] text-muted-foreground/70">
+                  <span className="text-muted-foreground/70 text-[10px]">
                     Ulocat is powered by{" "}
                     <a
                       href="https://obey24.com/"
