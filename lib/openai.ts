@@ -27,9 +27,9 @@ Format your response as follows:
 
 TRANSLATION: [Your translation here]
 
-CONTEXT: [Any cultural context, idioms, or additional notes - if applicable]. Write the context in ${toLang}.
+CONTEXT: [Any cultural context, idioms, or additional notes - only if applicable]. Write the context in ${toLang}.
 
-Only include the CONTEXT section if there are important cultural nuances to explain.
+Only include the CONTEXT section if there are important cultural nuances to explain. Otherwise leave empty.
 
 As a professional translator, focus on delivering a meaningful and contextually appropriate translation.`,
     },
