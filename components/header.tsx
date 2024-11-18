@@ -21,7 +21,8 @@ export default function Header() {
     [menuOpen],
   );
 
-  const playMeow = () => {
+  const playMeow = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent the default link behavior
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
       audioRef.current.play().catch(error => {
@@ -61,11 +62,9 @@ export default function Header() {
           {/* Logo container - now consistently left-aligned */}
           <div className="flex items-center">
             <Link 
-              href="https://ulocat.com" 
+              href="#" 
               className="inline-block"
-              onClick={(e) => {
-                playMeow();
-              }}
+              onClick={playMeow}
             >
               <Image
                 src="/img/logo.png"
