@@ -3,8 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-import { Mic, Send, ArrowLeftRight, Volume2, Copy, Search } from "lucide-react";
+import { Mic, Send, ArrowLeftRight, Volume2, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { supportedLanguages } from "@/lib/languages";
@@ -17,13 +16,17 @@ interface Message {
   fromLang: string;
   toLang: string;
   cultural?: string;
+  timestamp?: number;
 }
 
 const STORAGE_KEYS = {
   FROM_LANG: "ulocat-from-lang",
   TO_LANG: "ulocat-to-lang",
   AUTO_SWITCH: "ulocat-auto-switch",
+  MESSAGES: "ulocat-messages",
 } as const;
+
+const MAX_STORED_MESSAGES = 50; // Maximum number of messages to store
 
 function getStoredLanguage(key: string, fallback: string): string {
   if (typeof window === "undefined") return fallback;
@@ -39,17 +42,28 @@ function getStoredAutoSwitch(): boolean {
   return localStorage.getItem(STORAGE_KEYS.AUTO_SWITCH) === "true";
 }
 
+function getStoredMessages(): Message[] {
+  if (typeof window === "undefined") return [];
+  const stored = localStorage.getItem(STORAGE_KEYS.MESSAGES);
+  if (!stored) return [];
+  try {
+    return JSON.parse(stored);
+  } catch {
+    return [];
+  }
+}
+
 export function TranslationInterface() {
   useZoomControl();
 
   const [fromLang, setFromLang] = useState(() =>
-    getStoredLanguage(STORAGE_KEYS.FROM_LANG, "en"),
+    getStoredLanguage(STORAGE_KEYS.FROM_LANG, "en")
   );
   const [toLang, setToLang] = useState(() =>
-    getStoredLanguage(STORAGE_KEYS.TO_LANG, "es"),
+    getStoredLanguage(STORAGE_KEYS.TO_LANG, "es")
   );
   const [inputText, setInputText] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => getStoredMessages());
   const [isRecording, setIsRecording] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState<number | null>(null);
@@ -63,6 +77,15 @@ export function TranslationInterface() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const { toast } = useToast();
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length > 0) {
+      // Keep only the most recent messages up to MAX_STORED_MESSAGES
+      const recentMessages = messages.slice(-MAX_STORED_MESSAGES);
+      localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(recentMessages));
+    }
+  }, [messages]);
 
   const handleSend = async () => {
     if (!inputText.trim()) return;
@@ -82,19 +105,17 @@ export function TranslationInterface() {
       const data = await response.json();
 
       if (data.translation) {
-        const [translation, ...culturalNotes] =
-          data.translation.split("\nCONTEXT:");
+        const [translation, ...culturalNotes] = data.translation.split("\nCONTEXT:");
 
         setMessages((prev) => [
           ...prev,
           {
             text: inputText,
             translation: translation.replace("TRANSLATION:", "").trim(),
-            cultural: culturalNotes.length
-              ? culturalNotes.join("\n").trim()
-              : undefined,
+            cultural: culturalNotes.length ? culturalNotes.join("\n").trim() : undefined,
             fromLang,
             toLang,
+            timestamp: Date.now(),
           },
         ]);
 
@@ -228,6 +249,7 @@ export function TranslationInterface() {
                 : undefined,
               fromLang,
               toLang,
+              timestamp: Date.now(),
             },
           ]);
 
