@@ -13,11 +13,7 @@ export default function Header() {
 
   const handleClickOutside = useCallback(
     (event: MouseEvent) => {
-      if (
-        menuOpen &&
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node)
-      ) {
+      if (menuOpen && menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setMenuOpen(false);
       }
     },
@@ -40,39 +36,52 @@ export default function Header() {
         strategy="afterInteractive"
       />
 
-      <div className="sticky top-0 z-50 mx-auto flex w-full max-w-5xl items-center justify-between border-b border-white/10 p-2">
-        <div className="hidden flex-1 text-left md:flex">
-          <span className="text-muted-foreground/70 text-[10px]">
-            Speak Naturally. Connect Globally.
-          </span>
-        </div>
-        <div className="flex-1 text-center">
-          <div className="relative h-12 w-auto">
-            <Link href="https://ulocat.com">
+      <header className="fixed inset-x-0 top-0 z-50">
+        {/* Backdrop blur container */}
+        <div 
+          className="absolute inset-0 backdrop-blur-xl bg-white/70"
+          style={{
+            WebkitBackdropFilter: 'saturate(180%) blur(20px)',
+            backdropFilter: 'saturate(180%) blur(20px)',
+          }}
+        />
+
+        {/* Header content */}
+        <div className="relative mx-auto flex w-full max-w-5xl items-center justify-between p-2">
+          <div className="hidden flex-1 text-left md:flex">
+            <span className="text-[10px] text-black/60">
+              Speak Naturally. Connect Globally.
+            </span>
+          </div>
+          <div className="flex-1 text-center">
+            <Link href="https://ulocat.com" className="inline-block">
               <Image
                 src="/img/logo.png"
                 alt="Logo"
                 width={48}
                 height={48}
-                className="md:mx-auto"
+                className="h-12 w-auto transition-transform duration-200 hover:scale-105"
                 priority
               />
             </Link>
           </div>
-        </div>
-        <div className="flex-1 text-end">
-          <Button onClick={() => setMenuOpen(!menuOpen)} variant="outline">
-            <Menu className="h-6 w-6" />
-          </Button>
+          <div className="flex-1 text-end">
+            <Button 
+              onClick={() => setMenuOpen(!menuOpen)} 
+              variant="ghost" 
+              className="hover:bg-black/5"
+            >
+              <Menu className="h-6 w-6" />
+            </Button>
+          </div>
         </div>
 
-        {/* Menu Overlay with Animation */}
+        {/* Menu Overlay */}
         <div
           className={`fixed inset-0 z-50 bg-black transition-opacity duration-300 ${
-            menuOpen
-              ? "pointer-events-auto opacity-70"
-              : "pointer-events-none opacity-0"
+            menuOpen ? "pointer-events-auto opacity-50" : "pointer-events-none opacity-0"
           }`}
+          onClick={() => setMenuOpen(false)}
         />
 
         {/* Menu Content */}
@@ -83,13 +92,15 @@ export default function Header() {
         >
           <div
             ref={menuRef}
-            className={`mx-4 w-11/12 max-w-[600px] transform rounded-lg bg-white p-6 shadow-lg transition-all duration-300 md:w-[600px] ${
-              menuOpen
-                ? "translate-y-0 scale-100 opacity-100"
-                : "translate-y-4 scale-95 opacity-0"
+            className={`mx-4 w-11/12 max-w-[600px] transform rounded-2xl bg-white/95 p-6 shadow-2xl backdrop-blur-xl transition-all duration-300 md:w-[600px] ${
+              menuOpen ? "translate-y-0 scale-100" : "translate-y-4 scale-95"
             }`}
+            style={{
+              WebkitBackdropFilter: 'saturate(180%) blur(20px)',
+              backdropFilter: 'saturate(180%) blur(20px)',
+            }}
           >
-            <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4 text-center">
+            <div className="mb-6 rounded-xl border border-gray-200/50 bg-gray-50/50 p-4 text-center backdrop-blur-sm">
               <h3 className="mb-4 text-lg font-semibold text-gray-800">
                 Quick Tips
               </h3>
@@ -112,21 +123,21 @@ export default function Header() {
             <div className="flex flex-col space-y-2">
               <Link
                 href="/"
-                className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100"
+                className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100/80"
                 onClick={() => setMenuOpen(false)}
               >
                 Home
               </Link>
               <Link
                 href="/news"
-                className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100"
+                className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100/80"
                 onClick={() => setMenuOpen(false)}
               >
                 News
               </Link>
               <a
                 href="https://obey24.com/agbs/"
-                className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100"
+                className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100/80"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -134,7 +145,7 @@ export default function Header() {
               </a>
               <a
                 href="https://obey24.com/datenschutz/"
-                className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100"
+                className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100/80"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -142,7 +153,7 @@ export default function Header() {
               </a>
               <a
                 href="https://obey24.com/impressum/"
-                className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100"
+                className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100/80"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -150,7 +161,7 @@ export default function Header() {
               </a>
               <a
                 href="mailto:info@ulocat.com"
-                className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100"
+                className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100/80"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -159,17 +170,18 @@ export default function Header() {
               <Button
                 onClick={() => setMenuOpen(false)}
                 variant="outline"
-                className="mt-4 w-full"
+                className="mt-4 w-full transition-colors hover:bg-gray-100/80"
               >
                 Close Menu
               </Button>
               <div className="text-center">
-                <span className="text-muted-foreground/70 text-[10px]">
+                <span className="text-[10px] text-gray-500">
                   Ulocat is powered by{" "}
                   <a
                     href="https://obey24.com/"
                     target="_blank"
                     rel="noopener noreferrer"
+                    className="hover:text-gray-800"
                   >
                     Obey24.com
                   </a>
@@ -178,7 +190,7 @@ export default function Header() {
             </div>
           </div>
         </div>
-      </div>
+      </header>
     </>
   );
 }
