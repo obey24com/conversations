@@ -10,6 +10,7 @@ import Link from "next/link";
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const handleClickOutside = useCallback(
     (event: MouseEvent) => {
@@ -19,6 +20,15 @@ export default function Header() {
     },
     [menuOpen],
   );
+
+  const playMeow = () => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(error => {
+        console.error('Error playing sound:', error);
+      });
+    }
+  };
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
@@ -50,7 +60,13 @@ export default function Header() {
         <div className="relative mx-auto flex w-full max-w-5xl items-center justify-between p-2">
           {/* Logo container - now consistently left-aligned */}
           <div className="flex items-center">
-            <Link href="https://ulocat.com" className="inline-block">
+            <Link 
+              href="https://ulocat.com" 
+              className="inline-block"
+              onClick={(e) => {
+                playMeow();
+              }}
+            >
               <Image
                 src="/img/logo.png"
                 alt="Logo"
@@ -195,6 +211,11 @@ export default function Header() {
             </div>
           </div>
         </div>
+
+        {/* Audio element for meow sound */}
+        <audio ref={audioRef} preload="auto">
+          <source src="/sweet_meow.mp3" type="audio/mpeg" />
+        </audio>
       </header>
     </>
   );
