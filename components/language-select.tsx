@@ -54,7 +54,7 @@ export function LanguageSelect({
       >
         <Command>
           <CommandInput placeholder="Search language..." />
-          <CommandList className="h-[85vh] max-h-[75vh] md:max-h-[80vh]">
+          <CommandList className="h-[calc(100dvh-180px)] max-h-[75vh] md:max-h-[80vh]">
             <CommandEmpty>No language found.</CommandEmpty>
             <CommandGroup>
               <div className="grid w-[80%] grid-cols-2 gap-2 sm:grid-cols-3 md:w-full md:grid-cols-4 lg:grid-cols-5">
@@ -63,7 +63,9 @@ export function LanguageSelect({
                     key={lang.name}
                     value={lang.name}
                     onSelect={(currentValue) => {
-                      const selected = supportedLanguages.find(lang => lang.name === currentValue)
+                      const selected = supportedLanguages.find(
+                        (lang) => lang.name === currentValue,
+                      );
                       if (selected) {
                         setValue(selected.code);
                         onValueChange(selected.code);
