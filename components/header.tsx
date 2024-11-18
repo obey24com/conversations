@@ -48,12 +48,8 @@ export default function Header() {
 
         {/* Header content */}
         <div className="relative mx-auto flex w-full max-w-5xl items-center justify-between p-2">
-          <div className="hidden flex-1 text-left md:flex">
-            <span className="text-[10px] text-black/60">
-              Speak Naturally. Connect Globally.
-            </span>
-          </div>
-          <div className="flex-1 text-center">
+          {/* Logo container - now consistently left-aligned */}
+          <div className="flex items-center">
             <Link href="https://ulocat.com" className="inline-block">
               <Image
                 src="/img/logo.png"
@@ -65,7 +61,16 @@ export default function Header() {
               />
             </Link>
           </div>
-          <div className="flex-1 text-end">
+
+          {/* Tagline - hidden on mobile */}
+          <div className="hidden flex-1 justify-center md:flex">
+            <span className="text-[10px] text-black/60">
+              Speak Naturally. Connect Globally.
+            </span>
+          </div>
+
+          {/* Menu button */}
+          <div className="flex items-center">
             <Button 
               onClick={() => setMenuOpen(!menuOpen)} 
               variant="ghost" 
