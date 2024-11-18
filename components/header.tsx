@@ -41,8 +41,8 @@ export default function Header() {
         <div 
           className="absolute inset-0 backdrop-blur-xl bg-white/70"
           style={{
-            WebkitBackdropFilter: 'saturate(180%) blur(20px)',
-            backdropFilter: 'saturate(180%) blur(20px)',
+            WebkitBackdropFilter: 'saturate(180%) blur(10px)',
+            backdropFilter: 'saturate(180%) blur(10px)',
           }}
         />
 
