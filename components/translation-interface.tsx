@@ -57,13 +57,15 @@ export function TranslationInterface() {
   useZoomControl();
 
   const [fromLang, setFromLang] = useState(() =>
-    getStoredLanguage(STORAGE_KEYS.FROM_LANG, "en")
+    getStoredLanguage(STORAGE_KEYS.FROM_LANG, "en"),
   );
   const [toLang, setToLang] = useState(() =>
-    getStoredLanguage(STORAGE_KEYS.TO_LANG, "es")
+    getStoredLanguage(STORAGE_KEYS.TO_LANG, "es"),
   );
   const [inputText, setInputText] = useState("");
-  const [messages, setMessages] = useState<Message[]>(() => getStoredMessages());
+  const [messages, setMessages] = useState<Message[]>(() =>
+    getStoredMessages(),
+  );
   const [isRecording, setIsRecording] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState<number | null>(null);
@@ -83,7 +85,10 @@ export function TranslationInterface() {
     if (messages.length > 0) {
       // Keep only the most recent messages up to MAX_STORED_MESSAGES
       const recentMessages = messages.slice(-MAX_STORED_MESSAGES);
-      localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(recentMessages));
+      localStorage.setItem(
+        STORAGE_KEYS.MESSAGES,
+        JSON.stringify(recentMessages),
+      );
     }
   }, [messages]);
 
@@ -105,14 +110,17 @@ export function TranslationInterface() {
       const data = await response.json();
 
       if (data.translation) {
-        const [translation, ...culturalNotes] = data.translation.split("\nCONTEXT:");
+        const [translation, ...culturalNotes] =
+          data.translation.split("\nCONTEXT:");
 
         setMessages((prev) => [
           ...prev,
           {
             text: inputText,
             translation: translation.replace("TRANSLATION:", "").trim(),
-            cultural: culturalNotes.length ? culturalNotes.join("\n").trim() : undefined,
+            cultural: culturalNotes.length
+              ? culturalNotes.join("\n").trim()
+              : undefined,
             fromLang,
             toLang,
             timestamp: Date.now(),
@@ -468,6 +476,7 @@ export function TranslationInterface() {
               onValueChange={(value) =>
                 localStorage.setItem(STORAGE_KEYS.TO_LANG, value)
               }
+              align="end"
             />
           </div>
 
