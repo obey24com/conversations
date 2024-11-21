@@ -50,11 +50,12 @@ export default function Header() {
       <header className="fixed inset-x-0 top-0 z-50">
         {/* Backdrop blur container */}
         <div 
-          className="absolute inset-0 backdrop-blur-xl bg-white/70"
-          style={{
-            WebkitBackdropFilter: 'saturate(180%) blur(10px)',
-            backdropFilter: 'saturate(180%) blur(10px)',
-          }}
+             className="absolute inset-0 backdrop-blur-xl"
+    style={{
+      WebkitBackdropFilter: 'saturate(180%) blur(10px)',
+      backdropFilter: 'saturate(180%) blur(10px)',
+      backgroundColor: 'rgba(255, 255, 255, 0.4)', // Semi-transparent white
+    }}
         />
 
         {/* Header content */}
