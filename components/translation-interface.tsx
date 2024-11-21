@@ -451,24 +451,24 @@ export function TranslationInterface() {
             />
             <div className="relative">
               <Button
-                variant="outline"
-                className={cn(
-                  "relative mx-2 flex items-center justify-center",
-                  isSwapActiveFirst
-                    ? "bg-transparent"
-                    : isSwapActive
-                      ? "bg-green-600 text-white"
-                      : "bg-red-600 text-white",
-                )}
-                onClick={handleButtonClick}
-              >
-                <ArrowLeftRight />
-                {swapMessage && (
-                  <div className="absolute -top-10 left-1/2 w-[135px] -translate-x-1/2 transform rounded bg-black px-3 py-2 text-xs text-white">
-                    {swapMessage}
-                  </div>
-                )}
-              </Button>
+  variant="outline"
+  className={cn(
+    "relative mx-2 flex items-center justify-center",
+    isSwapActiveFirst
+      ? "bg-transparent"
+      : isSwapActive
+        ? "bg-green-600 text-white"
+        : "bg-transparent" // Make the background transparent when not active
+  )}
+  onClick={handleButtonClick}
+>
+  <ArrowLeftRight />
+  {swapMessage && (
+    <div className="absolute -top-10 left-1/2 w-[135px] -translate-x-1/2 transform rounded bg-black px-3 py-2 text-xs text-white">
+      {swapMessage}
+    </div>
+  )}
+</Button>
             </div>
             <LanguageSelect
               value={toLang}
