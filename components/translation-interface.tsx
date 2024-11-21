@@ -73,6 +73,7 @@ export function TranslationInterface() {
   const [isSwapActive, setIsSwapActive] = useState(() => getStoredAutoSwitch());
   const [isSwapActiveFirst, setIsSwapActiveFirst] = useState(true);
   const [swapMessage, setSwapMessage] = useState("");
+  const [isSwapping, setIsSwapping] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -142,12 +143,18 @@ export function TranslationInterface() {
   };
 
   const handleSwapLanguages = () => {
+    setIsSwapping(true);
     const newFromLang = toLang;
     const newToLang = fromLang;
-    setFromLang(newFromLang);
-    setToLang(newToLang);
-    localStorage.setItem(STORAGE_KEYS.FROM_LANG, newFromLang);
-    localStorage.setItem(STORAGE_KEYS.TO_LANG, newToLang);
+    
+    // Delay the actual swap to allow for animation
+    setTimeout(() => {
+      setFromLang(newFromLang);
+      setToLang(newToLang);
+      localStorage.setItem(STORAGE_KEYS.FROM_LANG, newFromLang);
+      localStorage.setItem(STORAGE_KEYS.TO_LANG, newToLang);
+      setIsSwapping(false);
+    }, 300);
   };
 
   const toggleSwapActive = () => {
@@ -451,7 +458,8 @@ export function TranslationInterface() {
               <Button
                 variant="outline"
                 className={cn(
-                  "relative mx-2 flex items-center justify-center",
+                  "relative mx-2 flex items-center justify-center transition-all duration-300",
+                  isSwapping && "scale-90 opacity-50",
                   isSwapActiveFirst
                     ? "bg-transparent"
                     : isSwapActive
@@ -460,7 +468,10 @@ export function TranslationInterface() {
                 )}
                 onClick={handleButtonClick}
               >
-                <ArrowLeftRight />
+                <ArrowLeftRight className={cn(
+                  "transition-transform duration-300",
+                  isSwapping && "rotate-180"
+                )} />
                 {swapMessage && (
                   <div className="absolute -top-10 left-1/2 w-[135px] -translate-x-1/2 transform rounded bg-black px-3 py-2 text-xs text-white">
                     {swapMessage}
