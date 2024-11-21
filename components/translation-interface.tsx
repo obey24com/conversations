@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mic, Send, ArrowLeftRight, Volume2, Copy } from "lucide-react";
+import { Mic, Square, Send, ArrowLeftRight, Volume2, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { supportedLanguages } from "@/lib/languages";
@@ -26,7 +26,7 @@ const STORAGE_KEYS = {
   MESSAGES: "ulocat-messages",
 } as const;
 
-const MAX_STORED_MESSAGES = 50; // Maximum number of messages to store
+const MAX_STORED_MESSAGES = 50;
 
 function getStoredLanguage(key: string, fallback: string): string {
   if (typeof window === "undefined") return fallback;
@@ -80,10 +80,8 @@ export function TranslationInterface() {
   const streamRef = useRef<MediaStream | null>(null);
   const { toast } = useToast();
 
-  // Save messages to localStorage whenever they change
   useEffect(() => {
     if (messages.length > 0) {
-      // Keep only the most recent messages up to MAX_STORED_MESSAGES
       const recentMessages = messages.slice(-MAX_STORED_MESSAGES);
       localStorage.setItem(
         STORAGE_KEYS.MESSAGES,
@@ -451,24 +449,24 @@ export function TranslationInterface() {
             />
             <div className="relative">
               <Button
-  variant="outline"
-  className={cn(
-    "relative mx-2 flex items-center justify-center",
-    isSwapActiveFirst
-      ? "bg-transparent"
-      : isSwapActive
-        ? "bg-green-600 text-white"
-        : "bg-transparent" // Make the background transparent when not active
-  )}
-  onClick={handleButtonClick}
->
-  <ArrowLeftRight />
-  {swapMessage && (
-    <div className="absolute -top-10 left-1/2 w-[135px] -translate-x-1/2 transform rounded bg-black px-3 py-2 text-xs text-white">
-      {swapMessage}
-    </div>
-  )}
-</Button>
+                variant="outline"
+                className={cn(
+                  "relative mx-2 flex items-center justify-center",
+                  isSwapActiveFirst
+                    ? "bg-transparent"
+                    : isSwapActive
+                      ? "bg-green-600 text-white"
+                      : "bg-red-600 text-white",
+                )}
+                onClick={handleButtonClick}
+              >
+                <ArrowLeftRight />
+                {swapMessage && (
+                  <div className="absolute -top-10 left-1/2 w-[135px] -translate-x-1/2 transform rounded bg-black px-3 py-2 text-xs text-white">
+                    {swapMessage}
+                  </div>
+                )}
+              </Button>
             </div>
             <LanguageSelect
               value={toLang}
@@ -499,12 +497,15 @@ export function TranslationInterface() {
               onClick={toggleRecording}
               className={cn(
                 "shrink-0 transition-colors duration-200",
-                isRecording &&
-                  "border-red-500 bg-red-500 text-white hover:bg-red-600 hover:text-white",
+                isRecording && "bg-red-500 border-red-500 hover:bg-red-600 hover:border-red-600"
               )}
               disabled={isLoading}
             >
-              <Mic className={cn("h-4 w-4", isRecording && "animate-pulse")} />
+              {isRecording ? (
+                <Square className="h-4 w-4 fill-white text-white" />
+              ) : (
+                <Mic className="h-4 w-4" />
+              )}
             </Button>
 
             <Button
