@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { Check, ChevronDown } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +23,7 @@ export function LanguageSelect({
   align = "start",
   value = "en",
   setValue = () => {},
-  onValueChange = (value) => {},
+  onValueChange = (value: string) => {},
 }: {
   align?: "start" | "center" | "end";
   value?: string;
@@ -32,6 +31,21 @@ export function LanguageSelect({
   onValueChange?: (value: string) => void;
 }) {
   const [open, setOpen] = React.useState(false);
+  const [isChanging, setIsChanging] = React.useState(false);
+  const selectedLanguage = supportedLanguages.find((lang) => lang.code === value)?.name;
+
+  const handleLanguageChange = (currentValue: string) => {
+    const selected = supportedLanguages.find(
+      (lang) => lang.name === currentValue,
+    );
+    if (selected) {
+      setIsChanging(true);
+      setValue(selected.code);
+      onValueChange(selected.code);
+      setTimeout(() => setIsChanging(false), 300); // Match the transition duration
+    }
+    setOpen(false);
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -40,12 +54,21 @@ export function LanguageSelect({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[120px] justify-between sm:w-full"
+          className={cn(
+            "w-[120px] justify-between sm:w-full transition-all duration-300 ease-in-out",
+            isChanging && "scale-95 opacity-50 transform",
+          )}
         >
-          {value
-            ? supportedLanguages.find((lang) => lang.code === value)?.name
-            : "Select language..."}
-          <ChevronDown className="h-4 w-4 opacity-50" />
+          <span className={cn(
+            "transition-all duration-300 ease-in-out",
+            isChanging && "blur-sm"
+          )}>
+            {selectedLanguage || "Select language..."}
+          </span>
+          <ChevronDown className={cn(
+            "h-4 w-4 opacity-50 transition-transform duration-200",
+            open && "rotate-180"
+          )} />
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -62,22 +85,14 @@ export function LanguageSelect({
                   <CommandItem
                     key={lang.name}
                     value={lang.name}
-                    onSelect={(currentValue) => {
-                      const selected = supportedLanguages.find(
-                        (lang) => lang.name === currentValue,
-                      );
-                      if (selected) {
-                        setValue(selected.code);
-                        onValueChange(selected.code);
-                      }
-                      setOpen(false);
-                    }}
+                    onSelect={handleLanguageChange}
+                    className="transition-all duration-200 hover:scale-[1.02]"
                   >
                     {lang.name}
                     <Check
                       className={cn(
-                        "ml-auto h-4 w-4",
-                        value === lang.code ? "opacity-100" : "opacity-0",
+                        "ml-auto h-4 w-4 transition-all duration-200",
+                        value === lang.code ? "opacity-100 scale-100" : "opacity-0 scale-75",
                       )}
                     />
                   </CommandItem>
