@@ -369,7 +369,7 @@ export function TranslationInterface() {
 
   return (
     <div className="flex grow flex-col">
-      <div className="relative flex-1 overflow-hidden">
+      <div className="relative flex-1 overflow-hidden bg-transparent backdrop-blur-[10px]">
         {isLoading && (
           <div className="bg-background/80 absolute inset-0 z-10 flex items-center justify-center backdrop-blur-sm">
             <div className="flex items-center space-x-2">
