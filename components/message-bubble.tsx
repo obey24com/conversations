@@ -9,6 +9,8 @@ import { useState, useRef } from 'react';
 export interface MessageBubbleProps {
   text: string;
   translation: string;
+  fromLang: string;
+  toLang: string;
   cultural?: string;
   isPlaying: boolean;
   onPlay: () => void;
@@ -17,7 +19,9 @@ export interface MessageBubbleProps {
 
 export function MessageBubble({ 
   text, 
-  translation, 
+  translation,
+  fromLang,
+  toLang, 
   cultural, 
   isPlaying, 
   onPlay,
