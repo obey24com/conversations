@@ -7,14 +7,14 @@ export const runtime = 'edge';
 
 export async function POST(request: Request) {
   try {
-    const { text, fromLang } = await request.json();
+    const { text, toLang } = await request.json();
 
     if (!text?.trim()) {
       return NextResponse.json({ error: "Text is required" }, { status: 400 });
     }
 
-    // Check if we're dealing with pet language
-    const isPet = isPetLanguage(fromLang);
+    // Check if we're translating to a pet language
+    const isPet = isPetLanguage(toLang);
     
     if (isPet && process.env.ELEVENLABS_API_KEY) {
       // Use ElevenLabs for pet sounds
@@ -29,7 +29,6 @@ export async function POST(request: Request) {
       }
 
       // Return the audio data with the correct content type
-      // The base64 data already includes the data URL prefix
       return new Response(result.audio, {
         headers: {
           'Content-Type': 'audio/mpeg',
