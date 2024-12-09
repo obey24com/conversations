@@ -14,26 +14,47 @@ export async function POST(request: Request) {
     }
 
     // Check if we're translating to a pet language
-    const isPet = isPetLanguage(toLang);
-    
-    if (isPet && process.env.ELEVENLABS_API_KEY) {
-      // Use ElevenLabs for pet sounds
-      const result = await generateSoundEffect(
-        text,
-        true,
-        process.env.ELEVENLABS_API_KEY
-      );
+    if (isPetLanguage(toLang) && process.env.ELEVENLABS_API_KEY) {
+      try {
+        // Use ElevenLabs for pet sounds
+        const result = await generateSoundEffect(
+          text,
+          true,
+          process.env.ELEVENLABS_API_KEY
+        );
 
-      if (result.error) {
-        throw new Error(result.error);
+        if (result.error) {
+          throw new Error(result.error);
+        }
+
+        // Convert base64 to binary
+        const binaryStr = atob(result.audio.split(',')[1]);
+        const bytes = new Uint8Array(binaryStr.length);
+        for (let i = 0; i < binaryStr.length; i++) {
+          bytes[i] = binaryStr.charCodeAt(i);
+        }
+
+        // Return the audio data with the correct content type
+        return new Response(bytes.buffer, {
+          headers: {
+            'Content-Type': 'audio/mpeg',
+          },
+        });
+      } catch (error) {
+        console.error("ElevenLabs error:", error);
+        // Fallback to OpenAI if ElevenLabs fails
+        const mp3 = await openai.audio.speech.create({
+          model: "tts-1",
+          voice: "nova",
+          input: text,
+        });
+        const audioData = await mp3.arrayBuffer();
+        return new Response(audioData, {
+          headers: {
+            'Content-Type': 'audio/mpeg',
+          },
+        });
       }
-
-      // Return the audio data with the correct content type
-      return new Response(result.audio, {
-        headers: {
-          'Content-Type': 'audio/mpeg',
-        },
-      });
     }
 
     // Use OpenAI for regular text-to-speech
