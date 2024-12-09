@@ -6,17 +6,8 @@ export const runtime = "edge";
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
-    // const audioFile = formData.get("audio") as Blob;
-
-    // if (!audioFile) {
-    //   return NextResponse.json(
-    //     { error: "Audio file is required" },
-    //     { status: 400 }
-    //   );
-    // }
-
     const audioFile = formData.get("audio");
-    const language = formData.get("language"); // Default to English if language not specified
+    const language = formData.get("language"); // Get the source language
 
     if (!audioFile || !(audioFile instanceof Blob)) {
       return NextResponse.json(
@@ -28,14 +19,11 @@ export async function POST(request: Request) {
     // Ensure language is a string if provided
     const languageString = typeof language === "string" ? language : undefined;
 
-    // Convert the blob to a File object that OpenAI's API can handle
-    // const file = new File([audioFile], 'audio.mp3', { type: 'audio/mp3' });
-
     const transcription = await openai.audio.transcriptions.create({
       file: audioFile,
       model: "whisper-1",
       response_format: "text",
-      // language: languageString,
+      language: languageString, // Pass the source language to Whisper
     });
 
     return NextResponse.json({ text: transcription });
