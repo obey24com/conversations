@@ -358,6 +358,12 @@ export function TranslationInterface() {
     }
   };
 
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
   return (
     <div className="flex grow flex-col">
       <div className="relative flex-1 overflow-hidden bg-transparent backdrop-blur-[10px]">
@@ -378,6 +384,8 @@ export function TranslationInterface() {
               key={message.id}
               text={message.text}
               translation={message.translation}
+              fromLang={message.fromLang}
+              toLang={message.toLang}
               cultural={message.cultural}
               isPlaying={isPlaying === index}
               onPlay={() => playTranslation(message.translation, index, message.toLang)}
