@@ -14,8 +14,9 @@ export async function generateSoundEffect(
     // Use the "sound effects" voice ID for pet sounds
     const voiceId = "2EiwWnXFnvU5JabPnv8n"; // Sound effects voice ID
     
-    const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`,
+    // First, generate the sound effect using the Sound Effects API
+    const sfxResponse = await fetch(
+      "https://api.elevenlabs.io/v1/sound-effects/generate",
       {
         method: "POST",
         headers: {
@@ -23,23 +24,18 @@ export async function generateSoundEffect(
           "xi-api-key": apiKey,
         },
         body: JSON.stringify({
-          text,
-          model_id: "eleven_multilingual_v2",
-          voice_settings: {
-            stability: 0.5,
-            similarity_boost: 0.75,
-            style: 0.85,
-            use_speaker_boost: true,
-          },
+          text: text,
+          sfx_category: text.toLowerCase().includes("meow") ? "cat" : "dog",
+          seed: Math.floor(Math.random() * 100000), // Random seed for variation
         }),
       }
     );
 
-    if (!response.ok) {
-      throw new Error(`ElevenLabs API error: ${response.statusText}`);
+    if (!sfxResponse.ok) {
+      throw new Error(`ElevenLabs API error: ${sfxResponse.statusText}`);
     }
 
-    const audioBlob = await response.blob();
+    const audioBlob = await sfxResponse.blob();
     const audioBase64 = await blobToBase64(audioBlob);
     
     return { audio: audioBase64 };
