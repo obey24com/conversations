@@ -14,19 +14,19 @@ export async function generateSoundEffect(
     console.log("Generating sound effect for:", text);
 
     const response = await fetch(
-      "https://api.elevenlabs.io/v1/text-to-speech/sound-effects/generate",
+      "https://api.elevenlabs.io/v2/sound-effects/generate",
       {
         method: "POST",
         headers: {
           "Accept": "audio/mpeg",
           "Content-Type": "application/json",
-          "xi-api-key": apiKey,
+          "xi-api-key": apiKey
         },
         body: JSON.stringify({
           text: text,
-          duration_multiplier: 2.0,
+          duration_seconds: 2.0,
           prompt_influence: 0.3
-        }),
+        })
       }
     );
 
