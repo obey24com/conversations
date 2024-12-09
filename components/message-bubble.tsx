@@ -40,15 +40,12 @@ export function MessageBubble({
     setIsDeleting(true);
     
     if (bubbleRef.current) {
-      bubbleRef.current.style.height = `${bubbleRef.current.offsetHeight}px`;
-      bubbleRef.current.offsetHeight; // Force reflow
+      bubbleRef.current.style.setProperty('--message-height', `${bubbleRef.current.offsetHeight}px`);
+      bubbleRef.current.classList.add('message-bubble-exit');
       
       requestAnimationFrame(() => {
         if (bubbleRef.current) {
-          bubbleRef.current.style.height = '0';
-          bubbleRef.current.style.marginBottom = '0';
-          bubbleRef.current.style.opacity = '0';
-          bubbleRef.current.style.transform = 'translateY(-20px)';
+          bubbleRef.current.classList.add('message-bubble-exit-active');
         }
       });
     }
@@ -62,7 +59,7 @@ export function MessageBubble({
     <div 
       ref={bubbleRef}
       className={cn(
-        "message-bubble transition-all duration-300 ease-out mb-6",
+        "message-bubble transition-all duration-300 ease-out mb-4",
         isDeleting && "pointer-events-none"
       )}
     >
