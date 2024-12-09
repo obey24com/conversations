@@ -26,13 +26,6 @@ export function MessageBubble({
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
   const bubbleRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (bubbleRef.current) {
-      setHeight(bubbleRef.current.offsetHeight);
-    }
-  }, []);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -44,19 +37,13 @@ export function MessageBubble({
   };
 
   const handleDelete = () => {
-    if (!bubbleRef.current) return;
-    
     setIsDeleting(true);
     
-    // Set initial height and trigger animation
-    if (height) {
-      bubbleRef.current.style.height = `${height}px`;
-      bubbleRef.current.style.marginBottom = '1rem';
+    // Trigger exit animation
+    if (bubbleRef.current) {
+      bubbleRef.current.style.height = `${bubbleRef.current.offsetHeight}px`;
+      bubbleRef.current.offsetHeight; // Force reflow
       
-      // Force reflow
-      bubbleRef.current.offsetHeight;
-      
-      // Start collapse animation
       requestAnimationFrame(() => {
         if (bubbleRef.current) {
           bubbleRef.current.style.height = '0';
@@ -67,7 +54,7 @@ export function MessageBubble({
       });
     }
 
-    // Remove element after animation
+    // Call onDelete after animation completes
     setTimeout(() => {
       onDelete();
     }, 300);
@@ -80,9 +67,6 @@ export function MessageBubble({
         "message-bubble transition-all duration-300 ease-out mb-4",
         isDeleting && "pointer-events-none"
       )}
-      style={{
-        willChange: 'transform, opacity, height, margin'
-      }}
     >
       <div 
         className={cn(
