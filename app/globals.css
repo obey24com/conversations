@@ -61,80 +61,31 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-    transform: scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-}
-
-@keyframes slideUp {
-  from {
     transform: translateY(20px);
-    opacity: 0;
   }
   to {
+    opacity: 1;
     transform: translateY(0);
-    opacity: 1;
   }
 }
 
-@keyframes slideUpOut {
-  from {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
+.message-bubble {
+  animation: fadeIn 300ms ease-out forwards;
+  will-change: transform, opacity, height, margin;
 }
 
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.7;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.message-enter {
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-.message-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 500ms ease-out, transform 500ms ease-out;
-}
-
-.message-exit {
+.message-bubble-exit {
+  transition: all 300ms ease-out;
+  height: var(--message-height);
   opacity: 1;
   transform: translateY(0);
 }
 
-.message-exit-active {
+.message-bubble-exit-active {
+  height: 0;
   opacity: 0;
   transform: translateY(-20px);
-  transition: opacity 300ms ease-out, transform 300ms ease-out;
+  margin-bottom: 0;
 }
 
 .animated-dots {
