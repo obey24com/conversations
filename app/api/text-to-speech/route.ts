@@ -26,9 +26,11 @@ export async function POST(request: Request) {
       }
 
       try {
+        console.log("Generating pet sound for language:", toLang);
+        
         // Extract the first sound from the text (e.g., first "meow" or "woof")
         const firstSound = text.split(/[,!\s]+/)[0];
-        console.log("Generating pet sound for:", firstSound);
+        console.log("Using sound:", firstSound);
         
         const result = await generateSoundEffect(firstSound, true, apiKey);
 
@@ -37,10 +39,15 @@ export async function POST(request: Request) {
           throw new Error(result.error);
         }
 
-        // Return the audio buffer directly with proper headers
+        if (!result.audio || result.audio.byteLength === 0) {
+          throw new Error("No audio data received");
+        }
+
+        // Return the audio buffer with proper headers
         return new Response(result.audio, {
           headers: {
             'Content-Type': 'audio/mpeg',
+            'Content-Length': result.audio.byteLength.toString(),
             'Cache-Control': 'no-cache, no-store, must-revalidate',
             'Pragma': 'no-cache',
             'Expires': '0'
@@ -64,10 +71,10 @@ export async function POST(request: Request) {
 
     const audioData = await mp3.arrayBuffer();
 
-    // Return regular text-to-speech audio with proper headers
     return new Response(audioData, {
       headers: {
         'Content-Type': 'audio/mpeg',
+        'Content-Length': audioData.byteLength.toString(),
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0'
