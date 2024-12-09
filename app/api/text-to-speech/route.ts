@@ -26,8 +26,11 @@ export async function POST(request: Request) {
       }
 
       try {
-        console.log("Generating pet sound for:", text);
-        const result = await generateSoundEffect(text, true, apiKey);
+        // Extract the first sound from the text (e.g., first "meow" or "woof")
+        const firstSound = text.split(/\s+/)[0];
+        console.log("Generating pet sound for:", firstSound);
+        
+        const result = await generateSoundEffect(firstSound, true, apiKey);
 
         if (result.error) {
           console.error("ElevenLabs error:", result.error);
@@ -46,7 +49,6 @@ export async function POST(request: Request) {
           bytes[i] = binaryStr.charCodeAt(i);
         }
 
-        // Return the audio data with the correct content type
         return new Response(bytes.buffer, {
           headers: {
             'Content-Type': 'audio/mpeg',
@@ -68,10 +70,8 @@ export async function POST(request: Request) {
       input: text,
     });
 
-    // Get the audio data as an ArrayBuffer
     const audioData = await mp3.arrayBuffer();
 
-    // Return the audio data with the correct content type
     return new Response(audioData, {
       headers: {
         'Content-Type': 'audio/mpeg',
