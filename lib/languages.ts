@@ -1,4 +1,6 @@
 export const supportedLanguages = [
+  { code: "cat", name: "Meow (Cat)" },
+  { code: "dog", name: "Woof (Dog)" },
   { code: "af", name: "Afrikaans" },
   { code: "am", name: "Amharic" },
   { code: "ar", name: "Arabic" },
@@ -105,3 +107,5 @@ export const supportedLanguages = [
 ] as const;
 
 export type LanguageCode = typeof supportedLanguages[number]["code"];
+
+export const isPetLanguage = (code: string) => code === "cat" || code === "dog";
