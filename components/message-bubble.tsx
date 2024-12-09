@@ -9,8 +9,6 @@ import { useState, useRef, useEffect } from 'react';
 export interface MessageBubbleProps {
   text: string;
   translation: string;
-  fromLang: string;
-  toLang: string;
   cultural?: string;
   isPlaying: boolean;
   onPlay: () => void;
@@ -23,9 +21,7 @@ export function MessageBubble({
   cultural, 
   isPlaying, 
   onPlay,
-  onDelete,
-  fromLang,
-  toLang
+  onDelete
 }: MessageBubbleProps) {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
