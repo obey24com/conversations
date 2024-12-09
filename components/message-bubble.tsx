@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Volume2, Copy, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface MessageBubbleProps {
   text: string;
@@ -29,6 +29,8 @@ export function MessageBubble({
 }: MessageBubbleProps) {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [height, setHeight] = useState<number | null>(null);
+  const [opacity, setOpacity] = useState(1);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -41,26 +43,46 @@ export function MessageBubble({
 
   const handleDelete = () => {
     setIsDeleting(true);
-    // Wait for animation to complete before removing from state
+    setOpacity(0);
+    
+    // First fade out the content
     setTimeout(() => {
-      onDelete();
-    }, 300);
+      // Then collapse the height
+      setHeight(0);
+      // Finally remove from parent state after animation completes
+      setTimeout(() => {
+        onDelete();
+      }, 300);
+    }, 200);
   };
+
+  useEffect(() => {
+    // Set initial height on mount
+    const element = document.getElementById('message-content');
+    if (element) {
+      setHeight(element.offsetHeight);
+    }
+  }, []);
 
   return (
     <div 
-      className={cn(
-        "w-full flex justify-center mb-4 transition-all duration-300 ease-out",
-        isDeleting && "animate-[slideUpOut_0.3s_ease-out_forwards]"
-      )}
+      style={{ 
+        height: height === null ? 'auto' : `${height}px`,
+        marginBottom: height === 0 ? 0 : '1rem',
+        opacity: opacity,
+        transform: `translateY(${isDeleting ? '-20px' : '0'})`,
+      }}
+      className="transition-all duration-300 ease-out overflow-hidden"
     >
-      <div className={cn(
-        "group relative p-6 rounded-2xl w-[85%] max-w-2xl",
-        "bg-white border border-gray-100",
-        "transform transition-all duration-300 ease-out",
-        "hover:shadow-lg",
-        isDeleting && "opacity-0 scale-95"
-      )}>
+      <div 
+        id="message-content"
+        className={cn(
+          "group relative p-6 rounded-2xl w-[85%] max-w-2xl mx-auto",
+          "bg-white border border-gray-100",
+          "transform transition-all duration-300 ease-out",
+          "hover:shadow-lg"
+        )}
+      >
         <Button
           variant="ghost"
           size="icon"
@@ -74,7 +96,7 @@ export function MessageBubble({
         <div className="mt-2">
           <p className="text-lg font-medium">{translation}</p>
           
-          <div className="flex justify-end gap-1 mt-2 opacity-50 group-hover:opacity-100 transition-opacity duration-200">
+          <div className="flex justify-end gap-1 mt-2 opacity-40 group-hover:opacity-100 transition-opacity duration-200">
             <Button
               variant="ghost"
               size="sm"
