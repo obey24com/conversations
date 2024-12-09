@@ -15,7 +15,10 @@ export async function POST(request: Request) {
 
     // Check if we're translating to a pet language
     if (isPetLanguage(toLang)) {
-      if (!process.env.ELEVENLABS_API_KEY) {
+      const apiKey = process.env.ELEVENLABS_API_KEY;
+      
+      if (!apiKey) {
+        console.error("ElevenLabs API key is missing");
         return NextResponse.json(
           { error: "ElevenLabs API key is required for pet sounds" },
           { status: 500 }
@@ -23,15 +26,17 @@ export async function POST(request: Request) {
       }
 
       try {
-        // Generate pet sound effect using ElevenLabs
-        const result = await generateSoundEffect(
-          text,
-          true,
-          process.env.ELEVENLABS_API_KEY
-        );
+        console.log("Generating pet sound for:", text);
+        const result = await generateSoundEffect(text, true, apiKey);
 
         if (result.error) {
+          console.error("ElevenLabs error:", result.error);
           throw new Error(result.error);
+        }
+
+        if (!result.audio) {
+          console.error("No audio returned from ElevenLabs");
+          throw new Error("No audio generated");
         }
 
         // Convert base64 to binary
