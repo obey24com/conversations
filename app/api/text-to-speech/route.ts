@@ -43,13 +43,10 @@ export async function POST(request: Request) {
         }
 
         // Convert base64 to binary
-        const binaryStr = atob(result.audio.split(',')[1]);
-        const bytes = new Uint8Array(binaryStr.length);
-        for (let i = 0; i < binaryStr.length; i++) {
-          bytes[i] = binaryStr.charCodeAt(i);
-        }
+        const base64Data = result.audio.split(',')[1];
+        const buffer = Buffer.from(base64Data, 'base64');
 
-        return new Response(bytes.buffer, {
+        return new Response(buffer, {
           headers: {
             'Content-Type': 'audio/mpeg',
           },
