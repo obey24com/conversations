@@ -12,6 +12,7 @@ import { LanguageSelect } from "./language-select";
 import { MessageBubble } from "./message-bubble";
 
 interface Message {
+  id: string;
   text: string;
   translation: string;
   fromLang: string;
@@ -48,7 +49,11 @@ function getStoredMessages(): Message[] {
   const stored = localStorage.getItem(STORAGE_KEYS.MESSAGES);
   if (!stored) return [];
   try {
-    return JSON.parse(stored);
+    const messages = JSON.parse(stored);
+    return messages.map((msg: Message) => ({
+      ...msg,
+      id: msg.id || Math.random().toString(36).substr(2, 9)
+    }));
   } catch {
     return [];
   }
@@ -78,6 +83,7 @@ export function TranslationInterface() {
   const audioChunksRef = useRef<Blob[]>([]);
   const audioRef = useRef<HTMLAudioElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -86,6 +92,12 @@ export function TranslationInterface() {
       localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(recentMessages));
     }
   }, [messages]);
+
+  const handleDeleteMessage = (messageId: string) => {
+    setMessages(prevMessages => 
+      prevMessages.filter(msg => msg.id !== messageId)
+    );
+  };
 
   const handleSend = async () => {
     if (!inputText.trim()) return;
@@ -105,14 +117,18 @@ export function TranslationInterface() {
       const data = await response.json();
 
       if (data.translation) {
-        const [translation, ...culturalNotes] = data.translation.split("\nCONTEXT:");
+        const [translation, ...culturalNotes] =
+          data.translation.split("\nCONTEXT:");
 
         setMessages((prev) => [
           ...prev,
           {
+            id: Math.random().toString(36).substr(2, 9),
             text: inputText,
             translation: translation.replace("TRANSLATION:", "").trim(),
-            cultural: culturalNotes.length ? culturalNotes.join("\n").trim() : undefined,
+            cultural: culturalNotes.length
+              ? culturalNotes.join("\n").trim()
+              : undefined,
             fromLang,
             toLang,
             timestamp: Date.now(),
@@ -170,20 +186,15 @@ export function TranslationInterface() {
     handleSwapLanguages();
   };
 
-  const playTranslation = async (text: string, index: number, toLang: string) => {
+  const playTranslation = async (text: string, index: number, targetLang: string) => {
     try {
       setIsPlaying(index);
-
-      // Check if we're playing a pet language translation
-      const isPet = isPetLanguage(toLang);
-
       const response = await fetch("/api/text-to-speech", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           text,
-          toLang,
-          isPet
+          toLang: targetLang 
         }),
       });
 
@@ -255,6 +266,7 @@ export function TranslationInterface() {
           setMessages((prev) => [
             ...prev,
             {
+              id: Math.random().toString(36).substr(2, 9),
               text: data.text,
               translation: translation.replace("TRANSLATION:", "").trim(),
               cultural: culturalNotes.length
@@ -346,16 +358,6 @@ export function TranslationInterface() {
     }
   };
 
-  const messagesEndRef = useRef<null | HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
   return (
     <div className="flex grow flex-col">
       <div className="relative flex-1 overflow-hidden bg-transparent backdrop-blur-[10px]">
@@ -373,19 +375,13 @@ export function TranslationInterface() {
           <div ref={messagesEndRef} />
           {[...messages].reverse().map((message, index) => (
             <MessageBubble
-              key={index}
+              key={message.id}
               text={message.text}
               translation={message.translation}
-              fromLang={message.fromLang}
-              toLang={message.toLang}
               cultural={message.cultural}
               isPlaying={isPlaying === index}
               onPlay={() => playTranslation(message.translation, index, message.toLang)}
-              onDelete={() => {
-                const newMessages = [...messages];
-                newMessages.splice(messages.length - 1 - index, 1);
-                setMessages(newMessages);
-              }}
+              onDelete={() => handleDeleteMessage(message.id)}
             />
           ))}
         </div>
