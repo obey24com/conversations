@@ -13,7 +13,7 @@ export async function generateSoundEffect(
   try {
     // Use the sound effects endpoint
     const response = await fetch(
-      "https://api.elevenlabs.io/v2/sound-effects",
+      "https://api.elevenlabs.io/v2/sound-effects/generate",
       {
         method: "POST",
         headers: {
@@ -24,9 +24,13 @@ export async function generateSoundEffect(
         body: JSON.stringify({
           text: text,
           // Use appropriate sound effect categories
-          categories: ["animals"],
+          categories: ["animals", "nature"],
           // Request a single sound effect
-          count: 1
+          count: 1,
+          // Ensure high quality and appropriate duration
+          duration_min: 0.5,
+          duration_max: 2.0,
+          quality: "high"
         }),
       }
     );
