@@ -50,16 +50,16 @@ export function MessageBubble({
       isDeleting && "animate-[fadeOut_0.3s_ease-out_forwards]"
     )}>
       <div className={cn(
-        "p-6 rounded-2xl w-[85%] max-w-2xl shadow-lg relative",
+        "group p-6 rounded-2xl w-[85%] max-w-2xl shadow-lg relative",
         "bg-white border border-gray-100",
         "transform translate-y-4 animate-[slideUp_0.5s_ease-out_forwards]",
-        "hover:shadow-xl transition-shadow duration-300",
+        "hover:shadow-xl transition-all duration-300",
         isDeleting && "transform scale-95 opacity-0 transition-all duration-300"
       )}>
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-100"
+          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-100"
           onClick={handleDelete}
         >
           <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
