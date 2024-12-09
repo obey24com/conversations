@@ -4,11 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Volume2, Copy, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 
 export interface MessageBubbleProps {
   text: string;
   translation: string;
+  fromLang: string;
+  toLang: string;
   cultural?: string;
   isPlaying: boolean;
   onPlay: () => void;
