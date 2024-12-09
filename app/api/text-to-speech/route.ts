@@ -14,9 +14,16 @@ export async function POST(request: Request) {
     }
 
     // Check if we're translating to a pet language
-    if (isPetLanguage(toLang) && process.env.ELEVENLABS_API_KEY) {
+    if (isPetLanguage(toLang)) {
+      if (!process.env.ELEVENLABS_API_KEY) {
+        return NextResponse.json(
+          { error: "ElevenLabs API key is required for pet sounds" },
+          { status: 500 }
+        );
+      }
+
       try {
-        // Use ElevenLabs for pet sounds
+        // Generate pet sound effect using ElevenLabs
         const result = await generateSoundEffect(
           text,
           true,
@@ -42,18 +49,10 @@ export async function POST(request: Request) {
         });
       } catch (error) {
         console.error("ElevenLabs error:", error);
-        // Fallback to OpenAI if ElevenLabs fails
-        const mp3 = await openai.audio.speech.create({
-          model: "tts-1",
-          voice: "nova",
-          input: text,
-        });
-        const audioData = await mp3.arrayBuffer();
-        return new Response(audioData, {
-          headers: {
-            'Content-Type': 'audio/mpeg',
-          },
-        });
+        return NextResponse.json(
+          { error: "Failed to generate pet sound" },
+          { status: 500 }
+        );
       }
     }
 
