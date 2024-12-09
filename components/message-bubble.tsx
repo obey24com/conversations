@@ -5,13 +5,10 @@ import { Volume2, Copy, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
 import { useState } from 'react';
-import { isPetLanguage } from '@/lib/languages';
 
 interface MessageBubbleProps {
   text: string;
   translation: string;
-  fromLang: string;
-  toLang: string;
   cultural?: string;
   isPlaying: boolean;
   onPlay: () => void;
@@ -21,8 +18,6 @@ interface MessageBubbleProps {
 export function MessageBubble({ 
   text, 
   translation, 
-  fromLang,
-  toLang,
   cultural, 
   isPlaying, 
   onPlay,
@@ -42,28 +37,30 @@ export function MessageBubble({
 
   const handleDelete = () => {
     setIsDeleting(true);
+    // Wait for animation to complete before removing from state
     setTimeout(() => {
       onDelete();
     }, 300);
   };
 
   return (
-    <div className={cn(
-      "w-full flex justify-center mb-4",
-      "opacity-0 animate-[fadeIn_0.5s_ease-out_forwards]",
-      isDeleting && "animate-[fadeOut_0.3s_ease-out_forwards]"
-    )}>
+    <div 
+      className={cn(
+        "w-full flex justify-center mb-4 transition-all duration-300 ease-out",
+        isDeleting && "animate-[slideUpOut_0.3s_ease-out_forwards]"
+      )}
+    >
       <div className={cn(
-        "group p-6 rounded-2xl w-[85%] max-w-2xl shadow-lg relative",
+        "group relative p-6 rounded-2xl w-[85%] max-w-2xl",
         "bg-white border border-gray-100",
-        "transform translate-y-4 animate-[slideUp_0.5s_ease-out_forwards]",
-        "hover:shadow-xl transition-all duration-300",
-        isDeleting && "transform scale-95 opacity-0 transition-all duration-300"
+        "transform transition-all duration-300 ease-out",
+        "hover:shadow-lg",
+        isDeleting && "opacity-0 scale-95"
       )}>
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-100"
+          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
           onClick={handleDelete}
         >
           <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
@@ -71,9 +68,9 @@ export function MessageBubble({
 
         <p className="text-sm text-gray-500 mb-3">{text}</p>
         <div className="mt-2">
-          <p className="font-medium">{translation}</p>
+          <p className="text-lg font-medium">{translation}</p>
           
-          <div className="flex justify-end gap-1 mt-2 opacity-50 hover:opacity-100 transition-opacity duration-200">
+          <div className="flex justify-end gap-1 mt-2 opacity-50 group-hover:opacity-100 transition-opacity duration-200">
             <Button
               variant="ghost"
               size="sm"
