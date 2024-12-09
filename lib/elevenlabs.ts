@@ -13,35 +13,40 @@ export async function generateSoundEffect(
   try {
     // Determine if it's a cat or dog sound
     const isCat = text.toLowerCase().includes("meow") || text.toLowerCase().includes("purr");
-    const sfxCategory = isCat ? "cat" : "dog";
+    
+    // Use different voice IDs for cat and dog sounds
+    const voiceId = isCat ? "ThT5KcBeYPX3keUQqHPh" : "VR6AewLTigWG4xSOukaG";
     
     const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/2EiwWnXFnvU5JabPnv8n/stream`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
       {
         method: "POST",
         headers: {
+          "Accept": "audio/mpeg",
           "Content-Type": "application/json",
           "xi-api-key": apiKey,
         },
         body: JSON.stringify({
-          text: text,
-          model_id: "eleven_multilingual_v2",
+          text,
+          model_id: "eleven_monolingual_v1",
           voice_settings: {
-            stability: 0.5,
+            stability: 0.30,
             similarity_boost: 0.75,
+            style: 0.5,
+            use_speaker_boost: true
           }
         }),
       }
     );
 
     if (!response.ok) {
-      throw new Error(`ElevenLabs API error: ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`ElevenLabs API error: ${response.statusText} ${JSON.stringify(errorData)}`);
     }
 
-    const audioBlob = await response.blob();
-    const audioBase64 = await blobToBase64(audioBlob);
-    
-    return { audio: audioBase64 };
+    const audioBuffer = await response.arrayBuffer();
+    const base64Audio = Buffer.from(audioBuffer).toString('base64');
+    return { audio: `data:audio/mpeg;base64,${base64Audio}` };
   } catch (error) {
     console.error("ElevenLabs API error:", error);
     return {
@@ -49,19 +54,4 @@ export async function generateSoundEffect(
       error: error instanceof Error ? error.message : "Failed to generate sound effect",
     };
   }
-}
-
-async function blobToBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (typeof reader.result === "string") {
-        resolve(reader.result);
-      } else {
-        reject(new Error("Failed to convert blob to base64"));
-      }
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
 }
