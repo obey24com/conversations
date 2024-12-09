@@ -9,8 +9,6 @@ import { useState, useRef } from 'react';
 export interface MessageBubbleProps {
   text: string;
   translation: string;
-  fromLang: string;
-  toLang: string;
   cultural?: string;
   isPlaying: boolean;
   onPlay: () => void;
@@ -41,7 +39,6 @@ export function MessageBubble({
   const handleDelete = () => {
     setIsDeleting(true);
     
-    // Trigger exit animation
     if (bubbleRef.current) {
       bubbleRef.current.style.height = `${bubbleRef.current.offsetHeight}px`;
       bubbleRef.current.offsetHeight; // Force reflow
@@ -56,7 +53,6 @@ export function MessageBubble({
       });
     }
 
-    // Call onDelete after animation completes
     setTimeout(() => {
       onDelete();
     }, 300);
@@ -66,13 +62,13 @@ export function MessageBubble({
     <div 
       ref={bubbleRef}
       className={cn(
-        "message-bubble transition-all duration-300 ease-out mb-4",
+        "message-bubble transition-all duration-300 ease-out mb-6",
         isDeleting && "pointer-events-none"
       )}
     >
       <div 
         className={cn(
-          "group relative p-6 rounded-2xl w-[85%] max-w-2xl mx-auto",
+          "group relative p-8 rounded-2xl w-[95%] max-w-4xl mx-auto",
           "bg-white border border-gray-100 shadow-sm",
           "hover:shadow-lg transition-shadow duration-200"
         )}
@@ -86,15 +82,15 @@ export function MessageBubble({
           <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
         </Button>
 
-        <p className="text-sm text-gray-500 mb-3">{text}</p>
-        <div className="mt-2">
-          <p className="text-lg font-medium text-gray-900">{translation}</p>
+        <p className="text-sm text-gray-500 mb-4">{text}</p>
+        <div className="mt-3">
+          <p className="text-lg font-medium text-gray-900 leading-relaxed">{translation}</p>
           
-          <div className="flex justify-end gap-1 mt-3 opacity-40 group-hover:opacity-100 transition-opacity duration-200">
+          <div className="flex justify-end gap-2 mt-4 opacity-40 group-hover:opacity-100 transition-opacity duration-200">
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 px-2 text-gray-400 hover:text-gray-600"
+              className="h-8 px-3 text-gray-400 hover:text-gray-600"
               onClick={onPlay}
             >
               <Volume2 className={cn(
@@ -106,7 +102,7 @@ export function MessageBubble({
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 px-2 text-gray-400 hover:text-gray-600"
+              className="h-8 px-3 text-gray-400 hover:text-gray-600"
               onClick={() => copyToClipboard(translation)}
             >
               <Copy className="h-4 w-4" />
@@ -114,7 +110,7 @@ export function MessageBubble({
           </div>
 
           {cultural && (
-            <p className="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600 italic">
+            <p className="mt-4 pt-4 border-t border-gray-100 text-sm text-gray-600 italic leading-relaxed">
               {cultural}
             </p>
           )}
