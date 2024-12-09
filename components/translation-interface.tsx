@@ -3,12 +3,13 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mic, Square, Send, ArrowLeftRight, Volume2, Copy } from "lucide-react";
+import { Mic, Square, Send, ArrowLeftRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
-import { supportedLanguages } from "@/lib/languages";
+import { supportedLanguages, isPetLanguage } from "@/lib/languages";
 import { useZoomControl } from "@/hooks/use-zoom-control";
 import { LanguageSelect } from "./language-select";
+import { MessageBubble } from "./message-bubble";
 
 interface Message {
   text: string;
@@ -57,15 +58,13 @@ export function TranslationInterface() {
   useZoomControl();
 
   const [fromLang, setFromLang] = useState(() =>
-    getStoredLanguage(STORAGE_KEYS.FROM_LANG, "en"),
+    getStoredLanguage(STORAGE_KEYS.FROM_LANG, "en")
   );
   const [toLang, setToLang] = useState(() =>
-    getStoredLanguage(STORAGE_KEYS.TO_LANG, "es"),
+    getStoredLanguage(STORAGE_KEYS.TO_LANG, "es")
   );
   const [inputText, setInputText] = useState("");
-  const [messages, setMessages] = useState<Message[]>(() =>
-    getStoredMessages(),
-  );
+  const [messages, setMessages] = useState<Message[]>(() => getStoredMessages());
   const [isRecording, setIsRecording] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState<number | null>(null);
@@ -84,10 +83,7 @@ export function TranslationInterface() {
   useEffect(() => {
     if (messages.length > 0) {
       const recentMessages = messages.slice(-MAX_STORED_MESSAGES);
-      localStorage.setItem(
-        STORAGE_KEYS.MESSAGES,
-        JSON.stringify(recentMessages),
-      );
+      localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(recentMessages));
     }
   }, [messages]);
 
@@ -109,17 +105,14 @@ export function TranslationInterface() {
       const data = await response.json();
 
       if (data.translation) {
-        const [translation, ...culturalNotes] =
-          data.translation.split("\nCONTEXT:");
+        const [translation, ...culturalNotes] = data.translation.split("\nCONTEXT:");
 
         setMessages((prev) => [
           ...prev,
           {
             text: inputText,
             translation: translation.replace("TRANSLATION:", "").trim(),
-            cultural: culturalNotes.length
-              ? culturalNotes.join("\n").trim()
-              : undefined,
+            cultural: culturalNotes.length ? culturalNotes.join("\n").trim() : undefined,
             fromLang,
             toLang,
             timestamp: Date.now(),
@@ -147,7 +140,6 @@ export function TranslationInterface() {
     const newFromLang = toLang;
     const newToLang = fromLang;
     
-    // Delay the actual swap to allow for animation
     setTimeout(() => {
       setFromLang(newFromLang);
       setToLang(newToLang);
@@ -178,13 +170,13 @@ export function TranslationInterface() {
     handleSwapLanguages();
   };
 
-  const playTranslation = async (text: string, index: number) => {
+  const playTranslation = async (text: string, index: number, toLang: string) => {
     try {
       setIsPlaying(index);
       const response = await fetch("/api/text-to-speech", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, toLang }),
       });
 
       if (!response.ok) throw new Error("Failed to generate speech");
@@ -346,24 +338,6 @@ export function TranslationInterface() {
     }
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard
-      .writeText(text)
-      .then(() => {
-        toast({
-          title: "Copied!",
-          description: "The translated text has been copied to your clipboard.",
-        });
-      })
-      .catch(() => {
-        toast({
-          title: "Error",
-          description: "Failed to copy text.",
-          variant: "destructive",
-        });
-      });
-  };
-
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -390,56 +364,21 @@ export function TranslationInterface() {
         <div className="mx-auto mb-4 flex h-full w-full max-w-5xl flex-col-reverse space-y-4 overflow-y-auto px-4">
           <div ref={messagesEndRef} />
           {[...messages].reverse().map((message, index) => (
-            <div
+            <MessageBubble
               key={index}
-              className={cn(
-                "mx-auto max-w-[85%] rounded-lg p-4",
-                "w-full border border-[#F9F9F9] bg-white text-slate-900",
-                index === 0 ? "mt-4" : "",
-                "animate-in fade-in duration-700",
-              )}
-            >
-              <p className="text-sm opacity-70">{message.text}</p>
-              <div className="relative mt-2 flex flex-col items-start gap-2">
-                <p className="flex-1 font-medium">{message.translation}</p>
-                <div className="flex w-full justify-end border-y border-[#AAAAAA]">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="shrink-0 text-[#AAAAAA] hover:text-black"
-                    onClick={() => {
-                      if (isPlaying === index) {
-                        audioRef.current?.pause();
-                        setIsPlaying(null);
-                      } else {
-                        playTranslation(message.translation, index);
-                      }
-                    }}
-                  >
-                    <Volume2
-                      className={cn(
-                        "h-4 w-4",
-                        isPlaying === index && "animate-pulse",
-                      )}
-                    />
-                  </Button>
-                  <Button
-                    onClick={() => copyToClipboard(message.translation)}
-                    className="shrink-0 text-[#AAAAAA] hover:text-black"
-                    aria-label="Copy translation"
-                    variant="ghost"
-                    size="icon"
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              {message.cultural && (
-                <p className="border-primary-foreground/20 mt-2 border-t pt-2 text-sm opacity-70">
-                  {message.cultural}
-                </p>
-              )}
-            </div>
+              text={message.text}
+              translation={message.translation}
+              fromLang={message.fromLang}
+              toLang={message.toLang}
+              cultural={message.cultural}
+              isPlaying={isPlaying === index}
+              onPlay={() => playTranslation(message.translation, index, message.toLang)}
+              onDelete={() => {
+                const newMessages = [...messages];
+                newMessages.splice(messages.length - 1 - index, 1);
+                setMessages(newMessages);
+              }}
+            />
           ))}
         </div>
       </div>
