@@ -15,7 +15,7 @@ export async function generateSoundEffect(
     const voiceId = "2EiwWnXFnvU5JabPnv8n"; // Sound effects voice ID
     
     const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`,
       {
         method: "POST",
         headers: {
@@ -29,7 +29,7 @@ export async function generateSoundEffect(
             stability: 0.5,
             similarity_boost: 0.75,
             style: 0.85,
-            speaker_boost: true,
+            use_speaker_boost: true,
           },
         }),
       }
