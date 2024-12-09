@@ -173,10 +173,18 @@ export function TranslationInterface() {
   const playTranslation = async (text: string, index: number, toLang: string) => {
     try {
       setIsPlaying(index);
+
+      // Check if we're playing a pet language translation
+      const isPet = isPetLanguage(toLang);
+
       const response = await fetch("/api/text-to-speech", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, toLang }),
+        body: JSON.stringify({ 
+          text,
+          toLang,
+          isPet
+        }),
       });
 
       if (!response.ok) throw new Error("Failed to generate speech");
