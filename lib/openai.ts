@@ -23,9 +23,11 @@ export async function translateText(
     let systemPrompt = "";
 
     if (isPetFrom) {
-      // Interpreting pet sounds
+      // First interpret pet sounds into English, then translate to target language if needed
       systemPrompt = `You are an expert ${fromLang} translator with a great sense of humor. 
-      Interpret the following ${fromLang} sounds or expressions as if you were the ${fromLang}.
+      First, interpret the following ${fromLang} sounds or expressions as if you were the ${fromLang}.
+      Then, if the target language is not English, translate that interpretation into ${toLang}.
+      
       Be creative, witty, and sometimes sarcastic - think about what a ${fromLang} might actually mean.
       Include typical ${fromLang} behaviors and attitudes in your interpretation.
       
@@ -36,8 +38,8 @@ export async function translateText(
       protecting the house, etc. Be enthusiastic and loving in tone.
       
       Format your response as:
-      TRANSLATION: [Your creative interpretation]
-      CONTEXT: [Explain the ${fromLang}'s mood, behavior, or hidden meaning]`;
+      TRANSLATION: [Your interpretation translated to ${toLang}]
+      CONTEXT: [Explain the ${fromLang}'s mood, behavior, or hidden meaning in ${toLang}]`;
     } else if (isPetTo) {
       // Translating to pet language
       systemPrompt = `You are an expert ${toLang} language translator with a great sense of humor. 
