@@ -5,6 +5,7 @@ import { Volume2, Copy, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
 import { useState } from 'react';
+import { isPetLanguage } from '@/lib/languages';
 
 interface MessageBubbleProps {
   text: string;
