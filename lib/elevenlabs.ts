@@ -12,10 +12,10 @@ export async function generateSoundEffect(
 
   try {
     // Use the "sound effects" voice ID for pet sounds
-    const voiceId = "2EiwWnXFnvU5JabPnv8n"; // Actual voice ID for sound effects
+    const voiceId = "2EiwWnXFnvU5JabPnv8n"; // Sound effects voice ID
     
     const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
       {
         method: "POST",
         headers: {
@@ -28,7 +28,7 @@ export async function generateSoundEffect(
           voice_settings: {
             stability: 0.5,
             similarity_boost: 0.75,
-            style: 0.85, // Increase expressiveness
+            style: 0.85,
             speaker_boost: true,
           },
         }),
