@@ -9,6 +9,7 @@ import { useState } from 'react';
 interface MessageBubbleProps {
   text: string;
   translation: string;
+  fromLang: string;
   cultural?: string;
   isPlaying: boolean;
   onPlay: () => void;
@@ -18,6 +19,7 @@ interface MessageBubbleProps {
 export function MessageBubble({ 
   text, 
   translation, 
+  fromLang,
   cultural, 
   isPlaying, 
   onPlay,
