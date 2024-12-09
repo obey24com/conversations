@@ -11,8 +11,9 @@ export async function generateSoundEffect(
   if (!isPet) return { audio: "", error: "Not a pet sound" };
 
   try {
+    // Use the correct endpoint for sound effects
     const response = await fetch(
-      "https://api.elevenlabs.io/v1/text-to-speech/sound-effects",
+      "https://api.elevenlabs.io/v1/sound-effects/generate",
       {
         method: "POST",
         headers: {
@@ -22,13 +23,16 @@ export async function generateSoundEffect(
         },
         body: JSON.stringify({
           text: text,
-          model_id: "eleven_multilingual_v2",
-          voice_settings: {
-            stability: 0.5,
-            similarity_boost: 0.75,
-            style: 1.0,
-            use_speaker_boost: true
-          }
+          // Sound effect settings
+          sfx_category: text.toLowerCase().includes("meow") ? "cat" : "dog",
+          duration_multiplier: 1.0,
+          random_seed: Math.floor(Math.random() * 100000),
+          // Optional settings for more variety
+          variations: [{
+            rate: 1.0,
+            pitch: 1.0,
+            reverb: 0.1
+          }]
         }),
       }
     );
