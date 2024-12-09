@@ -1,5 +1,5 @@
 export interface ElevenLabsResponse {
-  audio: string;
+  audio: ArrayBuffer;
   error?: string;
 }
 
@@ -8,10 +8,9 @@ export async function generateSoundEffect(
   isPet: boolean,
   apiKey: string
 ): Promise<ElevenLabsResponse> {
-  if (!isPet) return { audio: "", error: "Not a pet sound" };
+  if (!isPet) return { audio: new ArrayBuffer(0), error: "Not a pet sound" };
 
   try {
-    // Use the correct endpoint for sound effects
     const response = await fetch(
       "https://api.elevenlabs.io/v1/sound-effects/generate",
       {
@@ -23,16 +22,8 @@ export async function generateSoundEffect(
         },
         body: JSON.stringify({
           text: text,
-          // Sound effect settings
-          sfx_category: text.toLowerCase().includes("meow") ? "cat" : "dog",
-          duration_multiplier: 1.0,
-          random_seed: Math.floor(Math.random() * 100000),
-          // Optional settings for more variety
-          variations: [{
-            rate: 1.0,
-            pitch: 1.0,
-            reverb: 0.1
-          }]
+          duration_seconds: 2,
+          prompt_influence: 0.3
         }),
       }
     );
@@ -43,14 +34,15 @@ export async function generateSoundEffect(
       throw new Error(`ElevenLabs API error: ${response.statusText}`);
     }
 
+    // Get the audio data as ArrayBuffer directly
     const audioBuffer = await response.arrayBuffer();
-    const base64Audio = Buffer.from(audioBuffer).toString('base64');
-    return { audio: `data:audio/mpeg;base64,${base64Audio}` };
+    return { audio: audioBuffer };
+
   } catch (error) {
     console.error("ElevenLabs API error:", error);
     return {
-      audio: "",
-      error: error instanceof Error ? error.message : "Failed to generate sound effect",
+      audio: new ArrayBuffer(0),
+      error: error instanceof Error ? error.message : "Failed to generate sound effect"
     };
   }
 }
