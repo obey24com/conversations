@@ -9,8 +9,6 @@ import { useState, useRef } from 'react';
 export interface MessageBubbleProps {
   text: string;
   translation: string;
-  fromLang: string;
-  toLang: string;
   cultural?: string;
   isPlaying: boolean;
   onPlay: () => void;
@@ -20,8 +18,6 @@ export interface MessageBubbleProps {
 export function MessageBubble({ 
   text, 
   translation,
-  fromLang,
-  toLang, 
   cultural, 
   isPlaying, 
   onPlay,
@@ -69,7 +65,7 @@ export function MessageBubble({
     >
       <div 
         className={cn(
-          "group relative p-8 rounded-2xl w-[95%] max-w-4xl mx-auto",
+          "group relative p-8 rounded-2xl w-full max-w-4xl mx-auto",
           "bg-white border border-gray-100 shadow-sm",
           "hover:shadow-lg transition-shadow duration-200"
         )}
