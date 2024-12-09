@@ -10,6 +10,7 @@ interface MessageBubbleProps {
   text: string;
   translation: string;
   fromLang: string;
+  toLang: string;
   cultural?: string;
   isPlaying: boolean;
   onPlay: () => void;
@@ -20,6 +21,7 @@ export function MessageBubble({
   text, 
   translation, 
   fromLang,
+  toLang,
   cultural, 
   isPlaying, 
   onPlay,
