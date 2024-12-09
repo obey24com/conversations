@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
       try {
         // Extract the first sound from the text (e.g., first "meow" or "woof")
-        const firstSound = text.split(/\s+/)[0];
+        const firstSound = text.split(/[,!\s]+/)[0];
         console.log("Generating pet sound for:", firstSound);
         
         const result = await generateSoundEffect(firstSound, true, apiKey);
@@ -37,18 +37,13 @@ export async function POST(request: Request) {
           throw new Error(result.error);
         }
 
-        if (!result.audio) {
-          console.error("No audio returned from ElevenLabs");
-          throw new Error("No audio generated");
-        }
-
-        // Convert base64 to binary
-        const base64Data = result.audio.split(',')[1];
-        const buffer = Buffer.from(base64Data, 'base64');
-
-        return new Response(buffer, {
+        // Return the audio buffer directly with proper headers
+        return new Response(result.audio, {
           headers: {
             'Content-Type': 'audio/mpeg',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
           },
         });
       } catch (error) {
@@ -69,9 +64,13 @@ export async function POST(request: Request) {
 
     const audioData = await mp3.arrayBuffer();
 
+    // Return regular text-to-speech audio with proper headers
     return new Response(audioData, {
       headers: {
         'Content-Type': 'audio/mpeg',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       },
     });
   } catch (error) {
