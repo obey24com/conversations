@@ -42,10 +42,9 @@ export function MessageBubble({
 
   const handleDelete = () => {
     setIsDeleting(true);
-    // Wait for animation to complete before actual deletion
     setTimeout(() => {
       onDelete();
-    }, 300); // Match this with CSS transition duration
+    }, 300);
   };
 
   return (
@@ -71,43 +70,36 @@ export function MessageBubble({
         </Button>
 
         <p className="text-sm text-gray-500 mb-3">{text}</p>
-        <div className="mt-2 space-y-3">
-          <p className="text-lg font-medium text-gray-900">{translation}</p>
+        <div className="mt-2">
+          <p className="font-medium">{translation}</p>
           
-          <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
+          <div className="flex justify-end gap-1 mt-2 opacity-50 hover:opacity-100 transition-opacity duration-200">
             <Button
               variant="ghost"
               size="sm"
-              className={cn(
-                "hover:bg-gray-100 transition-colors duration-200",
-                isPlaying && "text-blue-600"
-              )}
+              className="h-8 px-2 text-gray-500 hover:text-gray-900 hover:bg-transparent"
               onClick={onPlay}
             >
               <Volume2 className={cn(
-                "h-4 w-4 mr-2",
-                isPlaying && "animate-[pulse_1.5s_ease-in-out_infinite]"
+                "h-4 w-4",
+                isPlaying && "animate-pulse"
               )} />
-              {isPlaying ? "Playing..." : "Listen"}
             </Button>
 
             <Button
               variant="ghost"
               size="sm"
-              className="hover:bg-gray-100 transition-colors duration-200"
+              className="h-8 px-2 text-gray-500 hover:text-gray-900 hover:bg-transparent"
               onClick={() => copyToClipboard(translation)}
             >
-              <Copy className="h-4 w-4 mr-2" />
-              Copy
+              <Copy className="h-4 w-4" />
             </Button>
           </div>
 
           {cultural && (
-            <div className="mt-3 pt-3 border-t border-gray-100">
-              <p className="text-sm text-gray-600 italic">
-                {cultural}
-              </p>
-            </div>
+            <p className="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600 italic">
+              {cultural}
+            </p>
           )}
         </div>
       </div>
