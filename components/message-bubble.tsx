@@ -4,13 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Volume2, Copy, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
-import { useState, useEffect } from 'react';
+import { useState, useRef } from 'react';
 
 interface MessageBubbleProps {
   text: string;
   translation: string;
-  fromLang: string;
-  toLang: string;
   cultural?: string;
   isPlaying: boolean;
   onPlay: () => void;
@@ -19,9 +17,7 @@ interface MessageBubbleProps {
 
 export function MessageBubble({ 
   text, 
-  translation,
-  fromLang,
-  toLang,
+  translation, 
   cultural, 
   isPlaying, 
   onPlay,
@@ -29,8 +25,7 @@ export function MessageBubble({
 }: MessageBubbleProps) {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
-  const [height, setHeight] = useState<number | null>(null);
-  const [opacity, setOpacity] = useState(1);
+  const bubbleRef = useRef<HTMLDivElement>(null);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -42,51 +37,57 @@ export function MessageBubble({
   };
 
   const handleDelete = () => {
-    setIsDeleting(true);
-    setOpacity(0);
-    
-    // First fade out the content
-    setTimeout(() => {
-      // Then collapse the height
-      setHeight(0);
-      // Finally remove from parent state after animation completes
-      setTimeout(() => {
-        onDelete();
-      }, 300);
-    }, 200);
-  };
+    if (!bubbleRef.current) return;
 
-  useEffect(() => {
-    // Set initial height on mount
-    const element = document.getElementById('message-content');
-    if (element) {
-      setHeight(element.offsetHeight);
-    }
-  }, []);
+    setIsDeleting(true);
+    const height = bubbleRef.current.offsetHeight;
+    
+    // Set initial height before animation
+    bubbleRef.current.style.height = `${height}px`;
+    bubbleRef.current.style.marginBottom = '1rem';
+    
+    // Force a reflow
+    bubbleRef.current.offsetHeight;
+    
+    // Start collapse animation
+    requestAnimationFrame(() => {
+      if (bubbleRef.current) {
+        bubbleRef.current.style.height = '0';
+        bubbleRef.current.style.marginBottom = '0';
+        bubbleRef.current.style.opacity = '0';
+        bubbleRef.current.style.transform = 'translateY(-20px)';
+      }
+    });
+
+    // Remove element after animation
+    setTimeout(() => {
+      onDelete();
+    }, 300);
+  };
 
   return (
     <div 
-      style={{ 
-        height: height === null ? 'auto' : `${height}px`,
-        marginBottom: height === 0 ? 0 : '1rem',
-        opacity: opacity,
-        transform: `translateY(${isDeleting ? '-20px' : '0'})`,
+      ref={bubbleRef}
+      className={cn(
+        "transition-all duration-300 ease-out mb-4",
+        "opacity-100 transform translate-y-0",
+        isDeleting && "pointer-events-none"
+      )}
+      style={{
+        willChange: 'transform, opacity, height, margin'
       }}
-      className="transition-all duration-300 ease-out overflow-hidden"
     >
       <div 
-        id="message-content"
         className={cn(
           "group relative p-6 rounded-2xl w-[85%] max-w-2xl mx-auto",
-          "bg-white border border-gray-100",
-          "transform transition-all duration-300 ease-out",
-          "hover:shadow-lg"
+          "bg-white border border-gray-100 shadow-sm",
+          "hover:shadow-lg transition-shadow duration-200"
         )}
       >
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+          className="absolute -right-2 -top-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white shadow-sm hover:shadow-md"
           onClick={handleDelete}
         >
           <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
@@ -94,13 +95,13 @@ export function MessageBubble({
 
         <p className="text-sm text-gray-500 mb-3">{text}</p>
         <div className="mt-2">
-          <p className="text-lg font-medium">{translation}</p>
+          <p className="text-lg font-medium text-gray-900">{translation}</p>
           
-          <div className="flex justify-end gap-1 mt-2 opacity-40 group-hover:opacity-100 transition-opacity duration-200">
+          <div className="flex justify-end gap-1 mt-3 opacity-40 group-hover:opacity-100 transition-opacity duration-200">
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 px-2 text-gray-500 hover:text-gray-900 hover:bg-transparent"
+              className="h-8 px-2 text-gray-400 hover:text-gray-600"
               onClick={onPlay}
             >
               <Volume2 className={cn(
@@ -112,7 +113,7 @@ export function MessageBubble({
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 px-2 text-gray-500 hover:text-gray-900 hover:bg-transparent"
+              className="h-8 px-2 text-gray-400 hover:text-gray-600"
               onClick={() => copyToClipboard(translation)}
             >
               <Copy className="h-4 w-4" />
