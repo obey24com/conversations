@@ -4,11 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Volume2, Copy, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
-interface MessageBubbleProps {
+export interface MessageBubbleProps {
   text: string;
   translation: string;
+  fromLang: string;
+  toLang: string;
   cultural?: string;
   isPlaying: boolean;
   onPlay: () => void;
@@ -21,11 +23,20 @@ export function MessageBubble({
   cultural, 
   isPlaying, 
   onPlay,
-  onDelete 
+  onDelete,
+  fromLang,
+  toLang
 }: MessageBubbleProps) {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
   const bubbleRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (bubbleRef.current) {
+      setHeight(bubbleRef.current.offsetHeight);
+    }
+  }, []);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -38,26 +49,27 @@ export function MessageBubble({
 
   const handleDelete = () => {
     if (!bubbleRef.current) return;
-
+    
     setIsDeleting(true);
-    const height = bubbleRef.current.offsetHeight;
     
-    // Set initial height before animation
-    bubbleRef.current.style.height = `${height}px`;
-    bubbleRef.current.style.marginBottom = '1rem';
-    
-    // Force a reflow
-    bubbleRef.current.offsetHeight;
-    
-    // Start collapse animation
-    requestAnimationFrame(() => {
-      if (bubbleRef.current) {
-        bubbleRef.current.style.height = '0';
-        bubbleRef.current.style.marginBottom = '0';
-        bubbleRef.current.style.opacity = '0';
-        bubbleRef.current.style.transform = 'translateY(-20px)';
-      }
-    });
+    // Set initial height and trigger animation
+    if (height) {
+      bubbleRef.current.style.height = `${height}px`;
+      bubbleRef.current.style.marginBottom = '1rem';
+      
+      // Force reflow
+      bubbleRef.current.offsetHeight;
+      
+      // Start collapse animation
+      requestAnimationFrame(() => {
+        if (bubbleRef.current) {
+          bubbleRef.current.style.height = '0';
+          bubbleRef.current.style.marginBottom = '0';
+          bubbleRef.current.style.opacity = '0';
+          bubbleRef.current.style.transform = 'translateY(-20px)';
+        }
+      });
+    }
 
     // Remove element after animation
     setTimeout(() => {
@@ -69,8 +81,7 @@ export function MessageBubble({
     <div 
       ref={bubbleRef}
       className={cn(
-        "transition-all duration-300 ease-out mb-4",
-        "opacity-100 transform translate-y-0",
+        "message-bubble transition-all duration-300 ease-out mb-4",
         isDeleting && "pointer-events-none"
       )}
       style={{
