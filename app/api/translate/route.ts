@@ -9,13 +9,26 @@ export async function POST(request: Request) {
     const { text, fromLang, toLang } = await request.json();
 
     if (!text?.trim()) {
-      return NextResponse.json({ error: "Text is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Text is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!fromLang || !toLang) {
+      return NextResponse.json(
+        { error: "Source and target languages are required" },
+        { status: 400 }
+      );
     }
 
     const translation = await translateText(text, fromLang, toLang);
 
     if (!translation) {
-      return NextResponse.json({ error: "No translation generated" }, { status: 500 });
+      return NextResponse.json(
+        { error: "No translation generated" },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ translation });
