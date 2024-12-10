@@ -9,17 +9,10 @@ export async function generatePetSound(
   apiKey: string
 ): Promise<ElevenLabsResponse> {
   try {
-    // Adjust the text for better sound generation
-    const soundText = text.toLowerCase().trim();
-    
-    // Configure the sound effect parameters based on the type of sound
-    const isCat = petType === 'cat';
-    const duration = isCat ? 1.0 : 0.8; // Cats slightly longer than dogs
-    const influence = isCat ? 0.7 : 0.5; // More variation for cats
+    console.log(`Generating ${petType} sound for text:`, text);
 
-    // Use the correct endpoint for sound effects
     const response = await fetch(
-      "https://api.elevenlabs.io/v1/text-to-speech/sound-effects",
+      "https://api.elevenlabs.io/v1/sound-generation",
       {
         method: "POST",
         headers: {
@@ -28,18 +21,22 @@ export async function generatePetSound(
           "xi-api-key": apiKey
         },
         body: JSON.stringify({
-          text: soundText,
-          duration_seconds: duration,
-          prompt_influence: influence,
-          style: isCat ? "soft" : "energetic"
+          text: text,
+          duration_seconds: 2.0,
+          prompt_influence: 0.3
         })
       }
     );
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("ElevenLabs API error response:", errorText);
-      throw new Error(`ElevenLabs API error: ${response.status}`);
+      console.error("ElevenLabs API error:", {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+      throw new Error(`ElevenLabs API error: ${response.status} ${errorText}`);
     }
 
     const audioBuffer = await response.arrayBuffer();
@@ -48,6 +45,7 @@ export async function generatePetSound(
       throw new Error("Received empty audio buffer from ElevenLabs API");
     }
 
+    console.log("Successfully generated sound effect, buffer size:", audioBuffer.byteLength);
     return { audio: audioBuffer };
 
   } catch (error) {
