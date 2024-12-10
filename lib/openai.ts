@@ -62,8 +62,8 @@ export async function translateText(
         { role: 'system', content: systemPrompt },
         { role: 'user', content: text.trim() }
       ],
-      temperature: 0.7,
-      max_tokens: 1000,
+      temperature: 0.8,
+      max_tokens: 2000,
     }).catch(error => {
       console.error('OpenAI API error:', {
         error: error.message,
