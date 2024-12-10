@@ -13,7 +13,7 @@ export interface MessageBubbleProps {
   toLang: string;
   cultural?: string;
   isPlaying: boolean;
-  onPlay: () => void;
+  onPlay: () => Promise<void>;
   onDelete: () => void;
 }
 
