@@ -121,8 +121,7 @@ export function TranslationInterface() {
       const response = await fetch("/api/translate", {
         method: "POST",
         headers: { 
-          "Content-Type": "application/json",
-          "Accept": "application/json"
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           text: currentText,
@@ -137,24 +136,26 @@ export function TranslationInterface() {
 
       const data = await response.json();
 
-      if (data.translation) {
-        const [translation, ...culturalNotes] = data.translation.split("\nCONTEXT:");
+      if (!data.translation) {
+        throw new Error("No translation received");
+      }
 
-        const newMessage = {
-          id: Math.random().toString(36).substr(2, 9),
-          text: currentText,
-          translation: translation.replace("TRANSLATION:", "").trim(),
-          cultural: culturalNotes.length ? culturalNotes.join("\n").trim() : undefined,
-          fromLang,
-          toLang,
-          timestamp: Date.now(),
-        };
+      const [translation, ...culturalNotes] = data.translation.split("\nCONTEXT:");
 
-        setMessages(prev => [...prev, newMessage]);
+      const newMessage = {
+        id: Math.random().toString(36).substr(2, 9),
+        text: currentText,
+        translation: translation.replace("TRANSLATION:", "").trim(),
+        cultural: culturalNotes.length ? culturalNotes.join("\n").trim() : undefined,
+        fromLang,
+        toLang,
+        timestamp: Date.now(),
+      };
 
-        if (isSwapActive) {
-          handleSwapLanguages();
-        }
+      setMessages(prev => [...prev, newMessage]);
+
+      if (isSwapActive) {
+        handleSwapLanguages();
       }
     } catch (error) {
       console.error("Translation error:", error);
@@ -215,7 +216,9 @@ export function TranslationInterface() {
   const playTranslation = async (text: string, index: number, targetLang: string) => {
     try {
       setIsPlaying(index);
-      const response = await fetch("/api/text-to-speech", {
+      const endpoint = isPetLanguage(targetLang) ? "/api/text-to-speech" : "/api/text-to-speech";
+      
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -275,46 +278,47 @@ export function TranslationInterface() {
       }
 
       const data = await response.json();
-      if (data.text) {
-        const translationResponse = await fetch("/api/translate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            text: data.text,
-            fromLang,
-            toLang,
-          }),
-        });
+      if (!data.text) {
+        throw new Error("No text received from speech recognition");
+      }
 
-        if (!translationResponse.ok) {
-          throw new Error(`Translation failed: ${translationResponse.statusText}`);
-        }
+      const translationResponse = await fetch("/api/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: data.text,
+          fromLang,
+          toLang,
+        }),
+      });
 
-        const translationData = await translationResponse.json();
+      if (!translationResponse.ok) {
+        throw new Error(`Translation failed: ${translationResponse.statusText}`);
+      }
 
-        if (translationData.translation) {
-          const [translation, ...culturalNotes] =
-            translationData.translation.split("\nCONTEXT:");
+      const translationData = await translationResponse.json();
 
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: Math.random().toString(36).substr(2, 9),
-              text: data.text,
-              translation: translation.replace("TRANSLATION:", "").trim(),
-              cultural: culturalNotes.length
-                ? culturalNotes.join("\n").trim()
-                : undefined,
-              fromLang,
-              toLang,
-              timestamp: Date.now(),
-            },
-          ]);
+      if (!translationData.translation) {
+        throw new Error("No translation received");
+      }
 
-          if (isSwapActive) {
-            handleSwapLanguages();
-          }
-        }
+      const [translation, ...culturalNotes] = translationData.translation.split("\nCONTEXT:");
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Math.random().toString(36).substr(2, 9),
+          text: data.text,
+          translation: translation.replace("TRANSLATION:", "").trim(),
+          cultural: culturalNotes.length ? culturalNotes.join("\n").trim() : undefined,
+          fromLang,
+          toLang,
+          timestamp: Date.now(),
+        },
+      ]);
+
+      if (isSwapActive) {
+        handleSwapLanguages();
       }
     } catch (error) {
       console.error("Speech to text error:", error);
