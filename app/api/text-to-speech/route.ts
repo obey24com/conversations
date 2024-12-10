@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { openai } from "@/lib/openai";
+import { textToSpeech } from "@/lib/openai";
 import { isPetLanguage } from "@/lib/languages";
 import { generatePetSound } from "@/lib/elevenlabs";
 
@@ -16,71 +16,45 @@ export async function POST(request: Request) {
       );
     }
 
-    // Handle pet sounds using ElevenLabs
+    // Handle pet languages with ElevenLabs
     if (isPetLanguage(toLang)) {
       const apiKey = process.env.ELEVENLABS_API_KEY;
       
       if (!apiKey) {
-        console.error("ElevenLabs API key is missing");
-        return NextResponse.json(
-          { error: "ElevenLabs API key is required for pet sounds" },
-          { status: 500 }
-        );
+        throw new Error("ElevenLabs API key is required for pet sounds");
       }
 
-      try {
-        const result = await generatePetSound(
-          text,
-          toLang as 'cat' | 'dog',
-          apiKey
-        );
+      const result = await generatePetSound(
+        text,
+        toLang as 'cat' | 'dog',
+        apiKey
+      );
 
-        if (result.error) {
-          throw new Error(result.error);
-        }
-
-        if (!result.audio || result.audio.byteLength === 0) {
-          throw new Error("No audio data received");
-        }
-
-        return new Response(result.audio, {
-          headers: {
-            'Content-Type': 'audio/mpeg',
-            'Content-Length': result.audio.byteLength.toString(),
-          },
-        });
-      } catch (error) {
-        console.error("ElevenLabs error:", error);
-        return NextResponse.json(
-          { error: "Failed to generate pet sound" },
-          { status: 500 }
-        );
+      if (result.error) {
+        throw new Error(result.error);
       }
+
+      if (!result.audio || result.audio.byteLength === 0) {
+        throw new Error("No audio data received");
+      }
+
+      return new Response(result.audio, {
+        headers: {
+          'Content-Type': 'audio/mpeg',
+          'Content-Length': result.audio.byteLength.toString(),
+        },
+      });
     }
 
     // Use OpenAI for regular text-to-speech
-    try {
-      const mp3 = await openai.audio.speech.create({
-        model: "tts-1",
-        voice: "nova",
-        input: text,
-      });
+    const audioBuffer = await textToSpeech(text);
 
-      const audioData = await mp3.arrayBuffer();
-
-      return new Response(audioData, {
-        headers: {
-          'Content-Type': 'audio/mpeg',
-          'Content-Length': audioData.byteLength.toString(),
-        },
-      });
-    } catch (error) {
-      console.error("OpenAI text to speech error:", error);
-      return NextResponse.json(
-        { error: "Failed to generate speech" },
-        { status: 500 }
-      );
-    }
+    return new Response(audioBuffer, {
+      headers: {
+        'Content-Type': 'audio/mpeg',
+        'Content-Length': audioBuffer.byteLength.toString(),
+      },
+    });
   } catch (error) {
     console.error("Text to speech error:", error);
     return NextResponse.json(
