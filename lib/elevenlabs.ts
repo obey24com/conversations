@@ -11,10 +11,15 @@ export async function generateSoundEffect(
   if (!isPet) return { audio: new ArrayBuffer(0), error: "Not a pet sound" };
 
   try {
-    console.log("Generating sound effect for:", text);
+    // Adjust the text for better sound generation
+    const soundText = text.toLowerCase().trim();
+    
+    // Configure the sound effect parameters based on the type of sound
+    const duration = soundText.includes("meow") ? 1.0 : 0.8; // Cats slightly longer than dogs
+    const influence = soundText.includes("meow") ? 0.7 : 0.5; // More variation for cats
 
     const response = await fetch(
-      "https://api.elevenlabs.io/v2/sound-effects/generate",
+      "https://api.elevenlabs.io/v2/text-to-speech/sound-effects",
       {
         method: "POST",
         headers: {
@@ -23,31 +28,25 @@ export async function generateSoundEffect(
           "xi-api-key": apiKey
         },
         body: JSON.stringify({
-          text: text,
-          duration_seconds: 2.0,
-          prompt_influence: 0.3
+          text: soundText,
+          duration_seconds: duration,
+          prompt_influence: influence,
+          style: soundText.includes("meow") ? "soft" : "energetic"
         })
       }
     );
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("ElevenLabs API error:", {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorText
-      });
-      throw new Error(`ElevenLabs API error: ${response.status} ${response.statusText}`);
+      throw new Error(`ElevenLabs API error: ${response.status} ${errorText}`);
     }
 
-    // Get the audio data as ArrayBuffer
     const audioBuffer = await response.arrayBuffer();
     
     if (!audioBuffer || audioBuffer.byteLength === 0) {
       throw new Error("Received empty audio buffer from ElevenLabs API");
     }
 
-    console.log("Successfully generated sound effect, buffer size:", audioBuffer.byteLength);
     return { audio: audioBuffer };
 
   } catch (error) {
