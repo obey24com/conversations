@@ -14,3 +14,5 @@ export interface ElevenLabsResponse {
   audio: ArrayBuffer;
   error?: string;
 }
+
+export type PetType = 'cat' | 'dog';
