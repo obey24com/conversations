@@ -48,6 +48,8 @@ export async function translateText(
       CONTEXT: [Any cultural context, idioms, or additional notes if applicable]`;
     }
 
+    console.log('Starting translation request:', { fromLang, toLang, textLength: text.length });
+
     const completion = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [
@@ -61,8 +63,10 @@ export async function translateText(
     const response = completion.choices[0]?.message?.content;
     
     if (!response) {
-      throw new Error('No translation generated');
+      throw new Error('No translation generated from OpenAI');
     }
+
+    console.log('Received OpenAI response:', { responseLength: response.length });
 
     // Ensure the response follows the expected format
     if (!response.includes('TRANSLATION:')) {
