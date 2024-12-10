@@ -36,7 +36,6 @@ export async function POST(request: Request) {
         );
 
         if (result.error) {
-          console.error("ElevenLabs error:", result.error);
           throw new Error(result.error);
         }
 
@@ -44,14 +43,10 @@ export async function POST(request: Request) {
           throw new Error("No audio data received");
         }
 
-        // Return the audio buffer with proper headers
         return new Response(result.audio, {
           headers: {
             'Content-Type': 'audio/mpeg',
             'Content-Length': result.audio.byteLength.toString(),
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
           },
         });
       } catch (error) {
@@ -77,9 +72,6 @@ export async function POST(request: Request) {
         headers: {
           'Content-Type': 'audio/mpeg',
           'Content-Length': audioData.byteLength.toString(),
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
         },
       });
     } catch (error) {
