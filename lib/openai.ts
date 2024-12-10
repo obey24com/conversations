@@ -15,6 +15,7 @@ export async function translateText(
   toLang: string
 ) {
   if (!text || !fromLang || !toLang) {
+    console.error('Missing translation parameters:', { text: !!text, fromLang, toLang });
     throw new Error('Missing required parameters for translation');
   }
 
@@ -48,7 +49,12 @@ export async function translateText(
       CONTEXT: [Any cultural context, idioms, or additional notes if applicable]`;
     }
 
-    console.log('Starting translation request:', { fromLang, toLang, textLength: text.length });
+    console.log('Starting translation request:', { 
+      fromLang, 
+      toLang, 
+      textLength: text.length,
+      systemPromptLength: systemPrompt.length 
+    });
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-4',
@@ -58,24 +64,42 @@ export async function translateText(
       ],
       temperature: 0.7,
       max_tokens: 1000,
+    }).catch(error => {
+      console.error('OpenAI API error:', {
+        error: error.message,
+        type: error.type,
+        code: error.code,
+        param: error.param
+      });
+      throw error;
     });
 
     const response = completion.choices[0]?.message?.content;
     
     if (!response) {
+      console.error('Empty response from OpenAI');
       throw new Error('No translation generated from OpenAI');
     }
 
-    console.log('Received OpenAI response:', { responseLength: response.length });
+    console.log('Received OpenAI response:', { 
+      responseLength: response.length,
+      hasTranslationMarker: response.includes('TRANSLATION:'),
+      hasContextMarker: response.includes('CONTEXT:')
+    });
 
     // Ensure the response follows the expected format
     if (!response.includes('TRANSLATION:')) {
+      console.log('Adding missing TRANSLATION marker to response');
       return `TRANSLATION: ${response}\nCONTEXT: Translation provided without additional context.`;
     }
 
     return response;
   } catch (error) {
-    console.error('OpenAI translation error:', error);
+    console.error('OpenAI translation error:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
     throw error;
   }
 }
