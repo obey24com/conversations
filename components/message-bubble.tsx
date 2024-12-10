@@ -1,10 +1,10 @@
 "use client";
 
 import { Button } from '@/components/ui/button';
-import { Volume2, Copy, X, Loader2 } from 'lucide-react';
+import { Volume2, Copy, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 
 export interface MessageBubbleProps {
   text: string;
@@ -13,7 +13,7 @@ export interface MessageBubbleProps {
   toLang: string;
   cultural?: string;
   isPlaying: boolean;
-  onPlay: () => Promise<void>;
+  onPlay: () => void;
   onDelete: () => void;
 }
 
@@ -29,13 +29,7 @@ export function MessageBubble({
 }: MessageBubbleProps) {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const bubbleRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -64,21 +58,6 @@ export function MessageBubble({
       onDelete();
     }, 300);
   };
-
-  const handlePlay = async () => {
-    if (isLoading || isPlaying) return;
-    
-    setIsLoading(true);
-    try {
-      await onPlay();
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (!mounted) {
-    return null;
-  }
 
   return (
     <div 
@@ -112,22 +91,13 @@ export function MessageBubble({
             <Button
               variant="ghost"
               size="sm"
-              className={cn(
-                "h-8 px-3 text-gray-400 hover:text-gray-600",
-                "transition-all duration-200",
-                (isLoading || isPlaying) && "bg-gray-50"
-              )}
-              onClick={handlePlay}
-              disabled={isLoading || isPlaying}
+              className="h-8 px-3 text-gray-400 hover:text-gray-600"
+              onClick={onPlay}
             >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Volume2 className={cn(
-                  "h-4 w-4",
-                  isPlaying && "animate-pulse text-blue-500"
-                )} />
-              )}
+              <Volume2 className={cn(
+                "h-4 w-4",
+                isPlaying && "animate-pulse"
+              )} />
             </Button>
 
             <Button
