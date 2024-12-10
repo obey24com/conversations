@@ -15,51 +15,38 @@ export async function POST(request: Request) {
 
     // Check if we're translating to a pet language
     if (isPetLanguage(toLang)) {
-      const apiKey = process.env.ELEVENLABS_API_KEY;
+      // Extract the first word for the sound effect (e.g., "meow" or "woof")
+      const firstSound = text.split(/[,!\s]+/)[0].toLowerCase();
       
+      // Generate appropriate pet sound based on language
+      let soundToGenerate = firstSound;
+      if (toLang === "cat" && !firstSound.includes("meow")) {
+        soundToGenerate = "meow";
+      } else if (toLang === "dog" && !firstSound.includes("woof") && !firstSound.includes("bark")) {
+        soundToGenerate = "woof";
+      }
+
+      const apiKey = process.env.ELEVENLABS_API_KEY;
       if (!apiKey) {
-        console.error("ElevenLabs API key is missing");
-        return NextResponse.json(
-          { error: "ElevenLabs API key is required for pet sounds" },
-          { status: 500 }
-        );
+        throw new Error("ElevenLabs API key is missing");
       }
 
-      try {
-        console.log("Generating pet sound for language:", toLang);
-        
-        // Extract the first sound from the text (e.g., first "meow" or "woof")
-        const firstSound = text.split(/[,!\s]+/)[0];
-        console.log("Using sound:", firstSound);
-        
-        const result = await generateSoundEffect(firstSound, true, apiKey);
-
-        if (result.error) {
-          console.error("ElevenLabs error:", result.error);
-          throw new Error(result.error);
-        }
-
-        if (!result.audio || result.audio.byteLength === 0) {
-          throw new Error("No audio data received");
-        }
-
-        // Return the audio buffer with proper headers
-        return new Response(result.audio, {
-          headers: {
-            'Content-Type': 'audio/mpeg',
-            'Content-Length': result.audio.byteLength.toString(),
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-          },
-        });
-      } catch (error) {
-        console.error("ElevenLabs error:", error);
-        return NextResponse.json(
-          { error: "Failed to generate pet sound" },
-          { status: 500 }
-        );
+      const result = await generateSoundEffect(soundToGenerate, true, apiKey);
+      
+      if (result.error) {
+        throw new Error(result.error);
       }
+
+      if (!result.audio || result.audio.byteLength === 0) {
+        throw new Error("No audio data received");
+      }
+
+      return new Response(result.audio, {
+        headers: {
+          'Content-Type': 'audio/mpeg',
+          'Content-Length': result.audio.byteLength.toString(),
+        },
+      });
     }
 
     // Use OpenAI for regular text-to-speech
@@ -75,9 +62,6 @@ export async function POST(request: Request) {
       headers: {
         'Content-Type': 'audio/mpeg',
         'Content-Length': audioData.byteLength.toString(),
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
       },
     });
   } catch (error) {
