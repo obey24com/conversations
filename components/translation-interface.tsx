@@ -78,6 +78,7 @@ export function TranslationInterface() {
   const [isSwapActiveFirst, setIsSwapActiveFirst] = useState(true);
   const [swapMessage, setSwapMessage] = useState("");
   const [isSwapping, setIsSwapping] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -85,6 +86,10 @@ export function TranslationInterface() {
   const streamRef = useRef<MediaStream | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -100,7 +105,7 @@ export function TranslationInterface() {
   };
 
   const handleSend = async () => {
-    if (!inputText.trim()) return;
+    if (!inputText.trim() || isLoading) return;
 
     try {
       setIsLoading(true);
@@ -120,22 +125,21 @@ export function TranslationInterface() {
         const [translation, ...culturalNotes] =
           data.translation.split("\nCONTEXT:");
 
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: Math.random().toString(36).substr(2, 9),
-            text: inputText,
-            translation: translation.replace("TRANSLATION:", "").trim(),
-            cultural: culturalNotes.length
-              ? culturalNotes.join("\n").trim()
-              : undefined,
-            fromLang,
-            toLang,
-            timestamp: Date.now(),
-          },
-        ]);
+        const newMessage = {
+          id: Math.random().toString(36).substr(2, 9),
+          text: inputText,
+          translation: translation.replace("TRANSLATION:", "").trim(),
+          cultural: culturalNotes.length
+            ? culturalNotes.join("\n").trim()
+            : undefined,
+          fromLang,
+          toLang,
+          timestamp: Date.now(),
+        };
 
+        setMessages(prev => [...prev, newMessage]);
         setInputText("");
+        
         if (isSwapActive) {
           handleSwapLanguages();
         }
@@ -263,20 +267,19 @@ export function TranslationInterface() {
           const [translation, ...culturalNotes] =
             translationData.translation.split("\nCONTEXT:");
 
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: Math.random().toString(36).substr(2, 9),
-              text: data.text,
-              translation: translation.replace("TRANSLATION:", "").trim(),
-              cultural: culturalNotes.length
-                ? culturalNotes.join("\n").trim()
-                : undefined,
-              fromLang,
-              toLang,
-              timestamp: Date.now(),
-            },
-          ]);
+          const newMessage = {
+            id: Math.random().toString(36).substr(2, 9),
+            text: data.text,
+            translation: translation.replace("TRANSLATION:", "").trim(),
+            cultural: culturalNotes.length
+              ? culturalNotes.join("\n").trim()
+              : undefined,
+            fromLang,
+            toLang,
+            timestamp: Date.now(),
+          };
+
+          setMessages(prev => [...prev, newMessage]);
 
           if (isSwapActive) {
             handleSwapLanguages();
@@ -363,6 +366,10 @@ export function TranslationInterface() {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <div className="flex grow flex-col">
