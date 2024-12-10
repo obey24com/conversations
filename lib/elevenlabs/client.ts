@@ -1,23 +1,21 @@
 import { ELEVENLABS_CONFIG } from './config';
-import type { SoundGenerationRequest, ElevenLabsResponse, SoundConfig } from './types';
+import type { SoundGenerationRequest, ElevenLabsResponse } from './types';
 
 export async function generateSound(
-  config: SoundConfig,
+  text: string,
   apiKey: string
 ): Promise<ElevenLabsResponse> {
   try {
     const request: SoundGenerationRequest = {
-      text: config.text,
-      model_id: config.model || ELEVENLABS_CONFIG.DEFAULT_MODEL,
+      text,
+      model_id: ELEVENLABS_CONFIG.DEFAULT_MODEL,
       voice_settings: {
-        stability: config.stability || 0.7,
-        similarity_boost: config.similarity || 0.7,
-        style: config.style || 0.5,
-        use_speaker_boost: config.speakerBoost ?? true,
+        stability: 0.7,
+        similarity_boost: 0.7,
+        style: 0.5,
+        use_speaker_boost: true,
       },
-      generation_config: {
-        chunk_length_schedule: [120, 160, 200, 240]
-      }
+      duration_seconds: ELEVENLABS_CONFIG.DURATION_SECONDS
     };
 
     const response = await fetch(
