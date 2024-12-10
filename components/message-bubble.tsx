@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Volume2, Copy, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 export interface MessageBubbleProps {
   text: string;
@@ -29,15 +29,30 @@ export function MessageBubble({
 }: MessageBubbleProps) {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const bubbleRef = useRef<HTMLDivElement>(null);
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
+  useEffect(() => {
+    // Trigger entrance animation after mount
+    requestAnimationFrame(() => {
+      setIsVisible(true);
+    });
+  }, []);
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
       toast({
         title: "Copied!",
         description: "Text copied to clipboard",
       });
-    });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to copy text",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDelete = () => {
@@ -63,7 +78,8 @@ export function MessageBubble({
     <div 
       ref={bubbleRef}
       className={cn(
-        "message-bubble transition-all duration-300 ease-out mb-4",
+        "message-bubble transition-all duration-300 ease-out mb-4 opacity-0 translate-y-4",
+        isVisible && "opacity-100 translate-y-0",
         isDeleting && "pointer-events-none"
       )}
     >
