@@ -74,14 +74,14 @@ export async function translateText(
           content: text,
         },
       ],
-      temperature: 0.8,
+      temperature: 0.7,
       max_tokens: 2000,
     });
 
     return completion.choices[0]?.message?.content;
   } catch (error) {
     console.error('OpenAI translation error:', error);
-    throw error;
+    throw new Error(error instanceof Error ? error.message : 'Translation failed');
   }
 }
 
