@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     const translation = await translateText(text, fromLang, toLang);
 
     if (!translation) {
-      throw new Error('Translation failed');
+      throw new Error('Translation failed - no response received');
     }
 
     return NextResponse.json({ translation });
