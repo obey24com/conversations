@@ -115,7 +115,7 @@ export function MessageBubble({
               variant="ghost"
               size="sm"
               className={cn(
-                "h-8 px-3 transition-all duration-300",
+                "h-8 px-3 transition-all duration-500",
                 isPlaying 
                   ? "text-blue-500 bg-blue-50 hover:bg-blue-100 hover:text-blue-600"
                   : "text-gray-400 hover:text-gray-600"
@@ -123,12 +123,16 @@ export function MessageBubble({
               onClick={onPlay}
             >
               <Volume2 className={cn(
-                "h-4 w-4 transition-all duration-300",
+                "h-4 w-4 transition-transform duration-500",
                 isPlaying && [
-                  "animate-[ping_1s_ease-in-out_infinite]",
-                  "after:content-[''] after:absolute after:inset-0",
-                  "after:bg-blue-500 after:opacity-75 after:rounded-full",
-                  "after:animate-ping"
+                  "animate-[wave_2s_ease-in-out_infinite]",
+                  "relative",
+                  "after:absolute after:inset-0",
+                  "after:bg-blue-500/20 after:rounded-full",
+                  "after:animate-[pulse_2s_ease-in-out_infinite]",
+                  "before:absolute before:inset-0",
+                  "before:bg-blue-500/10 before:rounded-full",
+                  "before:animate-[pulse_2s_ease-in-out_infinite_0.5s]"
                 ]
               )} />
             </Button>
