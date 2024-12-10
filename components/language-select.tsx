@@ -32,7 +32,17 @@ export function LanguageSelect({
 }) {
   const [open, setOpen] = React.useState(false);
   const [isChanging, setIsChanging] = React.useState(false);
-  const selectedLanguage = supportedLanguages.find((lang) => lang.code === value)?.name;
+  const [mounted, setMounted] = React.useState(false);
+  
+  // Use useEffect to handle client-side initialization
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const selectedLanguage = React.useMemo(() => 
+    supportedLanguages.find((lang) => lang.code === value)?.name,
+    [value]
+  );
 
   const handleLanguageChange = (currentValue: string) => {
     const selected = supportedLanguages.find(
@@ -42,10 +52,17 @@ export function LanguageSelect({
       setIsChanging(true);
       setValue(selected.code);
       onValueChange(selected.code);
-      setTimeout(() => setIsChanging(false), 300); // Match the transition duration
+      setTimeout(() => setIsChanging(false), 300);
     }
     setOpen(false);
   };
+
+  // Only render the actual content after mounting to prevent hydration mismatch
+  if (!mounted) {
+    return <Button variant="outline" className="w-[120px] justify-between sm:w-full">
+      Loading...
+    </Button>;
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
