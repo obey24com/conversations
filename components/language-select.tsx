@@ -34,7 +34,6 @@ export function LanguageSelect({
   const [isChanging, setIsChanging] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
   
-  // Use useEffect to handle client-side initialization
   React.useEffect(() => {
     setMounted(true);
   }, []);
@@ -57,11 +56,12 @@ export function LanguageSelect({
     setOpen(false);
   };
 
-  // Only render the actual content after mounting to prevent hydration mismatch
   if (!mounted) {
-    return <Button variant="outline" className="w-[120px] justify-between sm:w-full">
-      Loading...
-    </Button>;
+    return (
+      <Button variant="outline" className="w-[120px] justify-between sm:w-full">
+        Loading...
+      </Button>
+    );
   }
 
   return (
