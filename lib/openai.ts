@@ -23,7 +23,6 @@ export async function translateText(
     let systemPrompt = "";
 
     if (isPetFrom) {
-      // First interpret pet sounds into English, then translate to target language if needed
       systemPrompt = `You are an expert ${fromLang} translator with a great sense of humor. 
       First, interpret the following ${fromLang} sounds or expressions as if you were the ${fromLang}.
       Then, if the target language is not English, translate that interpretation into ${toLang}.
@@ -41,7 +40,6 @@ export async function translateText(
       TRANSLATION: [Your interpretation translated to ${toLang}]
       CONTEXT: [Explain the ${fromLang}'s mood, behavior, or hidden meaning in ${toLang}]`;
     } else if (isPetTo) {
-      // Translating to pet language
       systemPrompt = `You are an expert ${toLang} language translator with a great sense of humor. 
       Translate the following text into ${toLang} sounds, but make it fun and creative.
       
@@ -52,14 +50,15 @@ export async function translateText(
       TRANSLATION: [The ${toLang} sounds]
       CONTEXT: [A humorous explanation of what these sounds mean in ${toLang} culture]`;
     } else {
-      // Regular language translation
-      systemPrompt = `Translate the following text from ${fromLang} to ${toLang}. Ensure that the translation conveys the intended meaning clearly in ${toLang}, so that it is understandable to the reader. If there are connections or references to previous translations, please incorporate them appropriately to maintain coherence.
+      systemPrompt = `Translate the following text from ${fromLang} to ${toLang}. 
+      Ensure that the translation conveys the intended meaning clearly in ${toLang}, 
+      so that it is understandable to the reader.
 
       Format your response as follows:
       TRANSLATION: [Your translation here]
       CONTEXT: [Any cultural context, idioms, or additional notes - only if applicable]. Write the context in ${toLang}.
       
-      Only include the CONTEXT section if there are important cultural nuances to explain. Otherwise leave empty.`;
+      Only include the CONTEXT section if there are important cultural nuances to explain.`;
     }
 
     const completion = await openai.chat.completions.create({
@@ -78,10 +77,19 @@ export async function translateText(
       max_tokens: 2000,
     });
 
-    return completion.choices[0]?.message?.content;
+    const response = completion.choices[0]?.message?.content;
+    
+    if (!response) {
+      throw new Error('No translation generated');
+    }
+
+    return response;
   } catch (error) {
     console.error('OpenAI translation error:', error);
-    throw new Error(error instanceof Error ? error.message : 'Translation failed');
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Translation failed');
   }
 }
 
