@@ -7,22 +7,10 @@ export interface SoundGenerationRequest {
     style: number;
     use_speaker_boost: boolean;
   };
-  generation_config?: {
-    chunk_length_schedule: number[];
-  };
+  duration_seconds?: number;
 }
 
 export interface ElevenLabsResponse {
   audio: ArrayBuffer;
   error?: string;
-}
-
-export interface SoundConfig {
-  text: string;
-  model?: string;
-  voice?: string;
-  style?: number;
-  stability?: number;
-  similarity?: number;
-  speakerBoost?: boolean;
 }
