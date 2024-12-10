@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { openai } from "@/lib/openai";
 import { isPetLanguage } from "@/lib/languages";
-import { generateSoundEffect } from "@/lib/elevenlabs";
+import { generatePetSound } from "@/lib/elevenlabs";
 
 export const runtime = 'edge';
 
@@ -15,23 +15,16 @@ export async function POST(request: Request) {
 
     // Check if we're translating to a pet language
     if (isPetLanguage(toLang)) {
-      // Extract the first word for the sound effect (e.g., "meow" or "woof")
-      const firstSound = text.split(/[,!\s]+/)[0].toLowerCase();
-      
-      // Generate appropriate pet sound based on language
-      let soundToGenerate = firstSound;
-      if (toLang === "cat" && !firstSound.includes("meow")) {
-        soundToGenerate = "meow";
-      } else if (toLang === "dog" && !firstSound.includes("woof") && !firstSound.includes("bark")) {
-        soundToGenerate = "woof";
-      }
-
       const apiKey = process.env.ELEVENLABS_API_KEY;
       if (!apiKey) {
         throw new Error("ElevenLabs API key is missing");
       }
 
-      const result = await generateSoundEffect(soundToGenerate, true, apiKey);
+      const result = await generatePetSound(
+        text,
+        toLang as 'cat' | 'dog',
+        apiKey
+      );
       
       if (result.error) {
         throw new Error(result.error);
