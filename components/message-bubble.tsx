@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from '@/components/ui/button';
-import { Volume2, Copy, X } from 'lucide-react';
+import { Volume2, Copy, X, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
 import { useState, useRef } from 'react';
@@ -29,6 +29,7 @@ export function MessageBubble({
 }: MessageBubbleProps) {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const bubbleRef = useRef<HTMLDivElement>(null);
 
   const copyToClipboard = (text: string) => {
@@ -57,6 +58,17 @@ export function MessageBubble({
     setTimeout(() => {
       onDelete();
     }, 300);
+  };
+
+  const handlePlay = async () => {
+    if (isLoading || isPlaying) return;
+    
+    setIsLoading(true);
+    try {
+      await onPlay();
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -91,13 +103,22 @@ export function MessageBubble({
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 px-3 text-gray-400 hover:text-gray-600"
-              onClick={onPlay}
+              className={cn(
+                "h-8 px-3 text-gray-400 hover:text-gray-600",
+                "transition-all duration-200",
+                (isLoading || isPlaying) && "bg-gray-50"
+              )}
+              onClick={handlePlay}
+              disabled={isLoading || isPlaying}
             >
-              <Volume2 className={cn(
-                "h-4 w-4",
-                isPlaying && "animate-pulse"
-              )} />
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Volume2 className={cn(
+                  "h-4 w-4",
+                  isPlaying && "animate-pulse text-blue-500"
+                )} />
+              )}
             </Button>
 
             <Button
