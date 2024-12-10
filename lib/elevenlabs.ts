@@ -3,23 +3,23 @@ export interface ElevenLabsResponse {
   error?: string;
 }
 
-export async function generateSoundEffect(
+export async function generatePetSound(
   text: string,
-  isPet: boolean,
+  petType: 'cat' | 'dog',
   apiKey: string
 ): Promise<ElevenLabsResponse> {
-  if (!isPet) return { audio: new ArrayBuffer(0), error: "Not a pet sound" };
-
   try {
     // Adjust the text for better sound generation
     const soundText = text.toLowerCase().trim();
     
     // Configure the sound effect parameters based on the type of sound
-    const duration = soundText.includes("meow") ? 1.0 : 0.8; // Cats slightly longer than dogs
-    const influence = soundText.includes("meow") ? 0.7 : 0.5; // More variation for cats
+    const isCat = petType === 'cat';
+    const duration = isCat ? 1.0 : 0.8; // Cats slightly longer than dogs
+    const influence = isCat ? 0.7 : 0.5; // More variation for cats
 
+    // Use the correct endpoint for sound effects
     const response = await fetch(
-      "https://api.elevenlabs.io/v2/text-to-speech/sound-effects",
+      "https://api.elevenlabs.io/v1/text-to-speech/sound-effects",
       {
         method: "POST",
         headers: {
@@ -31,14 +31,15 @@ export async function generateSoundEffect(
           text: soundText,
           duration_seconds: duration,
           prompt_influence: influence,
-          style: soundText.includes("meow") ? "soft" : "energetic"
+          style: isCat ? "soft" : "energetic"
         })
       }
     );
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`ElevenLabs API error: ${response.status} ${errorText}`);
+      console.error("ElevenLabs API error response:", errorText);
+      throw new Error(`ElevenLabs API error: ${response.status}`);
     }
 
     const audioBuffer = await response.arrayBuffer();
