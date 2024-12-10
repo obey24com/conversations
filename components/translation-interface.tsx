@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Square, Send, ArrowLeftRight, Mic } from "lucide-react";
+import { Mic, Square, Send, ArrowLeftRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { supportedLanguages, isPetLanguage } from "@/lib/languages";
@@ -50,10 +50,10 @@ function getStoredMessages(): Message[] {
   if (!stored) return [];
   try {
     const messages = JSON.parse(stored);
-    return messages.map((msg: Message) => ({
+    return Array.isArray(messages) ? messages.map((msg: Message) => ({
       ...msg,
       id: msg.id || Math.random().toString(36).substr(2, 9)
-    }));
+    })) : [];
   } catch {
     return [];
   }
@@ -115,12 +115,15 @@ export function TranslationInterface() {
 
     const currentText = inputText;
     setInputText("");
-    
+
     try {
       setIsLoading(true);
       const response = await fetch("/api/translate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
         body: JSON.stringify({
           text: currentText,
           fromLang,
@@ -135,30 +138,27 @@ export function TranslationInterface() {
       const data = await response.json();
 
       if (data.translation) {
-        const [translation, ...culturalNotes] =
-          data.translation.split("\nCONTEXT:");
+        const [translation, ...culturalNotes] = data.translation.split("\nCONTEXT:");
 
         const newMessage = {
           id: Math.random().toString(36).substr(2, 9),
           text: currentText,
           translation: translation.replace("TRANSLATION:", "").trim(),
-          cultural: culturalNotes.length
-            ? culturalNotes.join("\n").trim()
-            : undefined,
+          cultural: culturalNotes.length ? culturalNotes.join("\n").trim() : undefined,
           fromLang,
           toLang,
           timestamp: Date.now(),
         };
 
         setMessages(prev => [...prev, newMessage]);
-        
+
         if (isSwapActive) {
           handleSwapLanguages();
         }
       }
     } catch (error) {
       console.error("Translation error:", error);
-      setInputText(currentText); // Restore input text on error
+      setInputText(currentText);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to translate text",
