@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { translateText } from "@/lib/openai";
 
-export const dynamic = 'force-dynamic';
 export const runtime = 'edge';
 
 export async function POST(request: Request) {
@@ -22,29 +21,18 @@ export async function POST(request: Request) {
       );
     }
 
-    try {
-      const translation = await translateText(text, fromLang, toLang);
+    const translation = await translateText(text, fromLang, toLang);
 
-      if (!translation) {
-        return NextResponse.json(
-          { error: "No translation generated" },
-          { status: 500 }
-        );
-      }
-
-      return NextResponse.json({ translation });
-    } catch (error) {
-      console.error("Translation error:", error);
-      return NextResponse.json(
-        { error: error instanceof Error ? error.message : "Translation failed" },
-        { status: 500 }
-      );
+    if (!translation) {
+      throw new Error('Translation failed');
     }
+
+    return NextResponse.json({ translation });
   } catch (error) {
-    console.error("Request error:", error);
+    console.error("Translation error:", error);
     return NextResponse.json(
-      { error: "Invalid request" },
-      { status: 400 }
+      { error: error instanceof Error ? error.message : "Translation failed" },
+      { status: 500 }
     );
   }
 }
