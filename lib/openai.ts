@@ -14,7 +14,7 @@ export async function translateText(
   fromLang: string,
   toLang: string
 ) {
-  if (!text || !fromLang || !toLang) {
+  if (!text?.trim() || !fromLang || !toLang) {
     throw new Error('Missing required parameters for translation');
   }
 
@@ -29,21 +29,21 @@ export async function translateText(
       First, interpret the following ${fromLang} sounds or expressions as if you were the ${fromLang}.
       Then, if the target language is not English, translate that interpretation into ${toLang}.
       
-      Format your response as:
+      Format your response exactly as:
       TRANSLATION: [Your interpretation translated to ${toLang}]
       CONTEXT: [Explain the ${fromLang}'s mood, behavior, or hidden meaning in ${toLang}]`;
     } else if (isPetTo) {
       systemPrompt = `You are an expert ${toLang} language translator with a great sense of humor. 
       Translate the following text into ${toLang} sounds, but make it fun and creative.
       
-      Format your response as:
+      Format your response exactly as:
       TRANSLATION: [The ${toLang} sounds]
       CONTEXT: [A humorous explanation of what these sounds mean in ${toLang} culture]`;
     } else {
       systemPrompt = `Translate the following text from ${fromLang} to ${toLang}. 
       Ensure that the translation conveys the intended meaning clearly in ${toLang}.
 
-      Format your response as:
+      Format your response exactly as:
       TRANSLATION: [Your translation here]
       CONTEXT: [Any cultural context, idioms, or additional notes if applicable]`;
     }
@@ -58,10 +58,15 @@ export async function translateText(
       max_tokens: 1000,
     });
 
-    const response = completion.choices[0]?.message?.content;
+    const response = completion.choices[0]?.message?.content?.trim();
     
     if (!response) {
       throw new Error('No translation generated');
+    }
+
+    // Ensure the response follows the expected format
+    if (!response.includes('TRANSLATION:')) {
+      return `TRANSLATION: ${response}\nCONTEXT: Translation provided without additional context.`;
     }
 
     return response;
