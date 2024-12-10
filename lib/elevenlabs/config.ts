@@ -5,5 +5,11 @@ export const ELEVENLABS_CONFIG = {
     cat: 'cat meow',
     dog: 'dog bark'
   },
-  DURATION_SECONDS: 2.0
+  DURATION_SECONDS: 2.0,
+  VOICE_SETTINGS: {
+    stability: 0.7,
+    similarity_boost: 0.7,
+    style: 0.5,
+    use_speaker_boost: true
+  }
 } as const;
