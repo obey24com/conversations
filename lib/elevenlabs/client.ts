@@ -9,12 +9,7 @@ export async function generateSound(
     const request: SoundGenerationRequest = {
       text,
       model_id: ELEVENLABS_CONFIG.DEFAULT_MODEL,
-      voice_settings: {
-        stability: 0.7,
-        similarity_boost: 0.7,
-        style: 0.5,
-        use_speaker_boost: true,
-      },
+      voice_settings: ELEVENLABS_CONFIG.VOICE_SETTINGS,
       duration_seconds: ELEVENLABS_CONFIG.DURATION_SECONDS
     };
 
