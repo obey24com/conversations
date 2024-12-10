@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mic, Square, Send, ArrowLeftRight } from "lucide-react";
+import { Square, Send, ArrowLeftRight, Mic } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { supportedLanguages, isPetLanguage } from "@/lib/languages";
@@ -82,7 +82,7 @@ export function TranslationInterface() {
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -98,6 +98,12 @@ export function TranslationInterface() {
     }
   }, [messages]);
 
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
   const handleDeleteMessage = (messageId: string) => {
     setMessages(prevMessages => 
       prevMessages.filter(msg => msg.id !== messageId)
@@ -107,17 +113,24 @@ export function TranslationInterface() {
   const handleSend = async () => {
     if (!inputText.trim() || isLoading) return;
 
+    const currentText = inputText;
+    setInputText("");
+    
     try {
       setIsLoading(true);
       const response = await fetch("/api/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          text: inputText,
+          text: currentText,
           fromLang,
           toLang,
         }),
       });
+
+      if (!response.ok) {
+        throw new Error(`Translation failed: ${response.statusText}`);
+      }
 
       const data = await response.json();
 
@@ -127,7 +140,7 @@ export function TranslationInterface() {
 
         const newMessage = {
           id: Math.random().toString(36).substr(2, 9),
-          text: inputText,
+          text: currentText,
           translation: translation.replace("TRANSLATION:", "").trim(),
           cultural: culturalNotes.length
             ? culturalNotes.join("\n").trim()
@@ -138,16 +151,17 @@ export function TranslationInterface() {
         };
 
         setMessages(prev => [...prev, newMessage]);
-        setInputText("");
         
         if (isSwapActive) {
           handleSwapLanguages();
         }
       }
     } catch (error) {
+      console.error("Translation error:", error);
+      setInputText(currentText); // Restore input text on error
       toast({
         title: "Error",
-        description: "Failed to translate text",
+        description: error instanceof Error ? error.message : "Failed to translate text",
         variant: "destructive",
       });
     } finally {
@@ -186,8 +200,16 @@ export function TranslationInterface() {
     }, 3000);
   };
 
-  const handleSingleClick = () => {
-    handleSwapLanguages();
+  const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (event.detail === 2) {
+      handleDoubleClick();
+    } else if (event.detail === 1) {
+      setTimeout(() => {
+        if (event.detail === 1) {
+          handleSwapLanguages();
+        }
+      }, 500);
+    }
   };
 
   const playTranslation = async (text: string, index: number, targetLang: string) => {
@@ -202,7 +224,9 @@ export function TranslationInterface() {
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to generate speech");
+      if (!response.ok) {
+        throw new Error("Failed to generate speech");
+      }
 
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
@@ -223,6 +247,7 @@ export function TranslationInterface() {
         audioRef.current.ontimeupdate = updateTime;
       }
     } catch (error) {
+      console.error("Text to speech error:", error);
       toast({
         title: "Error",
         description: "Failed to play audio",
@@ -246,7 +271,7 @@ export function TranslationInterface() {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`Speech to text failed: ${response.statusText}`);
       }
 
       const data = await response.json();
@@ -261,25 +286,30 @@ export function TranslationInterface() {
           }),
         });
 
+        if (!translationResponse.ok) {
+          throw new Error(`Translation failed: ${translationResponse.statusText}`);
+        }
+
         const translationData = await translationResponse.json();
 
         if (translationData.translation) {
           const [translation, ...culturalNotes] =
             translationData.translation.split("\nCONTEXT:");
 
-          const newMessage = {
-            id: Math.random().toString(36).substr(2, 9),
-            text: data.text,
-            translation: translation.replace("TRANSLATION:", "").trim(),
-            cultural: culturalNotes.length
-              ? culturalNotes.join("\n").trim()
-              : undefined,
-            fromLang,
-            toLang,
-            timestamp: Date.now(),
-          };
-
-          setMessages(prev => [...prev, newMessage]);
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: Math.random().toString(36).substr(2, 9),
+              text: data.text,
+              translation: translation.replace("TRANSLATION:", "").trim(),
+              cultural: culturalNotes.length
+                ? culturalNotes.join("\n").trim()
+                : undefined,
+              fromLang,
+              toLang,
+              timestamp: Date.now(),
+            },
+          ]);
 
           if (isSwapActive) {
             handleSwapLanguages();
@@ -290,11 +320,21 @@ export function TranslationInterface() {
       console.error("Speech to text error:", error);
       toast({
         title: "Error",
-        description: "Failed to process speech",
+        description: error instanceof Error ? error.message : "Failed to process speech",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const toggleRecording = () => {
+    if (isRecording) {
+      mediaRecorderRef.current?.stop();
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+      setIsRecording(false);
+    } else {
+      startRecording();
     }
   };
 
@@ -338,34 +378,6 @@ export function TranslationInterface() {
       });
     }
   };
-
-  const toggleRecording = () => {
-    if (isRecording) {
-      mediaRecorderRef.current?.stop();
-      streamRef.current?.getTracks().forEach((track) => track.stop());
-      setIsRecording(false);
-    } else {
-      startRecording();
-    }
-  };
-
-  const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (event.detail === 2) {
-      handleDoubleClick();
-    } else if (event.detail === 1) {
-      setTimeout(() => {
-        if (event.detail === 1) {
-          handleSingleClick();
-        }
-      }, 500);
-    }
-  };
-
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
 
   if (!mounted) {
     return null;
@@ -431,7 +443,7 @@ export function TranslationInterface() {
                   isSwapping && "rotate-180"
                 )} />
                 {swapMessage && (
-                  <div className="absolute -top-10 left-1/2 w-[135px] -translate-x-1/2 transform rounded bg-black px-3 py-2 text-xs text-white">
+                  <div className="absolute -top-10 w-[135px] -translate-x-1/2 transform rounded bg-black px-3 py-2 text-xs text-white">
                     {swapMessage}
                   </div>
                 )}
