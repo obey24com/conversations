@@ -1,6 +1,4 @@
 export const supportedLanguages = [
-  { code: "cat", name: "Meow (Cat)" },
-  { code: "dog", name: "Woof (Dog)" },
   { code: "af", name: "Afrikaans" },
   { code: "am", name: "Amharic" },
   { code: "ar", name: "Arabic" },
@@ -104,6 +102,8 @@ export const supportedLanguages = [
   { code: "yi", name: "Yiddish" },
   { code: "yo", name: "Yoruba" },
   { code: "zh", name: "Chinese" },
+  { code: "cat", name: "Meow (Cat)" },
+  { code: "dog", name: "Woof (Dog)" },
 ] as const;
 
 export type LanguageCode = typeof supportedLanguages[number]["code"];
