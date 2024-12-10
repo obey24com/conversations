@@ -33,10 +33,10 @@ export function MessageBubble({
   const bubbleRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Trigger entrance animation after mount
-    requestAnimationFrame(() => {
+    const timer = setTimeout(() => {
       setIsVisible(true);
-    });
+    }, 50);
+    return () => clearTimeout(timer);
   }, []);
 
   const copyToClipboard = async (text: string) => {
@@ -59,12 +59,15 @@ export function MessageBubble({
     setIsDeleting(true);
     
     if (bubbleRef.current) {
-      bubbleRef.current.style.setProperty('--message-height', `${bubbleRef.current.offsetHeight}px`);
-      bubbleRef.current.classList.add('message-bubble-exit');
+      const height = bubbleRef.current.offsetHeight;
+      bubbleRef.current.style.setProperty('--message-height', `${height}px`);
       
       requestAnimationFrame(() => {
         if (bubbleRef.current) {
-          bubbleRef.current.classList.add('message-bubble-exit-active');
+          bubbleRef.current.style.height = '0px';
+          bubbleRef.current.style.marginBottom = '0px';
+          bubbleRef.current.style.opacity = '0';
+          bubbleRef.current.style.transform = 'translateY(-20px)';
         }
       });
     }
@@ -78,10 +81,14 @@ export function MessageBubble({
     <div 
       ref={bubbleRef}
       className={cn(
-        "message-bubble transition-all duration-300 ease-out mb-4 opacity-0 translate-y-4",
+        "transition-all duration-300 ease-out mb-4",
+        "opacity-0 translate-y-4",
         isVisible && "opacity-100 translate-y-0",
         isDeleting && "pointer-events-none"
       )}
+      style={{
+        willChange: 'transform, opacity, height, margin',
+      }}
     >
       <div 
         className={cn(
