@@ -22,21 +22,29 @@ export async function POST(request: Request) {
       );
     }
 
-    const translation = await translateText(text, fromLang, toLang);
+    try {
+      const translation = await translateText(text, fromLang, toLang);
 
-    if (!translation) {
+      if (!translation) {
+        return NextResponse.json(
+          { error: "No translation generated" },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({ translation });
+    } catch (error) {
+      console.error("Translation error:", error);
       return NextResponse.json(
-        { error: "No translation generated" },
+        { error: error instanceof Error ? error.message : "Translation failed" },
         { status: 500 }
       );
     }
-
-    return NextResponse.json({ translation });
   } catch (error) {
-    console.error("Translation error:", error);
+    console.error("Request error:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Translation failed" },
-      { status: 500 }
+      { error: "Invalid request" },
+      { status: 400 }
     );
   }
 }
