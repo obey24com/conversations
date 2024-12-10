@@ -4,11 +4,11 @@ export * from './client';
 
 import { ELEVENLABS_CONFIG } from './config';
 import { generateSound } from './client';
-import type { ElevenLabsResponse } from './types';
+import type { ElevenLabsResponse, PetType } from './types';
 
 export async function generatePetSound(
   text: string,
-  petType: 'cat' | 'dog',
+  petType: PetType,
   apiKey: string
 ): Promise<ElevenLabsResponse> {
   // Always use the predefined prompt for the pet type
