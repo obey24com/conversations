@@ -103,11 +103,14 @@
 }
 
 .animated-dots {
-  background-color: #f5f5f5;
-  background-image: radial-gradient(circle at 1px 1px, #d4d4d4 1px, transparent 0);
-  background-size: 30px 30px;
-  animation: zoomBackground 30s linear infinite;
-  position: relative;
+  --dot-bg: white;
+  --dot-color: #aaa;
+  --dot-size: 1px;
+  --dot-space: 22px;
+	background:
+		linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+		linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+		var(--dot-color);
 }
 
 @keyframes zoomBackground {
