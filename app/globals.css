@@ -103,7 +103,7 @@
 }
 
 .animated-dots {
-  --dot-bg: white;
+  --dot-bg: #e2e7ee;
   --dot-color: #aaa;
   --dot-size: 1px;
   --dot-space: 22px;
