@@ -20,33 +20,48 @@ export async function translateText(
   }
 
   try {
-    const isPetFrom = fromLang === "cat" || fromLang === "dog";
-    const isPetTo = toLang === "cat" || toLang === "dog";
+    const isPetFrom = fromLang === 'cat' || fromLang === 'dog';
+    const isPetTo = toLang === 'cat' || toLang === 'dog';
 
-    let systemPrompt = "";
+    let systemPrompt = '';
 
-    if (isPetFrom) {
-      systemPrompt = `You are an expert ${fromLang} translator with a great sense of humor. 
-      First, interpret the following ${fromLang} sounds or expressions as if you were the ${fromLang}.
-      Then, if the target language is not English, translate that interpretation into ${toLang}.
-      
-      Format your response as:
-      TRANSLATION: [Your interpretation translated to ${toLang}]
-      CONTEXT: [Explain the ${fromLang}'s mood, behavior, or hidden meaning in ${toLang}]`;
-    } else if (isPetTo) {
-      systemPrompt = `You are an expert ${toLang} language translator with a great sense of humor. 
-      Translate the following text into ${toLang} sounds, but make it fun and creative.
-      
-      Format your response as:
-      TRANSLATION: [The ${toLang} sounds]
-      CONTEXT: [A humorous explanation of what these sounds mean in ${toLang} culture]`;
+    if (isPetFrom && !isPetTo) {
+      // From Pet Language to Human Language
+      systemPrompt = `You are an expert translator who can interpret ${fromLang} animal sounds and gestures into human language, then translate them into ${toLang}. 
+- First, interpret the ${fromLang}'s sounds, body language, and intent as if you were that animal, understanding their "culture," emotional state, and the nuances behind their communication.
+- Then provide a humorous but contextually meaningful translation into ${toLang} that a ${toLang} speaker would naturally understand.
+
+Output two sections:
+TRANSLATION: [Your interpretation of the ${fromLang} communication, translated into ${toLang}]
+CONTEXT: [In ${fromLang}, explain any cultural nuances, the animal's mood, hidden meanings, or reasons behind the chosen translation]`;
+    } else if (isPetTo && !isPetFrom) {
+      // From Human Language to Pet Language
+      systemPrompt = `You are an expert animal language translator who can convert human language (${fromLang}) into convincing ${toLang} animal "sounds" and behaviors. 
+- First, understand the meaning of the text in ${fromLang}.
+- Then translate this meaning into a set of ${toLang} sounds or gestures that humorously convey the same intent to a ${toLang}-speaking animal.
+
+Output two sections:
+TRANSLATION: [The ${toLang} sounds or expressions]
+CONTEXT: [In ${fromLang}, explain the humorous interpretation of what these ${toLang}-style sounds mean, reflecting the original cultural context of the message]`;
+    } else if (isPetFrom && isPetTo) {
+      // Pet to Pet Translation
+      systemPrompt = `You are an expert translator fluent in both ${fromLang} and ${toLang} animal languages. 
+- Interpret the given ${fromLang} sounds or expressions as if you were that animal.
+- Then translate these into ${toLang} sounds that carry the same meaning, humor, and cultural "feel."
+
+Output two sections:
+TRANSLATION: [Your interpretation translated into ${toLang}]
+CONTEXT: [In ${fromLang}, explain the animal's mood, behavior, and any hidden meanings you preserved in the translation]`;
     } else {
-      systemPrompt = `Translate the following text from ${fromLang} to ${toLang}. 
-      Ensure that the translation conveys the intended meaning clearly in ${toLang}.
+      // Human to Human Translation with Cultural Nuance
+      systemPrompt = `You are a professional conversation translator and cultural mediator, specializing in translating from ${fromLang} to ${toLang}.
+Your goal is to help two people understand each other seamlessly:
+- Understand the source text fully, including idioms, cultural references, tone, and intent.
+- Provide a translation that feels natural and culturally appropriate in ${toLang}, ensuring the listener grasps the meaning as if it were originally phrased in their own language and cultural context.
 
-      Format your response as:
-      TRANSLATION: [Your translation here]
-      CONTEXT: [Any cultural context, idioms, or additional notes if applicable]`;
+Output two sections:
+TRANSLATION: [Your culturally adapted translation in ${toLang}]
+CONTEXT: [In ${fromLang}, provide cultural context, explain idioms, clarify any references, and add relevant notes behind your translation choices]`;
     }
 
     console.log('Starting translation request:', { 
@@ -57,13 +72,13 @@ export async function translateText(
     });
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-4',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: text.trim() }
       ],
-      temperature: 0.8,
-      max_tokens: 2000,
+      temperature: 0.7,
+      max_tokens: 1000,
     }).catch(error => {
       console.error('OpenAI API error:', {
         error: error.message,
@@ -94,7 +109,7 @@ export async function translateText(
     }
 
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.error('OpenAI translation error:', {
       name: error instanceof Error ? error.name : 'Unknown',
       message: error instanceof Error ? error.message : 'Unknown error',
