@@ -3,7 +3,7 @@ export const ELEVENLABS_CONFIG = {
   DEFAULT_MODEL: 'eleven_monolingual_v1',
   PET_PROMPTS: {
     cat: 'cat meow',
-    dog: 'dog bark'
+    dog: 'loud barking dog'
   },
   DURATION_SECONDS: 2.0,
   VOICE_SETTINGS: {
