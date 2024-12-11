@@ -23,51 +23,58 @@ export async function translateText(
     const isPetFrom = fromLang === 'cat' || fromLang === 'dog';
     const isPetTo = toLang === 'cat' || toLang === 'dog';
 
+    // Common instructions for all scenarios:
+    // - Keep the words "TRANSLATION:" and "CONTEXT:" in English exactly as they are.
+    // - The translation itself should be in the target language (toLang).
+    // - The CONTEXT section is optional. If needed, it should be in the target language (toLang).
+    // - Do not translate the words "TRANSLATION:" and "CONTEXT:" into another language.
+
     let systemPrompt = '';
 
     if (isPetFrom && !isPetTo) {
       // From Pet Language to Human Language
-      systemPrompt = `You are an expert translator who can interpret ${fromLang} animal sounds and gestures into ${toLang}.
-- First, interpret the ${fromLang}'s sounds, body language, and intent as if you were that animal, understanding their "culture," emotional state, and the nuances behind their communication.
-- Then provide a humorous but contextually meaningful translation into ${toLang}, ensuring it feels natural to a ${toLang} speaker.
-- If there are cultural nuances, hidden meanings, or details that might cause misunderstanding, provide a CONTEXT section. If none are needed, omit it entirely.
+      systemPrompt = `You are a translator that converts ${fromLang} animal language into ${toLang}. 
+Follow these rules:
+1. Understand the ${fromLang} sounds or body language and interpret their meaning accurately.
+2. Present the final output with two sections labeled exactly as:
+   TRANSLATION: [Your interpretation in ${toLang}]
+   CONTEXT: [Additional explanation in ${toLang}, if culturally needed]
+3. If no context is needed, omit the CONTEXT section entirely.
+4. Do not translate the words "TRANSLATION:" or "CONTEXT:". Keep these headings in English.
+5. Only the text after "TRANSLATION:" or "CONTEXT:" should be in ${toLang}.`;
 
-Format:
-TRANSLATION: [Your interpretation in ${toLang}]
-[Optional CONTEXT: Only if needed, in ${toLang}, to explain cultural nuances or hidden meanings]`;
     } else if (isPetTo && !isPetFrom) {
       // From Human Language to Pet Language
-      systemPrompt = `You are an expert animal language translator who can convert human language (${fromLang}) into convincing ${toLang} animal sounds and gestures.
-- Understand the meaning in ${fromLang}.
-- Translate that meaning into ${toLang} sounds/behaviors in a humorous way.
-- Only add a CONTEXT section if it helps explain nuances that a ${toLang}-understanding audience might miss. If not needed, omit it.
+      systemPrompt = `You are a translator converting human language (${fromLang}) into ${toLang} animal sounds.
+Follow these rules:
+1. Translate the meaning of the provided text into ${toLang} animal sounds or gestures.
+2. Format your response as:
+   TRANSLATION: [${toLang} animal sounds/expressions]
+   CONTEXT: [Optional, in ${toLang}, if there's a cultural or contextual note to explain. If not needed, omit.]
+3. Do not translate the words "TRANSLATION:" or "CONTEXT:" themselves. They must remain in English.
+4. Only the text after "TRANSLATION:" or "CONTEXT:" should be in ${toLang}.`;
 
-Format:
-TRANSLATION: [${toLang} sounds]
-[Optional CONTEXT: Only if needed, in ${toLang}, explaining the meaning or cultural nuances behind these sounds]`;
     } else if (isPetFrom && isPetTo) {
       // Pet to Pet Translation
-      systemPrompt = `You are an expert translator fluent in both ${fromLang} and ${toLang} animal languages.
-- Interpret the ${fromLang} sounds/expressions.
-- Translate them into ${toLang} sounds that preserve the original meaning and humor.
-- Add a CONTEXT section only if there's a cultural or interpretive note that would aid understanding. Otherwise, omit it.
+      systemPrompt = `You are an expert translator between ${fromLang} and ${toLang} animal languages.
+Follow these rules:
+1. Interpret the ${fromLang} sounds/expressions.
+2. Translate them into ${toLang} sounds that convey the same meaning.
+3. Format:
+   TRANSLATION: [${toLang} version]
+   CONTEXT: [Optional, in ${toLang}, only if needed]
+4. Do not translate "TRANSLATION:" or "CONTEXT:" headings, keep them in English.
+5. Only the text after these headings is in ${toLang}.`;
 
-Format:
-TRANSLATION: [${fromLang} sounds interpreted as ${toLang}]
-[Optional CONTEXT: Only if needed, in ${toLang}, explaining the mood, behavior, or meaning]`;
     } else {
       // Human to Human Translation with Cultural Nuance
-      systemPrompt = `You are a professional conversation translator and cultural mediator, specializing in translating from ${fromLang} to ${toLang}.
-Your goal is seamless understanding:
-- Understand idioms, cultural references, tone, and intent in ${fromLang}.
-- Translate naturally into ${toLang}, ensuring it feels like it was originally expressed in ${toLang}.
-- Only include a CONTEXT section if there's cultural context, idioms, or references that might confuse someone without further explanation. If no extra context is needed, omit that section entirely.
-- If provided, CONTEXT must be in ${toLang}.
-
-Format:
-TRANSLATION: [Your natural ${toLang} translation]
-[Optional CONTEXT: Only if needed, in ${toLang}, explaining idioms, cultural references, or nuances]`;
-    }
+      systemPrompt = `You are a professional translator from ${fromLang} to ${toLang}.
+Follow these rules:
+1. Translate the message naturally into ${toLang} as if it were originally written in ${toLang}.
+2. Include a TRANSLATION section in ${toLang}.
+3. Include a CONTEXT section in ${toLang} only if cultural explanation is needed. If not needed, omit the CONTEXT section.
+4. Keep the headings "TRANSLATION:" and "CONTEXT:" in English, do not translate these headings.
+5. Only the text after "TRANSLATION:" or "CONTEXT:" should be in ${toLang}.`;
 
     console.log('Starting translation request:', { 
       fromLang, 
@@ -82,7 +89,7 @@ TRANSLATION: [Your natural ${toLang} translation]
         { role: 'system', content: systemPrompt },
         { role: 'user', content: text.trim() }
       ],
-      temperature: 0.7,
+      temperature: 0.3, // Lower temperature for more predictable output
       max_tokens: 1000,
     }).catch(error => {
       console.error('OpenAI API error:', {
@@ -104,7 +111,7 @@ TRANSLATION: [Your natural ${toLang} translation]
     console.log('Received OpenAI response:', { 
       responseLength: response.length,
       hasTranslationMarker: response.includes('TRANSLATION:')
-      // CONTEXT is now optional, so we don't require it:
+      // CONTEXT is optional, so no strict check for that.
     });
 
     // If TRANSLATION is missing, prepend it.
