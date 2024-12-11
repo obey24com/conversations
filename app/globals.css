@@ -1,9 +1,12 @@
+/* Base Tailwind imports */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Root variables */
 @layer base {
   :root {
+    /* Default theme variables */
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
@@ -26,6 +29,7 @@
     --radius: 0.75rem;
   }
 
+  /* Dark theme variables */
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -49,26 +53,19 @@
   }
 }
 
+/* Base styles */
 @layer base {
   * {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    /* Commented out background while keeping other styles */
+    /* @apply bg-background text-foreground antialiased; */
+    @apply text-foreground antialiased;
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
+/* Animation keyframes */
 @keyframes wave {
   0%, 100% {
     transform: scale(1);
@@ -93,6 +90,7 @@
   }
 }
 
+/* Message bubble animations */
 .message-bubble {
   animation: fadeIn 300ms ease-out forwards;
   will-change: transform, opacity, height, margin;
@@ -112,6 +110,7 @@
   margin-bottom: 0;
 }
 
+/* Animated dots background */
 .animated-dots {
   background-color: #fafafa;
   background-image: radial-gradient(circle at 1px 1px, #e0e0e0 1px, transparent 0);
@@ -120,6 +119,7 @@
   position: relative;
 }
 
+/* Background zoom animation */
 @keyframes zoomBackground {
   0% {
     background-size: 30px 30px;
