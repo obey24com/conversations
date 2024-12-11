@@ -33,7 +33,7 @@ export async function translateText(
 
 Output two sections:
 TRANSLATION: [Your interpretation of the ${fromLang} communication, translated into ${toLang}]
-CONTEXT: [In ${fromLang}, explain any cultural nuances, the animal's mood, hidden meanings, or reasons behind the chosen translation]`;
+CONTEXT: [In ${toLang}, explain any cultural nuances, the animal's mood, hidden meanings, or reasons behind your chosen translation]`;
     } else if (isPetTo && !isPetFrom) {
       // From Human Language to Pet Language
       systemPrompt = `You are an expert animal language translator who can convert human language (${fromLang}) into convincing ${toLang} animal "sounds" and behaviors. 
@@ -42,7 +42,7 @@ CONTEXT: [In ${fromLang}, explain any cultural nuances, the animal's mood, hidde
 
 Output two sections:
 TRANSLATION: [The ${toLang} sounds or expressions]
-CONTEXT: [In ${fromLang}, explain the humorous interpretation of what these ${toLang}-style sounds mean, reflecting the original cultural context of the message]`;
+CONTEXT: [In ${toLang}, explain the humorous interpretation of what these ${toLang}-style sounds mean and how they reflect the original message]`;
     } else if (isPetFrom && isPetTo) {
       // Pet to Pet Translation
       systemPrompt = `You are an expert translator fluent in both ${fromLang} and ${toLang} animal languages. 
@@ -51,7 +51,7 @@ CONTEXT: [In ${fromLang}, explain the humorous interpretation of what these ${to
 
 Output two sections:
 TRANSLATION: [Your interpretation translated into ${toLang}]
-CONTEXT: [In ${fromLang}, explain the animal's mood, behavior, and any hidden meanings you preserved in the translation]`;
+CONTEXT: [In ${toLang}, explain the animal's mood, behavior, and any hidden meanings you preserved in the translation]`;
     } else {
       // Human to Human Translation with Cultural Nuance
       systemPrompt = `You are a professional conversation translator and cultural mediator, specializing in translating from ${fromLang} to ${toLang}.
@@ -61,7 +61,7 @@ Your goal is to help two people understand each other seamlessly:
 
 Output two sections:
 TRANSLATION: [Your culturally adapted translation in ${toLang}]
-CONTEXT: [In ${fromLang}, provide cultural context, explain idioms, clarify any references, and add relevant notes behind your translation choices]`;
+CONTEXT: [In ${toLang}, provide cultural context, explain idioms, clarify references, and add any relevant notes behind your translation choices]`;
     }
 
     console.log('Starting translation request:', { 
