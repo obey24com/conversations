@@ -27,41 +27,46 @@ export async function translateText(
 
     if (isPetFrom && !isPetTo) {
       // From Pet Language to Human Language
-      systemPrompt = `You are an expert translator who can interpret ${fromLang} animal sounds and gestures into human language, then translate them into ${toLang}. 
+      systemPrompt = `You are an expert translator who can interpret ${fromLang} animal sounds and gestures into ${toLang}.
 - First, interpret the ${fromLang}'s sounds, body language, and intent as if you were that animal, understanding their "culture," emotional state, and the nuances behind their communication.
-- Then provide a humorous but contextually meaningful translation into ${toLang} that a ${toLang} speaker would naturally understand.
+- Then provide a humorous but contextually meaningful translation into ${toLang}, ensuring it feels natural to a ${toLang} speaker.
+- If there are cultural nuances, hidden meanings, or details that might cause misunderstanding, provide a CONTEXT section. If none are needed, omit it entirely.
 
-Output two sections:
-TRANSLATION: [Your interpretation of the ${fromLang} communication, translated into ${toLang}]
-CONTEXT: [In ${toLang}, explain any cultural nuances, the animal's mood, hidden meanings, or reasons behind your chosen translation]`;
+Format:
+TRANSLATION: [Your interpretation in ${toLang}]
+[Optional CONTEXT: Only if needed, in ${toLang}, to explain cultural nuances or hidden meanings]`;
     } else if (isPetTo && !isPetFrom) {
       // From Human Language to Pet Language
-      systemPrompt = `You are an expert animal language translator who can convert human language (${fromLang}) into convincing ${toLang} animal "sounds" and behaviors. 
-- First, understand the meaning of the text in ${fromLang}.
-- Then translate this meaning into a set of ${toLang} sounds or gestures that humorously convey the same intent to a ${toLang}-speaking animal.
+      systemPrompt = `You are an expert animal language translator who can convert human language (${fromLang}) into convincing ${toLang} animal sounds and gestures.
+- Understand the meaning in ${fromLang}.
+- Translate that meaning into ${toLang} sounds/behaviors in a humorous way.
+- Only add a CONTEXT section if it helps explain nuances that a ${toLang}-understanding audience might miss. If not needed, omit it.
 
-Output two sections:
-TRANSLATION: [The ${toLang} sounds or expressions]
-CONTEXT: [In ${toLang}, explain the humorous interpretation of what these ${toLang}-style sounds mean and how they reflect the original message]`;
+Format:
+TRANSLATION: [${toLang} sounds]
+[Optional CONTEXT: Only if needed, in ${toLang}, explaining the meaning or cultural nuances behind these sounds]`;
     } else if (isPetFrom && isPetTo) {
       // Pet to Pet Translation
-      systemPrompt = `You are an expert translator fluent in both ${fromLang} and ${toLang} animal languages. 
-- Interpret the given ${fromLang} sounds or expressions as if you were that animal.
-- Then translate these into ${toLang} sounds that carry the same meaning, humor, and cultural "feel."
+      systemPrompt = `You are an expert translator fluent in both ${fromLang} and ${toLang} animal languages.
+- Interpret the ${fromLang} sounds/expressions.
+- Translate them into ${toLang} sounds that preserve the original meaning and humor.
+- Add a CONTEXT section only if there's a cultural or interpretive note that would aid understanding. Otherwise, omit it.
 
-Output two sections:
-TRANSLATION: [Your interpretation translated into ${toLang}]
-CONTEXT: [In ${toLang}, explain the animal's mood, behavior, and any hidden meanings you preserved in the translation]`;
+Format:
+TRANSLATION: [${fromLang} sounds interpreted as ${toLang}]
+[Optional CONTEXT: Only if needed, in ${toLang}, explaining the mood, behavior, or meaning]`;
     } else {
       // Human to Human Translation with Cultural Nuance
       systemPrompt = `You are a professional conversation translator and cultural mediator, specializing in translating from ${fromLang} to ${toLang}.
-Your goal is to help two people understand each other seamlessly:
-- Understand the source text fully, including idioms, cultural references, tone, and intent.
-- Provide a translation that feels natural and culturally appropriate in ${toLang}, ensuring the listener grasps the meaning as if it were originally phrased in their own language and cultural context.
+Your goal is seamless understanding:
+- Understand idioms, cultural references, tone, and intent in ${fromLang}.
+- Translate naturally into ${toLang}, ensuring it feels like it was originally expressed in ${toLang}.
+- Only include a CONTEXT section if there's cultural context, idioms, or references that might confuse someone without further explanation. If no extra context is needed, omit that section entirely.
+- If provided, CONTEXT must be in ${toLang}.
 
-Output two sections:
-TRANSLATION: [Your culturally adapted translation in ${toLang}]
-CONTEXT: [In ${toLang}, provide cultural context, explain idioms, clarify references, and add any relevant notes behind your translation choices]`;
+Format:
+TRANSLATION: [Your natural ${toLang} translation]
+[Optional CONTEXT: Only if needed, in ${toLang}, explaining idioms, cultural references, or nuances]`;
     }
 
     console.log('Starting translation request:', { 
@@ -98,14 +103,14 @@ CONTEXT: [In ${toLang}, provide cultural context, explain idioms, clarify refere
 
     console.log('Received OpenAI response:', { 
       responseLength: response.length,
-      hasTranslationMarker: response.includes('TRANSLATION:'),
-      hasContextMarker: response.includes('CONTEXT:')
+      hasTranslationMarker: response.includes('TRANSLATION:')
+      // CONTEXT is now optional, so we don't require it:
     });
 
-    // Ensure the response follows the expected format
+    // If TRANSLATION is missing, prepend it.
     if (!response.includes('TRANSLATION:')) {
       console.log('Adding missing TRANSLATION marker to response');
-      return `TRANSLATION: ${response}\nCONTEXT: Translation provided without additional context.`;
+      return `TRANSLATION: ${response}`;
     }
 
     return response;
