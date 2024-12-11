@@ -25,42 +25,54 @@ export async function translateText(
   let systemPrompt = '';
 
   if (isPetFrom && !isPetTo) {
+    // From Pet Language to Human Language
     systemPrompt = `You are a translator that converts ${fromLang} animal language into ${toLang}. 
 Follow these rules:
-1. Understand the ${fromLang} sounds or body language and interpret their meaning accurately.
-2. Present the final output with two sections labeled exactly as:
+1. Interpret the ${fromLang}'s sounds or body language accurately.
+2. Present the final output with:
    TRANSLATION: [Your interpretation in ${toLang}]
-   CONTEXT: [Additional explanation in ${toLang}, if culturally needed]
-3. If no context is needed, omit the CONTEXT section entirely.
-4. Do not translate the words "TRANSLATION:" or "CONTEXT:". Keep these headings in English.
-5. Only the text after "TRANSLATION:" or "CONTEXT:" should be in ${toLang}.`;
+   CONTEXT: [If there are any subtle, cultural, or humorous points that might need clarification, add them in ${toLang}. If unsure, provide a brief CONTEXT section. If truly none are needed, omit it.]
+3. Keep "TRANSLATION:" and "CONTEXT:" in English. Do not translate these headings.
+4. Only the text after these headings should be in ${toLang}.`;
+
   } else if (isPetTo && !isPetFrom) {
+    // From Human Language to Pet Language
     systemPrompt = `You are a translator converting human language (${fromLang}) into ${toLang} animal sounds.
 Follow these rules:
-1. Translate the meaning of the provided text into ${toLang} animal sounds or gestures.
-2. Format your response as:
+1. Translate the given text into ${toLang} sounds or gestures.
+2. Format:
    TRANSLATION: [${toLang} animal sounds/expressions]
-   CONTEXT: [Optional, in ${toLang}, if there's a cultural or contextual note to explain. If not needed, omit it.]
-3. Do not translate the words "TRANSLATION:" or "CONTEXT:" themselves. They must remain in English.
-4. Only the text after "TRANSLATION:" or "CONTEXT:" should be in ${toLang}.`;
+   CONTEXT: [If any cultural or meaning clarifications could help, include a brief note in ${toLang}. If unsure, provide a brief CONTEXT anyway. If truly none are needed, omit it.]
+3. Do not translate "TRANSLATION:" or "CONTEXT:" headings, keep them in English.
+4. Only the text after these headings is in ${toLang}.`;
+
   } else if (isPetFrom && isPetTo) {
+    // Pet to Pet Translation
     systemPrompt = `You are an expert translator fluent in both ${fromLang} and ${toLang} animal languages.
 Follow these rules:
 1. Interpret the ${fromLang} sounds/expressions.
-2. Translate them into ${toLang} sounds that convey the same meaning.
+2. Translate them into ${toLang} sounds that carry the same meaning.
 3. Format:
    TRANSLATION: [${toLang} version]
-   CONTEXT: [Optional, in ${toLang}, only if needed]
-4. Do not translate "TRANSLATION:" or "CONTEXT:" headings, keep them in English.
-5. Only the text after these headings is in ${toLang}.`;
+   CONTEXT: [If there's any cultural nuance or hidden meaning that could be misunderstood, add a CONTEXT section in ${toLang}. If unsure, provide a brief CONTEXT. If truly none are needed, omit it.]
+4. Keep "TRANSLATION:" and "CONTEXT:" in English. Only the text after these headings is in ${toLang}.`;
+
   } else {
+    // Human to Human Translation with Cultural Nuance
     systemPrompt = `You are a professional translator from ${fromLang} to ${toLang}.
 Follow these rules:
-1. Translate the message naturally into ${toLang} as if it were originally written in ${toLang}.
-2. Include a TRANSLATION section in ${toLang}.
-3. Include a CONTEXT section in ${toLang} only if cultural explanation is needed. If not needed, omit the CONTEXT section.
-4. Keep the headings "TRANSLATION:" and "CONTEXT:" in English, do not translate these headings.
-5. Only the text after "TRANSLATION:" or "CONTEXT:" should be in ${toLang}.`;
+1. Translate the message naturally into ${toLang} as if originally written in ${toLang}.
+2. Format:
+   TRANSLATION: [Your ${toLang} translation]
+   CONTEXT: [If cultural nuances, idioms, or subtle points might cause misunderstanding, provide a brief explanation in ${toLang}. If you're unsure whether context is needed, provide a brief CONTEXT anyway. If truly none are needed, omit it.]
+3. Keep "TRANSLATION:" and "CONTEXT:" in English, do not translate these headings.
+4. Only the text after "TRANSLATION:" or "CONTEXT:" should be in ${toLang}.
+
+Example:
+If the ${fromLang} text contains an idiom, like "Il pleut des cordes" (French for "It's raining heavily"), you would do:
+TRANSLATION: [A ${toLang} equivalent meaning "It's raining heavily."]
+CONTEXT: [In ${toLang}, explain that this is a French idiom that literally means "It's raining ropes" but signifies heavy rain.]
+If the text is straightforward, like "It is raining a lot today," you may omit CONTEXT if truly no clarification is needed.`;
   }
 
   console.log('Starting translation request:', { 
