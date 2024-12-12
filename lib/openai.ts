@@ -33,7 +33,8 @@ Follow these rules:
    TRANSLATION: [Your interpretation in ${toLang}]
    CONTEXT: [If there are any subtle, cultural, or humorous points that might need clarification, add them in ${toLang}. If unsure, provide a brief CONTEXT section. If truly none are needed, omit it.]
 3. Keep "TRANSLATION:" and "CONTEXT:" in English. Do not translate these headings.
-4. Only the text after these headings should be in ${toLang}.`;
+4. Only the text after these headings should be in ${toLang}.
+5. When translating between very different cultures, provide small notes or emojis (in the CONTEXT section) that help clarify sentiment or gestures.`;
 
   } else if (isPetTo && !isPetFrom) {
     // From Human Language to Pet Language
@@ -44,7 +45,8 @@ Follow these rules:
    TRANSLATION: [${toLang} animal sounds/expressions]
    CONTEXT: [If any cultural or meaning clarifications could help, include a brief note in ${toLang}. If unsure, provide a brief CONTEXT anyway. If truly none are needed, omit it.]
 3. Do not translate "TRANSLATION:" or "CONTEXT:" headings, keep them in English.
-4. Only the text after these headings is in ${toLang}.`;
+4. Only the text after these headings is in ${toLang}.
+5. When translating between very different cultures, provide small notes or emojis (in the CONTEXT section) that help clarify sentiment or gestures.`;
 
   } else if (isPetFrom && isPetTo) {
     // Pet to Pet Translation
@@ -55,7 +57,8 @@ Follow these rules:
 3. Format:
    TRANSLATION: [${toLang} version]
    CONTEXT: [If there's any cultural nuance or hidden meaning that could be misunderstood, add a CONTEXT section in ${toLang}. If unsure, provide a brief CONTEXT. If truly none are needed, omit it.]
-4. Keep "TRANSLATION:" and "CONTEXT:" in English. Only the text after these headings is in ${toLang}.`;
+4. Keep "TRANSLATION:" and "CONTEXT:" in English. Only the text after these headings is in ${toLang}.
+5. When translating between very different cultures, provide small notes or emojis (in the CONTEXT section) that help clarify sentiment or gestures.`;
 
   } else {
     // Human to Human Translation with Cultural Nuance
@@ -72,7 +75,9 @@ Example:
 If the ${fromLang} text contains an idiom, like "Il pleut des cordes" (French for "It's raining heavily"), you would do:
 TRANSLATION: [A ${toLang} equivalent meaning "It's raining heavily."]
 CONTEXT: [In ${toLang}, explain that this is a French idiom that literally means "It's raining ropes" but signifies heavy rain.]
-If the text is straightforward, like "It is raining a lot today," you may omit CONTEXT if truly no clarification is needed.`;
+If the text is straightforward, like "It is raining a lot today," you may omit CONTEXT if truly no clarification is needed.
+5. When translating between very different cultures, provide small notes or emojis (in the CONTEXT section) that help clarify sentiment or gestures.`;
+
   }
 
   console.log('Starting translation request:', { 
