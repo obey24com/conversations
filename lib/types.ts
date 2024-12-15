@@ -2,9 +2,10 @@ export interface Message {
   id: string;
   text: string;
   translation: string;
-  context?: string;
   fromLang: string;
   toLang: string;
+  context?: string;
+  cultural?: string;
   timestamp: number;
 }
 
