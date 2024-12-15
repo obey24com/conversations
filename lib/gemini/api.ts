@@ -1,7 +1,13 @@
-import { GEMINI_CONFIG } from './config';
 import type { GeminiRequest, GeminiResponse } from './types';
 
+const TIMEOUT = 30000; // 30 seconds
+const MAX_RETRIES = 3;
+
 export async function makeGeminiRequest(prompt: string): Promise<GeminiResponse> {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error('GEMINI_API_KEY environment variable is not set');
+  }
+
   const request: GeminiRequest = {
     contents: [{
       parts: [{
@@ -27,13 +33,13 @@ export async function makeGeminiRequest(prompt: string): Promise<GeminiResponse>
   };
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), GEMINI_CONFIG.TIMEOUT);
+  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
 
   let retries = 0;
-  while (retries < GEMINI_CONFIG.MAX_RETRIES) {
+  while (retries < MAX_RETRIES) {
     try {
       const response = await fetch(
-        `${GEMINI_CONFIG.API_URL}?key=${GEMINI_CONFIG.API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
         {
           method: 'POST',
           headers: {
@@ -54,7 +60,7 @@ export async function makeGeminiRequest(prompt: string): Promise<GeminiResponse>
       return response.json();
     } catch (error) {
       retries++;
-      if (retries === GEMINI_CONFIG.MAX_RETRIES) {
+      if (retries === MAX_RETRIES) {
         throw error;
       }
       // Exponential backoff
