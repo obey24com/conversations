@@ -1,9 +1,10 @@
 export interface GeminiRequest {
   contents: {
+    role: string;
     parts: {
       text: string;
     }[];
-  }[];
+  };
   generationConfig?: {
     temperature?: number;
     topP?: number;
