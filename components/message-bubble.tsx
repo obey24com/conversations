@@ -5,17 +5,7 @@ import { Volume2, Copy, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
 import { useState, useRef, useEffect } from 'react';
-
-export interface MessageBubbleProps {
-  text: string;
-  translation: string;
-  fromLang: string;
-  toLang: string;
-  context?: string;
-  isPlaying: boolean;
-  onPlay: () => void;
-  onDelete: () => void;
-}
+import type { MessageBubbleProps } from '@/lib/types';
 
 export function MessageBubble({ 
   text, 
