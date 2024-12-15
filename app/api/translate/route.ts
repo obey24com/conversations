@@ -1,32 +1,33 @@
 import { NextResponse } from "next/server";
 import { translateWithGemini } from "@/lib/gemini";
+import { z } from "zod";
 
 export const runtime = 'edge';
+
+// Input validation schema
+const TranslationSchema = z.object({
+  text: z.string().min(1),
+  fromLang: z.string().min(1),
+  toLang: z.string().min(1),
+});
 
 export async function POST(request: Request) {
   try {
     console.log('Translation request received');
     
     const body = await request.json();
-    console.log('Request body:', body);
     
-    const { text, fromLang, toLang } = body;
-
-    if (!text?.trim()) {
-      console.log('Missing text in request');
+    // Validate input
+    const result = TranslationSchema.safeParse(body);
+    if (!result.success) {
+      console.error('Invalid request body:', result.error);
       return NextResponse.json(
-        { error: "Text is required" },
+        { error: "Invalid request parameters" },
         { status: 400 }
       );
     }
-
-    if (!fromLang || !toLang) {
-      console.log('Missing language parameters:', { fromLang, toLang });
-      return NextResponse.json(
-        { error: "Source and target languages are required" },
-        { status: 400 }
-      );
-    }
+    
+    const { text, fromLang, toLang } = result.data;
 
     console.log('Calling translateWithGemini with:', { 
       textLength: text.length, 
@@ -37,7 +38,10 @@ export async function POST(request: Request) {
     const result = await translateWithGemini(text, fromLang, toLang);
 
     if (result.error) {
-      throw new Error(result.error);
+      return NextResponse.json(
+        { error: result.error },
+        { status: 400 }
+      );
     }
 
     // Format the response to match the existing format
@@ -55,7 +59,7 @@ export async function POST(request: Request) {
     });
     
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Translation failed" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
