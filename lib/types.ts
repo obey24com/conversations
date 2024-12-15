@@ -1,45 +1,53 @@
-export interface GeminiRequest {
-  contents: [{
-    role: string;
-    parts: {
-      text: string;
-    }[];
-  }];
-  generationConfig?: {
-    temperature?: number;
-    topP?: number;
-    topK?: number;
-    maxOutputTokens?: number;
-  };
-  safetySettings?: {
-    category: string;
-    threshold: string;
-  }[];
+export interface Message {
+  id: string;
+  text: string;
+  translation: string;
+  fromLang: string;
+  toLang: string;
+  context?: string;
+  cultural?: string;
+  timestamp: number;
 }
 
-export interface GeminiResponse {
-  candidates?: [{
-    content: {
-      parts: {
-        text: string;
-      }[];
-    };
-    finishReason?: string;
-    safetyRatings?: {
-      category: string;
-      probability: string;
-    }[];
-  }];
+export interface MessageBubbleProps {
+  text: string;
+  translation: string;
+  fromLang: string;
+  toLang: string;
+  context?: string;
+  cultural?: string;
+  isPlaying: boolean;
+  onPlay: () => void;
+  onDelete: () => void;
 }
 
-export interface TranslationResult {
+export interface TranslationRequest {
+  text: string;
+  fromLang: string;
+  toLang: string;
+}
+
+export interface TranslationResponse {
   translation: string;
   context?: string;
   error?: string;
 }
 
-export interface GeminiTranslationOptions {
-  text: string;
+
+export interface TranslationControlsProps {
   fromLang: string;
   toLang: string;
+  inputText: string;
+  isLoading: boolean;
+  isRecording: boolean;
+  isSwapping: boolean;
+  isSwapActive: boolean;
+  isSwapActiveFirst: boolean;
+  swapMessage: string;
+  onFromLangChange: (value: string) => void;
+  onToLangChange: (value: string) => void;
+  onInputChange: (value: string) => void;
+  onSend: () => void;
+  onRecord: () => void;
+  onSwap: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
