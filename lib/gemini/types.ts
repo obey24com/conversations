@@ -18,7 +18,7 @@ export interface GeminiRequest {
 }
 
 export interface GeminiResponse {
-  candidates: {
+  candidates?: {
     content: {
       parts: {
         text: string;
