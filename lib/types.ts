@@ -5,6 +5,7 @@ export interface Message {
   fromLang: string;
   toLang: string;
   context?: string;
+  cultural?: string;  // Added this optional property
   timestamp: number;
 }
 
