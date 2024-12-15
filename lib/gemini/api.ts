@@ -1,6 +1,6 @@
 import type { GeminiRequest, GeminiResponse } from './types';
 
-const TIMEOUT = 30000; // 30 seconds
+const TIMEOUT = 60000; // 60 seconds
 const MAX_RETRIES = 3;
 
 export async function makeGeminiRequest(prompt: string): Promise<GeminiResponse> {
@@ -15,7 +15,7 @@ export async function makeGeminiRequest(prompt: string): Promise<GeminiResponse>
       }]
     }],
     generationConfig: {
-      temperature: 0.3,
+      temperature: 0.7,
       topP: 0.8,
       topK: 40,
       maxOutputTokens: 1024,
@@ -39,7 +39,7 @@ export async function makeGeminiRequest(prompt: string): Promise<GeminiResponse>
   while (retries < MAX_RETRIES) {
     try {
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
         {
           method: 'POST',
           headers: {
