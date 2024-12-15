@@ -11,11 +11,26 @@ async function getAudioDuration(audioBlob: Blob): Promise<number> {
   return audioBuffer.duration;
 }
 
+function generatePetSounds(type: string, duration: number): string {
+  if (type === "cat") {
+    return "m" + "e".repeat(Math.floor(duration)) + "ow" + 
+           "!".repeat(Math.floor(duration / 2));
+  } else if (type === "dog") {
+    const sounds = ["woof", "bark", "ruff"];
+    const repetitions = Math.floor(duration);
+    return Array(repetitions)
+      .fill(null)
+      .map(() => sounds[Math.floor(Math.random() * sounds.length)])
+      .join(" ") + "!".repeat(Math.floor(duration / 2));
+  }
+  return "";
+}
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const audioFile = formData.get("audio");
-    const language = formData.get("language");
+    const language = formData.get("language") as string;
 
     if (!audioFile || !(audioFile instanceof Blob)) {
       return NextResponse.json(
@@ -24,35 +39,22 @@ export async function POST(request: Request) {
       );
     }
 
-    const languageString = typeof language === "string" ? language : undefined;
-
     // Special handling for pet languages
-    if (languageString && isPetLanguage(languageString)) {
+    if (isPetLanguage(language)) {
       try {
-        // Get audio duration to determine the "intensity" of the pet's communication
         const duration = await getAudioDuration(audioFile);
+        const petSounds = generatePetSounds(language, duration);
         
-        // Generate pet sounds based on duration
-        let petSounds = "";
-        if (languageString === "cat") {
-          // Longer meows for longer recordings
-          petSounds = "m" + "e".repeat(Math.floor(duration)) + "ow" + 
-                     "!".repeat(Math.floor(duration / 2));
-        } else if (languageString === "dog") {
-          // Mix of barks and woofs for longer recordings
-          const sounds = ["woof", "bark", "ruff"];
-          const repetitions = Math.floor(duration);
-          petSounds = Array(repetitions)
-            .fill(null)
-            .map(() => sounds[Math.floor(Math.random() * sounds.length)])
-            .join(" ") + "!".repeat(Math.floor(duration / 2));
+        if (petSounds) {
+          return NextResponse.json({ text: petSounds });
         }
-
-        return NextResponse.json({ text: petSounds });
+        
+        // Fallback to simple pet sounds if generation fails
+        const defaultSound = language === "cat" ? "meow meow!" : "woof woof!";
+        return NextResponse.json({ text: defaultSound });
       } catch (error) {
         console.error("Error processing pet audio:", error);
-        // Fallback to simple pet sounds if audio processing fails
-        const defaultSound = languageString === "cat" ? "meow meow!" : "woof woof!";
+        const defaultSound = language === "cat" ? "meow meow!" : "woof woof!";
         return NextResponse.json({ text: defaultSound });
       }
     }
@@ -62,8 +64,12 @@ export async function POST(request: Request) {
       file: audioFile,
       model: "whisper-1",
       response_format: "text",
-      language: languageString,
+      language: language,
     });
+
+    if (!transcription) {
+      throw new Error("No transcription received from OpenAI");
+    }
 
     return NextResponse.json({ text: transcription });
   } catch (error) {
