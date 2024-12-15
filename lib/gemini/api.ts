@@ -41,12 +41,14 @@ export async function makeGeminiRequest(prompt: string): Promise<GeminiResponse>
   let retries = 0;
   while (retries < GEMINI_CONFIG.MAX_RETRIES) {
     try {
+      const url = `${GEMINI_CONFIG.BASE_URL}/models/${GEMINI_CONFIG.MODEL}:generateContent`;
       const response = await fetch(
-        `${GEMINI_CONFIG.BASE_URL}/models/${GEMINI_CONFIG.MODEL}:generateContent?key=${apiKey}`,
+        `${url}?key=${apiKey}`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey
           },
           body: JSON.stringify(request),
           signal: controller.signal
@@ -57,7 +59,11 @@ export async function makeGeminiRequest(prompt: string): Promise<GeminiResponse>
 
       if (!response.ok) {
         const error = await response.text();
-        console.error('Gemini API error response:', error);
+        console.error('Gemini API error response:', {
+          status: response.status,
+          statusText: response.statusText,
+          error
+        });
         throw new Error(`Gemini API error: ${response.status} - ${error}`);
       }
 
