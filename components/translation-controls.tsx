@@ -5,24 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Square, Mic, Send, ArrowLeftRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LanguageSelect } from "./language-select";
-
-interface TranslationControlsProps {
-  fromLang: string;
-  toLang: string;
-  inputText: string;
-  isLoading: boolean;
-  isRecording: boolean;
-  isSwapping: boolean;
-  isSwapActive: boolean;
-  isSwapActiveFirst: boolean;
-  swapMessage: string;
-  onFromLangChange: (value: string) => void;
-  onToLangChange: (value: string) => void;
-  onInputChange: (value: string) => void;
-  onSend: () => void;
-  onRecord: () => void;
-  onSwap: (event: React.MouseEvent<HTMLButtonElement>) => void;
-}
+import type { TranslationControlsProps } from '@/lib/types';
 
 export function TranslationControls({
   fromLang,
