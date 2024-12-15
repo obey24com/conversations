@@ -1,5 +1,5 @@
 export const GEMINI_CONFIG = {
-  BASE_URL: 'https://generativelanguage.googleapis.com/v1beta',
+  BASE_URL: 'https://generativelanguage.googleapis.com/v1beta/models',
   MODEL: 'gemini-pro',
   REQUEST_TIMEOUT: 30000, // 30 seconds
   MAX_RETRIES: 3,
@@ -10,6 +10,8 @@ export const GEMINI_CONFIG = {
     RATE_LIMIT: 'Rate limit exceeded, please try again later',
     TIMEOUT: 'Request timed out',
     MISSING_API_KEY: 'Gemini API key is not configured',
+    EMPTY_RESPONSE: 'Empty response from Gemini API',
+    PARSE_ERROR: 'Failed to parse translation response'
   },
 } as const;
 
