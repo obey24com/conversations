@@ -1,8 +1,8 @@
-export interface TranslationMessage {
+export interface Message {
   id: string;
   text: string;
   translation: string;
-  context?: string | null;
+  context?: string;
   fromLang: string;
   toLang: string;
   timestamp: number;
@@ -15,6 +15,7 @@ export interface TranslationRequest {
 }
 
 export interface TranslationResponse {
-  translation?: string;
+  translation: string;
+  context?: string;
   error?: string;
 }
