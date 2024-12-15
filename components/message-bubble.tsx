@@ -11,7 +11,7 @@ export interface MessageBubbleProps {
   translation: string;
   fromLang: string;
   toLang: string;
-  cultural?: string;
+  context?: string;
   isPlaying: boolean;
   onPlay: () => void;
   onDelete: () => void;
@@ -22,7 +22,7 @@ export function MessageBubble({
   translation,
   fromLang,
   toLang, 
-  cultural, 
+  context, 
   isPlaying, 
   onPlay,
   onDelete
@@ -147,9 +147,9 @@ export function MessageBubble({
         <div className="mt-3">
           <p className="text-lg font-medium text-gray-900 leading-relaxed">{translation}</p>
           
-          {cultural && (
+          {context && (
             <p className="mt-4 pt-4 border-t border-gray-100 text-sm text-gray-600 italic leading-relaxed">
-              {cultural}
+              {context}
             </p>
           )}
         </div>
