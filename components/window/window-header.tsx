@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageSquare } from "lucide-react";
+import Image from "next/image";
 import { WindowControls } from "./window-controls";
 
 interface WindowHeaderProps {
@@ -14,8 +14,14 @@ export function WindowHeader({ onClose, onMinimize }: WindowHeaderProps) {
       <div className="flex items-center space-x-4">
         <WindowControls onClose={onClose} onMinimize={onMinimize} />
         <div className="flex-1 flex items-center justify-center gap-2">
-          <MessageSquare className="h-4 w-4 text-gray-400" />
-          <h2 className="text-sm font-medium text-gray-600">Universal Translator</h2>
+          <Image
+            src="/img/logo.png"
+            alt="ULOCAT Logo"
+            width={20}
+            height={20}
+            className="h-5 w-5 object-contain"
+          />
+          <h2 className="text-sm font-medium text-gray-600">ULOCAT</h2>
         </div>
         <div className="w-16" /> {/* Spacer for visual balance */}
       </div>
