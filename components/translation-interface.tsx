@@ -99,7 +99,6 @@ export function TranslationInterface() {
                 fromLang={message.fromLang}
                 toLang={message.toLang}
                 context={message.context}
-                cultural={message.cultural}
                 isPlaying={isPlaying === index}
                 onPlay={() => playTranslation(message.translation, index, message.toLang)}
                 onDelete={() => handleDeleteMessage(message.id)}
