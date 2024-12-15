@@ -1,33 +1,22 @@
 import { NextResponse } from "next/server";
 import { translateWithGemini } from "@/lib/gemini";
-import { z } from "zod";
 
 export const runtime = 'edge';
-
-// Input validation schema
-const TranslationSchema = z.object({
-  text: z.string().min(1),
-  fromLang: z.string().min(1),
-  toLang: z.string().min(1),
-});
 
 export async function POST(request: Request) {
   try {
     console.log('Translation request received');
     
     const body = await request.json();
+    const { text, fromLang, toLang } = body;
 
-    // Validate input
-    const validationResult = TranslationSchema.safeParse(body);
-    if (!validationResult.success) {
-      console.error('Invalid request body:', validationResult.error);
+    if (!text?.trim() || !fromLang || !toLang) {
+      console.error('Missing required parameters:', { text, fromLang, toLang });
       return NextResponse.json(
-        { error: "Invalid request parameters" },
+        { error: "Missing required parameters" },
         { status: 400 }
       );
     }
-    
-    const { text, fromLang, toLang } = validationResult.data;
 
     console.log('Calling translateWithGemini with:', { 
       textLength: text.length, 
@@ -41,7 +30,7 @@ export async function POST(request: Request) {
     if (result.error) {
       return NextResponse.json(
         { error: result.error },
-        { status: 400 }
+        { status: 500 }
       );
     }
 
