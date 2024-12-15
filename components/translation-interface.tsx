@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/use-translation";
 import { useAudioHandling } from "@/hooks/use-audio-handling";
 import { useScrollHandling } from "@/hooks/use-scroll-handling";
+import { useAudioRecording } from "@/hooks/use-audio-recording";
 import { MessageBubble } from "./message-bubble";
 import { TranslationControls } from "./translation-controls";
 
@@ -25,9 +26,7 @@ export function TranslationInterface() {
   } = useTranslation();
 
   const {
-    isRecording,
     isPlaying,
-    toggleRecording,
     playTranslation,
     audioRef,
   } = useAudioHandling();
@@ -39,6 +38,18 @@ export function TranslationInterface() {
   const [isSwapActiveFirst, setIsSwapActiveFirst] = useState(true);
   const [swapMessage, setSwapMessage] = useState("");
   const [isSwapping, setIsSwapping] = useState(false);
+
+  // Initialize audio recording hook
+  const { isRecording, toggleRecording } = useAudioRecording(
+    fromLang,
+    toLang,
+    (transcribedText) => {
+      if (transcribedText) {
+        setInputText(transcribedText);
+        handleSend();
+      }
+    }
+  );
 
   useEffect(() => {
     setMounted(true);
@@ -88,6 +99,7 @@ export function TranslationInterface() {
                 fromLang={message.fromLang}
                 toLang={message.toLang}
                 context={message.context}
+                cultural={message.cultural}
                 isPlaying={isPlaying === index}
                 onPlay={() => playTranslation(message.translation, index, message.toLang)}
                 onDelete={() => handleDeleteMessage(message.id)}
