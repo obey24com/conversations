@@ -28,7 +28,7 @@ export function MinimizedWindow({ isMinimized, onRestore }: MinimizedWindowProps
               <MessageSquare className="h-4 w-4" />
             </div>
             <div className="text-left">
-              <p className="text-sm font-medium">Universal Translator</p>
+              <p className="text-sm font-medium">ULOCAT</p>
               <p className="text-xs text-gray-500">Click to restore</p>
             </div>
           </motion.button>
