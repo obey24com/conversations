@@ -97,56 +97,56 @@ export function MessageBubble({
           "hover:shadow-lg transition-shadow duration-200"
         )}
       >
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute -right-2 -top-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white shadow-sm hover:shadow-md"
-          onClick={handleDelete}
-        >
-          <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
-        </Button>
+        <div className="absolute -right-2 -top-2 flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+              "h-8 w-8 transition-all duration-500",
+              isPlaying 
+                ? "text-blue-500 bg-blue-50 hover:bg-blue-100 hover:text-blue-600"
+                : "text-gray-400 hover:text-gray-600 bg-white shadow-sm hover:shadow-md"
+            )}
+            onClick={onPlay}
+          >
+            <Volume2 className={cn(
+              "h-4 w-4 transition-transform duration-500",
+              isPlaying && [
+                "animate-[wave_2s_ease-in-out_infinite]",
+                "relative",
+                "after:absolute after:inset-0",
+                "after:bg-blue-500/20 after:rounded-full",
+                "after:animate-[pulse_2s_ease-in-out_infinite]",
+                "before:absolute before:inset-0",
+                "before:bg-blue-500/10 before:rounded-full",
+                "before:animate-[pulse_2s_ease-in-out_infinite_0.5s]"
+              ]
+            )} />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-gray-400 hover:text-gray-600 bg-white shadow-sm hover:shadow-md"
+            onClick={() => copyToClipboard(translation)}
+          >
+            <Copy className="h-4 w-4" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-gray-400 hover:text-red-600 bg-white shadow-sm hover:shadow-md"
+            onClick={handleDelete}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
 
         <p className="text-sm text-gray-500 mb-4">{text}</p>
         <div className="mt-3">
           <p className="text-lg font-medium text-gray-900 leading-relaxed">{translation}</p>
           
-          <div className="flex justify-end gap-2 mt-4 opacity-40 group-hover:opacity-100 transition-opacity duration-200">
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "h-8 px-3 transition-all duration-500",
-                isPlaying 
-                  ? "text-blue-500 bg-blue-50 hover:bg-blue-100 hover:text-blue-600"
-                  : "text-gray-400 hover:text-gray-600"
-              )}
-              onClick={onPlay}
-            >
-              <Volume2 className={cn(
-                "h-4 w-4 transition-transform duration-500",
-                isPlaying && [
-                  "animate-[wave_2s_ease-in-out_infinite]",
-                  "relative",
-                  "after:absolute after:inset-0",
-                  "after:bg-blue-500/20 after:rounded-full",
-                  "after:animate-[pulse_2s_ease-in-out_infinite]",
-                  "before:absolute before:inset-0",
-                  "before:bg-blue-500/10 before:rounded-full",
-                  "before:animate-[pulse_2s_ease-in-out_infinite_0.5s]"
-                ]
-              )} />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 px-3 text-gray-400 hover:text-gray-600"
-              onClick={() => copyToClipboard(translation)}
-            >
-              <Copy className="h-4 w-4" />
-            </Button>
-          </div>
-
           {cultural && (
             <p className="mt-4 pt-4 border-t border-gray-100 text-sm text-gray-600 italic leading-relaxed">
               {cultural}
