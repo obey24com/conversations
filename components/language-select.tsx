@@ -94,7 +94,7 @@ export function LanguageSelect({
       >
         <Command>
           <CommandInput placeholder="Search language..." />
-          <CommandList className="h-[calc(100dvh-180px)] max-h-[75vh] md:max-h-[80vh]">
+          <CommandList className="max-h-[400px] overflow-y-auto">
             <CommandEmpty>No language found.</CommandEmpty>
             <CommandGroup>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:w-full md:grid-cols-4 lg:grid-cols-5">
