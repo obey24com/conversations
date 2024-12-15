@@ -18,18 +18,14 @@ export async function translateWithGemini(
       toLang,
     });
 
-    console.log('Generated prompt:', prompt);
-
     // Make the API request
     const response = await makeGeminiRequest(prompt);
-    console.log('Received Gemini response:', response);
     
     // Extract the text from the response
-    const result = response.candidates?.[0]?.content?.parts?.[0]?.text;
+    const result = response.candidates?.[0]?.content?.parts?.[0]?.text || '';
     
     if (!result) {
-      console.error('Empty response from Gemini API');
-      throw new Error('Empty response from Gemini API');
+      throw new Error(GEMINI_CONFIG.ERROR_MESSAGES.EMPTY_RESPONSE);
     }
 
     // Parse the response into translation and context
