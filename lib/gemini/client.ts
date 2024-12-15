@@ -2,6 +2,7 @@ import type { TranslationResult } from './types';
 import { generateTranslationPrompt } from './prompts';
 import { makeGeminiRequest } from './api';
 import { parseGeminiResponse } from './parser';
+import { GEMINI_CONFIG } from './config';
 
 export async function translateWithGemini(
   text: string,
