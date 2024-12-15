@@ -5,6 +5,7 @@ export interface Message {
   fromLang: string;
   toLang: string;
   context?: string;
+  cultural?: string;
   timestamp: number;
 }
 
@@ -26,6 +27,7 @@ export interface MessageBubbleProps {
   fromLang: string;
   toLang: string;
   context?: string;
+  cultural?: string;
   isPlaying: boolean;
   onPlay: () => void;
   onDelete: () => void;
