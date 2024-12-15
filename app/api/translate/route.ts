@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { translateText } from "@/lib/openai";
+import { translateWithGemini } from "@/lib/gemini";
 
 export const runtime = 'edge';
 
@@ -28,16 +28,25 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log('Calling translateText with:', { textLength: text.length, fromLang, toLang });
-    const translation = await translateText(text, fromLang, toLang);
+    console.log('Calling translateWithGemini with:', { 
+      textLength: text.length, 
+      fromLang, 
+      toLang 
+    });
 
-    if (!translation) {
-      console.error('Translation returned null or undefined');
-      throw new Error('Translation failed - no response received');
+    const result = await translateWithGemini(text, fromLang, toLang);
+
+    if (result.error) {
+      throw new Error(result.error);
     }
 
-    console.log('Translation successful, response length:', translation.length);
-    return NextResponse.json({ translation });
+    // Format the response to match the existing format
+    const response = result.context
+      ? `TRANSLATION: ${result.translation}\nCONTEXT: ${result.context}`
+      : `TRANSLATION: ${result.translation}`;
+
+    console.log('Translation successful, response length:', response.length);
+    return NextResponse.json({ translation: response });
   } catch (error) {
     console.error("Translation route error:", {
       name: error instanceof Error ? error.name : 'Unknown',
