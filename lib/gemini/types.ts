@@ -4,6 +4,16 @@ export interface GeminiRequest {
       text: string;
     }[];
   }[];
+  generationConfig?: {
+    temperature?: number;
+    topP?: number;
+    topK?: number;
+    maxOutputTokens?: number;
+  };
+  safetySettings?: {
+    category: string;
+    threshold: string;
+  }[];
 }
 
 export interface GeminiResponse {
@@ -13,6 +23,11 @@ export interface GeminiResponse {
         text: string;
       }[];
     };
+    finishReason?: string;
+    safetyRatings?: {
+      category: string;
+      probability: string;
+    }[];
   }[];
 }
 
@@ -26,5 +41,4 @@ export interface GeminiTranslationOptions {
   fromLang: string;
   toLang: string;
   text: string;
-  includeContext?: boolean;
 }
