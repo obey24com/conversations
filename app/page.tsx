@@ -5,7 +5,7 @@ import { Benefits } from "@/components/sections/benefits";
 import { HowItWorks } from "@/components/sections/how-it-works";
 import { Comparison } from "@/components/sections/comparison";
 import { Navigation } from "@/components/sections/navigation";
-import { BackToTop } from "@/components/back-to-top";
+import { BackToTop } from "@/components/sections/back-to-top";
 
 export default function Home() {
   return (
