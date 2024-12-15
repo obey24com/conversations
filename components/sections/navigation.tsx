@@ -33,14 +33,7 @@ export function Navigation() {
   };
 
   return (
-    <nav 
-      className="sticky top-[64px] z-40 border-b"
-      style={{
-        backgroundColor: 'rgba(255, 255, 255, 0.4)',
-        WebkitBackdropFilter: 'saturate(180%) blur(10px)',
-        backdropFilter: 'saturate(180%) blur(10px)',
-      }}
-    >
+    <nav className="sticky top-[64px] z-40 border-b bg-white">
       <div className="container mx-auto max-w-[1200px] px-6">
         <div className="flex h-12 overflow-x-auto">
           {[
