@@ -1,10 +1,13 @@
 import type { TranslationResult } from './types';
+import { GEMINI_CONFIG } from './config';
 
 export function parseGeminiResponse(result: string): TranslationResult {
+  console.log('Parsing Gemini response:', result);
+
   if (!result) {
     return {
       translation: '',
-      error: 'Empty response from Gemini API'
+      error: GEMINI_CONFIG.ERROR_MESSAGES.EMPTY_RESPONSE
     };
   }
 
@@ -12,6 +15,9 @@ export function parseGeminiResponse(result: string): TranslationResult {
     // Extract translation and context using regex
     const translationMatch = result.match(/TRANSLATION:\s*([\s\S]*?)(?=\s*CONTEXT:|$)/i);
     const contextMatch = result.match(/CONTEXT:\s*([\s\S]*?)$/i);
+
+    console.log('Translation match:', translationMatch);
+    console.log('Context match:', contextMatch);
 
     if (!translationMatch) {
       // If no proper format is found, treat the entire response as translation
@@ -28,7 +34,7 @@ export function parseGeminiResponse(result: string): TranslationResult {
     if (!translation) {
       return {
         translation: '',
-        error: 'Empty translation in response'
+        error: GEMINI_CONFIG.ERROR_MESSAGES.PARSE_ERROR
       };
     }
 
@@ -40,7 +46,7 @@ export function parseGeminiResponse(result: string): TranslationResult {
     console.error('Error parsing Gemini response:', error);
     return {
       translation: '',
-      error: 'Failed to parse translation response'
+      error: GEMINI_CONFIG.ERROR_MESSAGES.PARSE_ERROR
     };
   }
 }
