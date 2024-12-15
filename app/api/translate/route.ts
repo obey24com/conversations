@@ -16,18 +16,18 @@ export async function POST(request: Request) {
     console.log('Translation request received');
     
     const body = await request.json();
-    
+
     // Validate input
-    const result = TranslationSchema.safeParse(body);
-    if (!result.success) {
-      console.error('Invalid request body:', result.error);
+    const validationResult = TranslationSchema.safeParse(body);
+    if (!validationResult.success) {
+      console.error('Invalid request body:', validationResult.error);
       return NextResponse.json(
         { error: "Invalid request parameters" },
         { status: 400 }
       );
     }
     
-    const { text, fromLang, toLang } = result.data;
+    const { text, fromLang, toLang } = validationResult.data;
 
     console.log('Calling translateWithGemini with:', { 
       textLength: text.length, 
@@ -36,6 +36,7 @@ export async function POST(request: Request) {
     });
 
     const result = await translateWithGemini(text, fromLang, toLang);
+    console.log('Translation result:', result);
 
     if (result.error) {
       return NextResponse.json(
@@ -48,14 +49,15 @@ export async function POST(request: Request) {
     const response = result.context
       ? `TRANSLATION: ${result.translation}\nCONTEXT: ${result.context}`
       : `TRANSLATION: ${result.translation}`;
-
+    
     console.log('Translation successful, response length:', response.length);
     return NextResponse.json({ translation: response });
   } catch (error) {
     console.error("Translation route error:", {
       name: error instanceof Error ? error.name : 'Unknown',
       message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined
+      stack: error instanceof Error ? error.stack : undefined,
+      body: typeof error === 'object' ? error : undefined
     });
     
     return NextResponse.json(
