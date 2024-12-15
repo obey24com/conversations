@@ -13,12 +13,10 @@ export async function makeGeminiRequest(prompt: string): Promise<GeminiResponse>
   const apiKey = getApiKey();
 
   const request: GeminiRequest = {
-    contents: [
-      {
-        role: "user",
-        parts: [{ text: prompt }]
-      }
-    ],
+    contents: [{
+      role: "user",
+      parts: [{ text: prompt }]
+    }],
     generationConfig: {
       temperature: 0.7,
       topP: 0.8,
