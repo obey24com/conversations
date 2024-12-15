@@ -38,7 +38,7 @@ export interface TranslationResult {
 }
 
 export interface GeminiTranslationOptions {
+  text: string;
   fromLang: string;
   toLang: string;
-  text: string;
 }
