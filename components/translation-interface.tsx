@@ -1,15 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Mic, Send, ArrowLeftRight, Square, Languages } from "lucide-react";
+import { Languages } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/use-translation";
 import { useAudioHandling } from "@/hooks/use-audio-handling";
 import { useScrollHandling } from "@/hooks/use-scroll-handling";
-import { LanguageSelect } from "./language-select";
 import { MessageBubble } from "./message-bubble";
+import { TranslationControls } from "./translation-controls";
 
 export function TranslationInterface() {
   const {
@@ -89,7 +87,7 @@ export function TranslationInterface() {
                 translation={message.translation}
                 fromLang={message.fromLang}
                 toLang={message.toLang}
-                cultural={message.cultural}
+                context={message.context}
                 isPlaying={isPlaying === index}
                 onPlay={() => playTranslation(message.translation, index, message.toLang)}
                 onDelete={() => handleDeleteMessage(message.id)}
@@ -99,91 +97,23 @@ export function TranslationInterface() {
         </div>
       </div>
 
-      {/* Input Controls */}
-      <div className="border-t bg-white px-4 py-3 shadow-[0_-1px_3px_rgba(0,0,0,0.1)]">
-        <div className="mx-auto w-full max-w-5xl space-y-3">
-          <div className="flex w-full justify-between gap-2">
-            <LanguageSelect
-              value={fromLang}
-              setValue={setFromLang}
-              onValueChange={setFromLang}
-            />
-
-            <div className="relative">
-              <Button
-                variant="outline"
-                className={cn(
-                  "relative mx-2 flex items-center justify-center transition-all duration-300",
-                  isSwapping && "scale-90 opacity-50",
-                  isSwapActiveFirst
-                    ? "bg-transparent"
-                    : isSwapActive
-                      ? "bg-green-600 text-white"
-                      : "bg-red-600 text-white",
-                )}
-                onClick={handleButtonClick}
-              >
-                <ArrowLeftRight className={cn(
-                  "transition-transform duration-300",
-                  isSwapping && "rotate-180"
-                )} />
-                {swapMessage && (
-                  <div className="absolute -top-10 left-1/2 w-[135px] -translate-x-1/2 transform rounded bg-black px-3 py-2 text-xs text-white">
-                    {swapMessage}
-                  </div>
-                )}
-              </Button>
-            </div>
-
-            <LanguageSelect
-              value={toLang}
-              setValue={setToLang}
-              onValueChange={setToLang}
-              align="end"
-            />
-          </div>
-
-          <div className="flex w-full gap-2">
-            <Input
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              placeholder="Type your message..."
-              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-              className="flex-1 text-lg"
-              style={{ fontSize: "16px" }}
-              disabled={isLoading}
-            />
-
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={toggleRecording}
-              className={cn(
-                "shrink-0 transition-colors duration-200",
-                isRecording && "border-red-500 bg-red-500 hover:bg-red-600 hover:border-red-600"
-              )}
-              disabled={isLoading}
-            >
-              {isRecording ? (
-                <Square className="h-4 w-4 fill-white text-white" />
-              ) : (
-                <Mic className="h-4 w-4" />
-              )}
-            </Button>
-
-            <Button
-              onClick={handleSend}
-              disabled={!inputText.trim() || isLoading}
-              className={cn(
-                "shrink-0 transition-all duration-200",
-                isLoading && "opacity-70"
-              )}
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
+      <TranslationControls
+        fromLang={fromLang}
+        toLang={toLang}
+        inputText={inputText}
+        isLoading={isLoading}
+        isRecording={isRecording}
+        isSwapping={isSwapping}
+        isSwapActive={isSwapActive}
+        isSwapActiveFirst={isSwapActiveFirst}
+        swapMessage={swapMessage}
+        onFromLangChange={setFromLang}
+        onToLangChange={setToLang}
+        onInputChange={setInputText}
+        onSend={handleSend}
+        onRecord={toggleRecording}
+        onSwap={handleButtonClick}
+      />
 
       <audio ref={audioRef} className="hidden" />
     </div>
