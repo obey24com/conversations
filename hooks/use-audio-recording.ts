@@ -24,12 +24,16 @@ export function useAudioRecording(
 
   const startRecording = useCallback(async () => {
     try {
-      if (isRecording || isProcessing) {
+      if (isRecording || isProcessing || recorderRef.current?.isRecording) {
         console.log('Recording already in progress');
         return;
       }
 
       ensureRecorder();
+      if (!recorderRef.current) {
+        throw new Error("Failed to initialize recorder");
+      }
+      
       await recorderRef.current.start();
       setIsRecording(true);
     } catch (error) {
@@ -45,14 +49,17 @@ export function useAudioRecording(
 
   const stopRecording = useCallback(async () => {
     try {
-      if (!isRecording || isProcessing) {
+      if (!isRecording || isProcessing || !recorderRef.current) {
         console.log('No active recording to stop');
         return;
       }
 
       setIsProcessing(true);
-      const audioBlob = await recorderRef.current.stop();
+      const audioBlob = await recorderRef.current?.stop();
       setIsRecording(false);
+      
+      // Clean up the recorder
+      recorderRef.current.cleanup();
       recorderRef.current = null; // Clear the recorder after stopping
 
       const transcribedText = await handleSpeechToText(audioBlob, fromLang, toLang);
