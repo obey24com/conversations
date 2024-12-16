@@ -3,7 +3,8 @@
 export interface AudioRecorder {
   start: () => Promise<void>;
   stop: () => Promise<Blob>;
-  isRecording: boolean;
+  readonly isRecording: boolean;
+  cleanup: () => void;
 }
 
 export function createAudioRecorder(): AudioRecorder {
