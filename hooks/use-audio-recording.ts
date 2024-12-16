@@ -19,7 +19,6 @@ export function useAudioRecording(
     recorderRef.current = createAudioRecorder();
     
     return () => {
-      // Ensure we clean up on unmount
       if (recorderRef.current?.isRecording) {
         recorderRef.current.cleanup();
       }
