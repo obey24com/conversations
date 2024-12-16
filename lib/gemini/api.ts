@@ -1,38 +1,17 @@
 import type { GeminiRequest, GeminiResponse } from './types';
 import { GEMINI_CONFIG } from './config';
 
-function getApiKey(): string {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
+export async function makeGeminiRequest(prompt: string): Promise<GeminiResponse> {
+  if (!process.env.GEMINI_API_KEY) {
     throw new Error(GEMINI_CONFIG.ERROR_MESSAGES.MISSING_API_KEY);
   }
-  return apiKey;
-}
-
-export async function makeGeminiRequest(prompt: string): Promise<GeminiResponse> {
-  const apiKey = getApiKey();
 
   const request: GeminiRequest = {
     contents: {
-      role: "user",
-      parts: [{ text: prompt }]
+      parts: [{
+        text: prompt
+      }]
     },
-    generationConfig: {
-      temperature: 0.7,
-      topP: 0.8,
-      topK: 40,
-      maxOutputTokens: 1024,
-    },
-    safetySettings: [
-      {
-        category: "HARM_CATEGORY_HARASSMENT",
-        threshold: "BLOCK_MEDIUM_AND_ABOVE"
-      },
-      {
-        category: "HARM_CATEGORY_HATE_SPEECH",
-        threshold: "BLOCK_MEDIUM_AND_ABOVE"
-      }
-    ]
   };
 
   const controller = new AbortController();
@@ -41,14 +20,12 @@ export async function makeGeminiRequest(prompt: string): Promise<GeminiResponse>
   let retries = 0;
   while (retries < GEMINI_CONFIG.MAX_RETRIES) {
     try {
-      const url = `${GEMINI_CONFIG.BASE_URL}/models/${GEMINI_CONFIG.MODEL}:generateContent`;
       const response = await fetch(
-        `${url}?key=${apiKey}`,
+        `${GEMINI_CONFIG.BASE_URL}/models/${GEMINI_CONFIG.MODEL}:generateContent?key=${process.env.GEMINI_API_KEY}`,
         {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': apiKey
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify(request),
           signal: controller.signal
