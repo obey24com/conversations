@@ -3,36 +3,28 @@
 export interface AudioRecorder {
   start: () => Promise<void>;
   stop: () => Promise<Blob>;
-  readonly isRecording: boolean;
-  cleanup: () => void;
+  isRecording: boolean;
+  cleanup(): void;
 }
 
 export function createAudioRecorder(): AudioRecorder {
   let mediaRecorder: MediaRecorder | null = null;
   let audioChunks: Blob[] = [];
   let stream: MediaStream | null = null;
-  let isRecording = false;
+  let _isRecording = false;
 
   return {
-    get isRecording() {
-      return isRecording;
-    },
+    isRecording: false,
 
     async start() {
       try {
-        if (isRecording) {
+        if (this.isRecording) {
           console.log('Recording already in progress');
           return;
         }
 
         // Clean up any existing streams first
         this.cleanup();
- 
-        // Request permissions explicitly
-        const permission = await navigator.permissions.query({ name: 'microphone' as PermissionName });
-        if (permission.state === 'denied') {
-          throw new Error('Microphone permission denied');
-        }
 
         stream = await navigator.mediaDevices.getUserMedia({
           audio: {
@@ -54,9 +46,9 @@ export function createAudioRecorder(): AudioRecorder {
         };
 
         mediaRecorder.start();
-        isRecording = true;
+        this.isRecording = true;
       } catch (error) {
-        isRecording = false;
+        this.isRecording = false;
         this.cleanup();
         console.error("Error starting recording:", error);
         throw error;
@@ -65,15 +57,15 @@ export function createAudioRecorder(): AudioRecorder {
 
     async stop(): Promise<Blob> {
       return new Promise((resolve, reject) => {
-        if (!mediaRecorder || !isRecording) {
+        if (!mediaRecorder || !this.isRecording) {
           reject(new Error("No active recording"));
           return;
         }
 
         mediaRecorder.onstop = () => {
           const audioBlob = new Blob(audioChunks, { type: "audio/mp3" });
+          this.isRecording = false;
           this.cleanup();
-          isRecording = false;
           resolve(audioBlob);
         };
 
@@ -91,7 +83,7 @@ export function createAudioRecorder(): AudioRecorder {
       }
       mediaRecorder = null;
       audioChunks = [];
-      isRecording = false;
+      this.isRecording = false;
     }
   };
 }
