@@ -72,7 +72,7 @@ export function TranslationInterface() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="relative flex-1 overflow-hidden">
+      <div className="relative flex-1 overflow-hidden border-b border-gray-200">
         {/* Loading Overlay */}
         {isLoading && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
