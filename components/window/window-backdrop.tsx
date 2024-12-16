@@ -13,8 +13,7 @@ export function WindowBackdrop({ isVisible, onClick }: WindowBackdropProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: isVisible ? 1 : 0 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/5 backdrop-blur-sm"
-      onClick={onClick}
+      className="fixed inset-0 bg-[#2253be24] backdrop-blur-sm pointer-events-none"
       style={{ display: isVisible ? "block" : "none" }}
     />
   );
