@@ -10,12 +10,24 @@ export function createAudioRecorder(): AudioRecorder {
   let mediaRecorder: MediaRecorder | null = null;
   let audioChunks: Blob[] = [];
   let stream: MediaStream | null = null;
+  let isActive = false;
 
   return {
-    isRecording: false,
+    isRecording: isActive,
 
     async start() {
       try {
+        if (isActive) {
+          console.log('Recording already in progress');
+          return;
+        }
+
+        // Request permissions explicitly
+        const permission = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+        if (permission.state === 'denied') {
+          throw new Error('Microphone permission denied');
+        }
+
         stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             sampleRate: 44100,
@@ -36,8 +48,10 @@ export function createAudioRecorder(): AudioRecorder {
         };
 
         mediaRecorder.start();
-        this.isRecording = true;
+        isActive = true;
       } catch (error) {
+        isActive = false;
+        stream?.getTracks().forEach(track => track.stop());
         console.error("Error starting recording:", error);
         throw error;
       }
@@ -53,7 +67,7 @@ export function createAudioRecorder(): AudioRecorder {
         mediaRecorder.onstop = () => {
           const audioBlob = new Blob(audioChunks, { type: "audio/mp3" });
           stream?.getTracks().forEach(track => track.stop());
-          this.isRecording = false;
+          isActive = false;
           resolve(audioBlob);
         };
 
