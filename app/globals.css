@@ -105,22 +105,23 @@
 .animated-dots {
   --dot-bg: #e2e7ee;
   --dot-color: #aaa;
-  --dot-size: 1px;
-  --dot-space: 22px;
-	background:
-		linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
-		linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
-		var(--dot-color);
+  --dot-size: 2px;
+  --dot-space: 30px;
+  background:
+    linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+    linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+    var(--dot-color);
+  animation: zoomBackground 20s ease-in-out infinite;
 }
 
 @keyframes zoomBackground {
   0% {
-    background-size: 30px 30px;
+    background-size: var(--dot-space) var(--dot-space);
   }
   50% {
-    background-size: 32px 32px;
+    background-size: calc(var(--dot-space) + 2px) calc(var(--dot-space) + 2px);
   }
   100% {
-    background-size: 30px 30px;
+    background-size: var(--dot-space) var(--dot-space);
   }
 }
