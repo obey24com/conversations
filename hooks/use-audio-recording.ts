@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { createAudioRecorder, type AudioRecorder } from "@/lib/audio/recorder";
 import { handleSpeechToText } from "@/lib/audio/speech-to-text"; 
@@ -14,24 +14,22 @@ export function useAudioRecording(
   const [isProcessing, setIsProcessing] = useState(false);
   const recorderRef = useRef<AudioRecorder | null>(null);
   const { toast } = useToast();
-
-  useEffect(() => {
-    recorderRef.current = createAudioRecorder();
-    
-    return () => {
-      if (recorderRef.current?.isRecording) {
-        recorderRef.current.cleanup();
-      }
-    };
-  }, []);
+  
+  // Initialize recorder on first use
+  const ensureRecorder = () => {
+    if (!recorderRef.current) {
+      recorderRef.current = createAudioRecorder();
+    }
+  };
 
   const startRecording = useCallback(async () => {
     try {
-      if (isRecording || !recorderRef.current || isProcessing) {
+      if (isRecording || isProcessing) {
         console.log('Recording already in progress');
         return;
       }
 
+      ensureRecorder();
       await recorderRef.current.start();
       setIsRecording(true);
     } catch (error) {
@@ -47,7 +45,7 @@ export function useAudioRecording(
 
   const stopRecording = useCallback(async () => {
     try {
-      if (!recorderRef.current || !isRecording || isProcessing) {
+      if (!isRecording || isProcessing) {
         console.log('No active recording to stop');
         return;
       }
@@ -55,6 +53,7 @@ export function useAudioRecording(
       setIsProcessing(true);
       const audioBlob = await recorderRef.current.stop();
       setIsRecording(false);
+      recorderRef.current = null; // Clear the recorder after stopping
 
       const transcribedText = await handleSpeechToText(audioBlob, fromLang, toLang);
       setIsProcessing(false);
@@ -78,6 +77,7 @@ export function useAudioRecording(
     } else {
       startRecording();
     }
+    
   }, [isRecording, startRecording, stopRecording]);
 
   return {
