@@ -7,14 +7,8 @@ export interface GeminiRequest {
   };
   generationConfig?: {
     temperature?: number;
-    topP?: number;
-    topK?: number;
     maxOutputTokens?: number;
   };
-  safetySettings?: {
-    category: string;
-    threshold: string;
-  }[];
 }
 
 export interface GeminiResponse {
