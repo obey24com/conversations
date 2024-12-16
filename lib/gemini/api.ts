@@ -8,10 +8,13 @@ export async function makeGeminiRequest(prompt: string): Promise<GeminiResponse>
 
   const request: GeminiRequest = {
     contents: {
-      parts: [{
-        text: prompt
-      }]
+      role: "user",
+      parts: [{ text: prompt }]
     },
+    generationConfig: {
+      temperature: 0.7,
+      maxOutputTokens: 2048
+    }
   };
 
   const controller = new AbortController();
@@ -21,7 +24,7 @@ export async function makeGeminiRequest(prompt: string): Promise<GeminiResponse>
   while (retries < GEMINI_CONFIG.MAX_RETRIES) {
     try {
       const response = await fetch(
-        `${GEMINI_CONFIG.BASE_URL}/models/${GEMINI_CONFIG.MODEL}:generateContent?key=${process.env.GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
         {
           method: 'POST',
           headers: {
