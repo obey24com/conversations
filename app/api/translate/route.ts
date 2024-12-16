@@ -5,7 +5,8 @@ export const runtime = 'edge';
 
 export async function POST(request: Request) {
   try {
-    if (!process.env.GEMINI_API_KEY) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
       console.error('GEMINI_API_KEY environment variable is not set');
       return NextResponse.json(
         { error: "Translation service is not properly configured" },
@@ -14,7 +15,7 @@ export async function POST(request: Request) {
     }
 
     console.log('Translation request received');
-    
+
     const body = await request.json();
     
     const { text, fromLang, toLang } = body;
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
     });
 
     const result = await translateWithGemini(text, fromLang, toLang);
+    console.log('Translation result:', result);
 
     if (result.error) {
       console.error('Translation error:', result.error);
