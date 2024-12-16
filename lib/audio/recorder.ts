@@ -10,13 +10,16 @@ export function createAudioRecorder(): AudioRecorder {
   let mediaRecorder: MediaRecorder | null = null;
   let audioChunks: Blob[] = [];
   let stream: MediaStream | null = null;
+  let isRecording = false;
 
   return {
-    isRecording: false,
+    get isRecording() {
+      return isRecording;
+    },
 
     async start() {
       try {
-        if (this.isRecording) {
+        if (isRecording) {
           console.log('Recording already in progress');
           return;
         }
@@ -50,9 +53,9 @@ export function createAudioRecorder(): AudioRecorder {
         };
 
         mediaRecorder.start();
-        this.isRecording = true;
+        isRecording = true;
       } catch (error) {
-        this.isRecording = false;
+        isRecording = false;
         this.cleanup();
         console.error("Error starting recording:", error);
         throw error;
@@ -61,7 +64,7 @@ export function createAudioRecorder(): AudioRecorder {
 
     async stop(): Promise<Blob> {
       return new Promise((resolve, reject) => {
-        if (!mediaRecorder || !this.isRecording) {
+        if (!mediaRecorder || !isRecording) {
           reject(new Error("No active recording"));
           return;
         }
@@ -69,7 +72,7 @@ export function createAudioRecorder(): AudioRecorder {
         mediaRecorder.onstop = () => {
           const audioBlob = new Blob(audioChunks, { type: "audio/mp3" });
           this.cleanup();
-          this.isRecording = false;
+          isRecording = false;
           resolve(audioBlob);
         };
 
@@ -87,6 +90,7 @@ export function createAudioRecorder(): AudioRecorder {
       }
       mediaRecorder = null;
       audioChunks = [];
+      isRecording = false;
     }
   };
 }
