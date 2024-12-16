@@ -11,15 +11,16 @@ export function useAudioRecording(
   onTranscription: (text: string) => void
 ) {
   const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const recorderRef = useRef<AudioRecorder | null>(null);
-  const isProcessingRef = useRef(false);
   const { toast } = useToast();
 
   useEffect(() => {
     recorderRef.current = createAudioRecorder();
     
     return () => {
-      if (recorderRef.current) {
+      // Ensure we clean up on unmount
+      if (recorderRef.current?.isRecording) {
         recorderRef.current.cleanup();
       }
     };
@@ -27,7 +28,7 @@ export function useAudioRecording(
 
   const startRecording = useCallback(async () => {
     try {
-      if (isRecording || !recorderRef.current || isProcessingRef.current) {
+      if (isRecording || !recorderRef.current || isProcessing) {
         console.log('Recording already in progress');
         return;
       }
@@ -41,26 +42,27 @@ export function useAudioRecording(
         description: "Please ensure you've granted microphone permissions and no other app is using it",
         variant: "destructive",
       });
+      setIsRecording(false);
     }
-  }, [isRecording, toast]);
+  }, [isRecording, isProcessing, toast]);
 
   const stopRecording = useCallback(async () => {
     try {
-      if (!recorderRef.current || !isRecording || isProcessingRef.current) {
+      if (!recorderRef.current || !isRecording || isProcessing) {
         console.log('No active recording to stop');
         return;
       }
 
-      isProcessingRef.current = true;
+      setIsProcessing(true);
       const audioBlob = await recorderRef.current.stop();
       setIsRecording(false);
 
       const transcribedText = await handleSpeechToText(audioBlob, fromLang, toLang);
-      isProcessingRef.current = false;
+      setIsProcessing(false);
       onTranscription(transcribedText);
     } catch (error) {
       console.error("Error processing recording:", error);
-      isProcessingRef.current = false;
+      setIsProcessing(false);
       setIsRecording(false);
 
       toast({
@@ -69,7 +71,7 @@ export function useAudioRecording(
         variant: "destructive",
       });
     }
-  }, [fromLang, toLang, onTranscription, toast, isRecording]);
+  }, [fromLang, toLang, onTranscription, toast, isRecording, isProcessing]);
 
   const toggleRecording = useCallback(() => {
     if (isRecording) {
@@ -82,5 +84,6 @@ export function useAudioRecording(
   return {
     isRecording,
     toggleRecording,
+    isProcessing
   };
 }
