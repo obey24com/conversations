@@ -24,14 +24,14 @@ export function TranslationWindow() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="relative mx-auto max-w-4xl w-full z-10"
+            className="relative mx-auto max-w-5xl w-full z-10"
           >
             <WindowHeader onClose={handleClose} onMinimize={handleMinimize} />
 
             <motion.div
               initial={{ height: 0 }}
               animate={{ height: "auto" }}
-              className="bg-white/80 backdrop-blur-md border-x border-b border-gray-200 rounded-b-xl shadow-lg"
+              className="bg-white/80 backdrop-blur-md border-x border-b border-gray-200 rounded-b-2xl shadow-lg"
             >
               <div className="h-[calc(100vh-250px)] min-h-[600px]">
                 <TranslationInterface />
