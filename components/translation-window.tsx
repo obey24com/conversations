@@ -14,7 +14,7 @@ export function TranslationWindow() {
     <>
       <AnimatePresence>
         {!isMinimized && (
-          <WindowBackdrop isVisible={!isMinimized} onClick={handleMinimize} />
+          <WindowBackdrop isVisible={!isMinimized} onClick={() => {}} />
         )}
       </AnimatePresence>
 
