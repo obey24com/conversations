@@ -10,18 +10,20 @@ export function createAudioRecorder(): AudioRecorder {
   let mediaRecorder: MediaRecorder | null = null;
   let audioChunks: Blob[] = [];
   let stream: MediaStream | null = null;
-  let isActive = false;
 
   return {
-    isRecording: isActive,
+    isRecording: false,
 
     async start() {
       try {
-        if (isActive) {
+        if (this.isRecording) {
           console.log('Recording already in progress');
           return;
         }
 
+        // Clean up any existing streams first
+        this.cleanup();
+ 
         // Request permissions explicitly
         const permission = await navigator.permissions.query({ name: 'microphone' as PermissionName });
         if (permission.state === 'denied') {
@@ -48,10 +50,10 @@ export function createAudioRecorder(): AudioRecorder {
         };
 
         mediaRecorder.start();
-        isActive = true;
+        this.isRecording = true;
       } catch (error) {
-        isActive = false;
-        stream?.getTracks().forEach(track => track.stop());
+        this.isRecording = false;
+        this.cleanup();
         console.error("Error starting recording:", error);
         throw error;
       }
@@ -59,20 +61,32 @@ export function createAudioRecorder(): AudioRecorder {
 
     async stop(): Promise<Blob> {
       return new Promise((resolve, reject) => {
-        if (!mediaRecorder) {
+        if (!mediaRecorder || !this.isRecording) {
           reject(new Error("No active recording"));
           return;
         }
 
         mediaRecorder.onstop = () => {
           const audioBlob = new Blob(audioChunks, { type: "audio/mp3" });
-          stream?.getTracks().forEach(track => track.stop());
-          isActive = false;
+          this.cleanup();
+          this.isRecording = false;
           resolve(audioBlob);
         };
 
         mediaRecorder.stop();
       });
+    },
+
+    cleanup() {
+      if (stream) {
+        stream.getTracks().forEach(track => {
+          track.stop();
+          stream?.removeTrack(track);
+        });
+        stream = null;
+      }
+      mediaRecorder = null;
+      audioChunks = [];
     }
   };
 }
