@@ -11,7 +11,8 @@ export default function Home() {
   return (
     <main className="relative min-h-screen">
       {/* Translation Interface */}
-      <section className="relative min-h-[calc(100dvh-65px)] bg-gradient-to-b from-white to-gray-50 flex items-center">
+      <section className="relative min-h-[calc(100dvh-65px)] flex items-center">
+        <div className="absolute inset-0 animated-dots opacity-50" />
         <div className="container mx-auto max-w-[1200px] px-6 py-12 w-full">
           <TranslationWindow />
         </div>
