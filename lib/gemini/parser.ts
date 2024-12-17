@@ -12,14 +12,17 @@ export function parseGeminiResponse(result: string): TranslationResult {
   }
 
   try {
-    // Extract translation and context using regex
-    const translationMatch = result.match(/TRANSLATION:\s*([\s\S]*?)(?=\s*CONTEXT:|$)/i)?.at(1)?.trim();
-    const contextMatch = result.match(/CONTEXT:\s*([\s\S]*?)$/i)?.at(1)?.trim();
+    // Extract translation and context using more robust regex
+    const translationMatch = result.match(/TRANSLATION:\s*([\s\S]*?)(?=\s*CONTEXT:|$)/i);
+    const contextMatch = result.match(/CONTEXT:\s*([\s\S]*?)$/i);
 
     console.log('Translation match:', translationMatch);
     console.log('Context match:', contextMatch);
 
-    if (!translationMatch && !contextMatch) {
+    const translation = translationMatch?.[1]?.trim();
+    const context = contextMatch?.[1]?.trim();
+
+    if (!translation && !context) {
       // If no proper format is found, treat the entire response as translation
       return {
         translation: result.trim(),
@@ -27,21 +30,13 @@ export function parseGeminiResponse(result: string): TranslationResult {
       };
     }
 
-    if (!translationMatch) {
+    if (!translation) {
       throw new Error('Missing translation in response');
     }
 
-    // Validate the translation
-    if (!translationMatch) {
-      return {
-        translation: '',
-        error: GEMINI_CONFIG.ERROR_MESSAGES.PARSE_ERROR
-      };
-    }
-
     return {
-      translation: translationMatch,
-      context: contextMatch || undefined,
+      translation,
+      context: context || undefined,
     };
   } catch (error) {
     console.error('Error parsing Gemini response:', error);
