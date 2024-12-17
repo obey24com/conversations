@@ -7,3 +7,13 @@ export async function getAudioDuration(audioBlob: Blob): Promise<number> {
   const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
   return audioBuffer.duration;
 }
+
+/**
+ * Create a File object from a Blob for OpenAI API compatibility
+ */
+export function createAudioFile(blob: Blob): File {
+  return new File([blob], "audio.mp3", {
+    type: "audio/mp3",
+    lastModified: Date.now(),
+  });
+}
