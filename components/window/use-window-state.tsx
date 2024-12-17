@@ -1,14 +1,27 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useLayoutEffect } from "react";
 
 export function useWindowState() {
   const [isMinimized, setIsMinimized] = useState(false);
   const benefitsRef = useRef<HTMLElement | null>(null);
 
+  // Load minimized state from localStorage
+  useLayoutEffect(() => {
+    const stored = localStorage.getItem('ulocat-window-minimized');
+    if (stored === 'true') {
+      setIsMinimized(true);
+    }
+  }, []);
+
   useEffect(() => {
     benefitsRef.current = document.getElementById('benefits');
   }, []);
+
+  // Save minimized state
+  useEffect(() => {
+    localStorage.setItem('ulocat-window-minimized', isMinimized.toString());
+  }, [isMinimized]);
 
   const scrollToBenefits = useCallback(() => {
     if (benefitsRef.current) {
