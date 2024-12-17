@@ -36,6 +36,11 @@ export async function transcribeAudio(audioFile: Blob, language: string): Promis
     }
 
     // Regular language transcription
+    const audioFile = new File([audioFile], "audio.mp3", {
+      type: "audio/mp3",
+      lastModified: Date.now(),
+    });
+
     const transcription = await openai.audio.transcriptions.create({
       file: audioFile,
       model: "whisper-1",
