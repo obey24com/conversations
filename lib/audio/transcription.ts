@@ -57,3 +57,4 @@ export async function transcribeAudio(audioFile: Blob, language: string): Promis
       { status: 500 }
     );
   }
+}
