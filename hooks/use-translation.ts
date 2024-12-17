@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import type { Message } from "@/lib/types";
+import { useEffect } from "react";
 
 const STORAGE_KEYS = {
   FROM_LANG: "ulocat-from-lang",
@@ -10,9 +11,34 @@ const STORAGE_KEYS = {
   MESSAGES: "ulocat-messages",
 } as const;
 
+const MAX_STORED_MESSAGES = 50;
+
 function getStoredLanguage(key: string, fallback: string): string {
   if (typeof window === "undefined") return fallback;
   return localStorage.getItem(key) || fallback;
+}
+
+function loadStoredMessages(): Message[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.MESSAGES);
+    if (!stored) return [];
+    const messages = JSON.parse(stored);
+    return Array.isArray(messages) ? messages.slice(-MAX_STORED_MESSAGES) : [];
+  } catch (error) {
+    console.error('Error loading stored messages:', error);
+    return [];
+  }
+}
+
+function saveMessages(messages: Message[]) {
+  if (typeof window === "undefined") return;
+  try {
+    const recentMessages = messages.slice(-MAX_STORED_MESSAGES);
+    localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(recentMessages));
+  } catch (error) {
+    console.error('Error saving messages:', error);
+  }
 }
 
 export function useTranslation() {
@@ -23,9 +49,19 @@ export function useTranslation() {
     getStoredLanguage(STORAGE_KEYS.TO_LANG, "es")
   );
   const [inputText, setInputText] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => loadStoredMessages());
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  // Save messages whenever they change
+  useEffect(() => {
+    saveMessages(messages);
+  }, [messages]);
+
+  // Load messages on mount
+  useEffect(() => {
+    setMessages(loadStoredMessages());
+  }, []);
 
   const handleSend = async () => {
     if (!inputText.trim() || isLoading) return;
