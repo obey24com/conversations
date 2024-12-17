@@ -2,6 +2,7 @@ import { openai } from "@/lib/openai";
 import { NextResponse } from "next/server";
 import { isPetLanguage } from "@/lib/languages";
 import { getAudioDuration } from "./utils";
+import { createAudioFile } from "./utils";
 
 export async function transcribeAudio(audioFile: Blob, language: string): Promise<NextResponse> {
   try {
@@ -36,13 +37,10 @@ export async function transcribeAudio(audioFile: Blob, language: string): Promis
     }
 
     // Regular language transcription
-    const audioFile = new File([audioFile], "audio.mp3", {
-      type: "audio/mp3",
-      lastModified: Date.now(),
-    });
+    const file = createAudioFile(audioFile);
 
     const transcription = await openai.audio.transcriptions.create({
-      file: audioFile,
+      file,
       model: "whisper-1",
       response_format: "text",
       language: language,
