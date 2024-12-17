@@ -1,11 +1,14 @@
-"use client";
-
-export async function handleSpeechToText(
+export async function handleSpeechToText( 
   audioBlob: Blob,
   fromLang: string,
-  toLang: string
+  toLang: string,
+  signal?: AbortSignal
 ): Promise<string | undefined> {
   try {
+    if (!audioBlob || !(audioBlob instanceof Blob)) {
+      throw new Error('Invalid audio data');
+    }
+
     const formData = new FormData();
     formData.append("audio", audioBlob);
     formData.append("language", fromLang);
@@ -13,16 +16,33 @@ export async function handleSpeechToText(
     const response = await fetch("/api/speech-to-text", {
       method: "POST",
       body: formData,
+      signal,
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.error || `Speech to text failed with status: ${response.status}`
+      );
     }
 
     const data = await response.json();
-    return data.text?.trim();
+    
+    if (!data.text) {
+      throw new Error('No transcription received from server');
+    }
+    
+    return data.text.trim();
   } catch (error) {
-    console.error("Speech to text error:", error);
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        console.log('Speech to text request was cancelled');
+        return undefined;
+      }
+      console.error("Speech to text error:", error.message);
+    } else {
+      console.error("Speech to text error:", error);
+    }
     throw error;
   }
 }
