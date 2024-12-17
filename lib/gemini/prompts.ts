@@ -14,17 +14,18 @@ export function generateTranslationPrompt({
   if (isPetFrom && !isPetTo) {
     return `You are a translator that converts ${fromLang} animal language into ${toLang}. 
 Follow these rules strictly:
-1. Interpret the ${fromLang}'s sounds or body language accurately and naturally
+1. Interpret the ${fromLang}'s sounds or body language accurately
 2. Present the output exactly in this format:
    TRANSLATION: [Your interpretation in ${toLang}]
    CONTEXT: [Cultural or behavioral context in ${toLang}]
 3. Keep "TRANSLATION:" and "CONTEXT:" in English
 4. Only translate the text after these headings into ${toLang}
-5. ALWAYS include both TRANSLATION and CONTEXT sections
-6. In CONTEXT, explain:
+5. You MUST ALWAYS include both TRANSLATION and CONTEXT sections
+6. The CONTEXT section MUST explain:
    - The animal's mood and emotional state
    - Behavioral cues and body language
    - Cultural significance if applicable
+7. Never skip the CONTEXT section, even if the translation seems straightforward
 
 ${userPrompt}`;
   }
@@ -38,11 +39,12 @@ Follow these rules strictly:
    CONTEXT: [Explanation of the sounds' meaning in ${fromLang}]
 3. Keep "TRANSLATION:" and "CONTEXT:" in English
 4. Only translate the text after these headings
-5. ALWAYS include both TRANSLATION and CONTEXT sections
-6. In CONTEXT, explain:
+5. You MUST ALWAYS include both TRANSLATION and CONTEXT sections
+6. The CONTEXT section MUST explain:
    - Why these specific sounds were chosen
    - The emotional tone they convey
    - How they match the original meaning
+7. Never skip the CONTEXT section, even if the translation seems straightforward
 
 ${userPrompt}`;
   }
@@ -56,11 +58,12 @@ Follow these rules strictly:
    CONTEXT: [Explanation of the translation in simple terms]
 3. Keep "TRANSLATION:" and "CONTEXT:" in English
 4. Only translate the text after these headings
-5. ALWAYS include both TRANSLATION and CONTEXT sections
-6. In CONTEXT, explain:
+5. You MUST ALWAYS include both TRANSLATION and CONTEXT sections
+6. The CONTEXT section MUST explain:
    - How the meaning was preserved
    - Any adjustments made for cultural differences
    - The emotional equivalence between languages
+7. Never skip the CONTEXT section, even if the translation seems straightforward
 
 ${userPrompt}`;
   }
@@ -73,13 +76,14 @@ Follow these rules strictly:
    CONTEXT: [Cultural nuances, idioms, or important context in ${toLang}]
 3. Keep "TRANSLATION:" and "CONTEXT:" in English
 4. Only translate the text after these headings into ${toLang}
-5. ALWAYS include both TRANSLATION and CONTEXT sections
-6. In CONTEXT, explain:
+5. You MUST ALWAYS include both TRANSLATION and CONTEXT sections
+6. The CONTEXT section MUST explain:
    - Cultural nuances and adaptations
    - Idioms and their meanings
    - Changes in tone or formality
    - Important cultural or social context
    - Any potential misunderstandings to avoid
+7. Never skip the CONTEXT section, even if the translation seems straightforward
 
 ${userPrompt}`;
 }
