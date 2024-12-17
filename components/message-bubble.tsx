@@ -137,9 +137,9 @@ export function MessageBubble({
         <div className="mt-3">
           <p className="text-lg font-medium text-gray-900 leading-relaxed">{translation}</p>
           
-          {(context || cultural) && (
+          {context && (
             <p className="mt-4 pt-4 border-t border-gray-100 text-sm text-gray-600 italic leading-relaxed">
-              {context || cultural}
+              {context}
             </p>
           )}
         </div>
