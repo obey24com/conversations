@@ -1,8 +1,8 @@
 import { openai } from "@/lib/openai";
 import { NextResponse } from "next/server";
 import { isPetLanguage } from "@/lib/languages";
-import { getAudioDuration } from "./utils";
-import { createAudioFile } from "./utils";
+import { getAudioDuration, createAudioFile } from "./utils";
+import type { Uploadable } from "openai/uploads";
 
 export async function transcribeAudio(audioFile: Blob, language: string): Promise<NextResponse> {
   try {
@@ -37,7 +37,7 @@ export async function transcribeAudio(audioFile: Blob, language: string): Promis
     }
 
     // Regular language transcription
-    const file = createAudioFile(audioFile);
+    const file = await createAudioFile(audioFile) as Uploadable;
 
     const transcription = await openai.audio.transcriptions.create({
       file,
