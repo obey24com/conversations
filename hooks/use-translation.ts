@@ -45,15 +45,19 @@ export function useTranslation() {
       const data = await response.json();
 
       if (data.translation) {
-        const [translation, ...culturalNotes] = data.translation.split("\nCONTEXT:");
+        const translationMatch = data.translation.match(/TRANSLATION:\s*([\s\S]*?)(?=\s*CONTEXT:|$)/i);
+        const contextMatch = data.translation.match(/CONTEXT:\s*([\s\S]*?)$/i);
+        
+        const translation = translationMatch?.[1]?.trim() || data.translation.trim();
+        const context = contextMatch?.[1]?.trim();
 
         setMessages((prev) => [
           ...prev,
           {
             id: Math.random().toString(36).substr(2, 9),
             text: inputText,
-            translation: translation.replace("TRANSLATION:", "").trim(),
-            cultural: culturalNotes.length ? culturalNotes.join("\n").trim() : undefined,
+            translation: translation.replace(/^TRANSLATION:\s*/i, "").trim(),
+            context: context,
             fromLang,
             toLang,
             timestamp: Date.now(),
