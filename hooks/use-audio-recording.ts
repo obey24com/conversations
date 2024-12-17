@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { handleSpeechToText } from "@/lib/audio/speech-to-text";
 
 export function useAudioRecording(
   fromLang: string,
@@ -10,10 +9,43 @@ export function useAudioRecording(
   onTranscription: (text: string) => void
 ) {
   const [isRecording, setIsRecording] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
   const { toast } = useToast();
+
+  const handleSpeechToText = async (audioBlob: Blob) => {
+    try {
+      setIsLoading(true);
+      const formData = new FormData();
+      formData.append("audio", audioBlob);
+      formData.append("language", fromLang);
+
+      const response = await fetch("/api/speech-to-text", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.text) {
+        onTranscription(data.text);
+      }
+    } catch (error) {
+      console.error("Speech to text error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to process speech",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const startRecording = useCallback(async () => {
     try {
@@ -73,27 +105,12 @@ export function useAudioRecording(
       stopRecording();
       // Process the recorded audio after stopping
       const audioBlob = new Blob(audioChunksRef.current, { type: "audio/mp3" });
-      handleSpeechToText(audioBlob, fromLang, toLang)
-        .then(transcribedText => {
-          if (transcribedText) {
-            onTranscription(transcribedText);
-          }
-        })
-        .catch(error => {
-          console.error("Error processing speech:", error);
-          toast({
-            title: "Error",
-            description: "Failed to process speech",
-            variant: "destructive",
-          });
-        });
+      handleSpeechToText(audioBlob);
     } else {
       startRecording();
     }
-  }, [isRecording, startRecording, stopRecording, fromLang, toLang, onTranscription, toast]);
+  }, [isRecording, startRecording, stopRecording, handleSpeechToText]);
 
   return {
     isRecording,
-    toggleRecording,
-  };
-}
+    toggle
