@@ -1,47 +1,77 @@
 import { NextResponse } from "next/server";
-import { headers } from "next/headers";
-import { validateAudioRequest } from "@/lib/audio/validation";
-import { transcribeAudio } from "@/lib/audio/transcription";
+import { openai } from "@/lib/openai";
+import { isPetLanguage } from "@/lib/languages";
 
 export const runtime = "edge";
 
+async function getAudioDuration(audioBlob: Blob): Promise<number> {
+  const arrayBuffer = await audioBlob.arrayBuffer();
+  const audioContext = new AudioContext();
+  const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+  return audioBuffer.duration;
+}
+
 export async function POST(request: Request) {
   try {
-    // Validate OpenAI API key
-    if (!process.env.OPENAI_API_KEY) {
-      console.error("OpenAI API key is missing");
+    const formData = await request.formData();
+    const audioFile = formData.get("audio");
+    const language = formData.get("language");
+
+    if (!audioFile || !(audioFile instanceof Blob)) {
       return NextResponse.json(
-        { error: "Speech to text service is not properly configured" },
-        { status: 500 }
+        { error: "Audio file is required and must be a Blob" },
+        { status: 400 }
       );
     }
 
-    // Get content type header
-    const headersList = headers();
-    const contentType = headersList.get("content-type");
+    const languageString = typeof language === "string" ? language : undefined;
 
-    // Parse form data
-    const formData = await request.formData();
-    const audioFile = formData.get("audio");
-    const language = formData.get("language") as string;
+    // Special handling for pet languages
+    if (languageString && isPetLanguage(languageString)) {
+      try {
+        // Get audio duration to determine the "intensity" of the pet's communication
+        const duration = await getAudioDuration(audioFile);
+        
+        // Generate pet sounds based on duration
+        let petSounds = "";
+        if (languageString === "cat") {
+          // Longer meows for longer recordings
+          petSounds = "m" + "e".repeat(Math.floor(duration)) + "ow" + 
+                     "!".repeat(Math.floor(duration / 2));
+        } else if (languageString === "dog") {
+          // Mix of barks and woofs for longer recordings
+          const sounds = ["woof", "bark", "ruff"];
+          const repetitions = Math.floor(duration);
+          petSounds = Array(repetitions)
+            .fill(null)
+            .map(() => sounds[Math.floor(Math.random() * sounds.length)])
+            .join(" ") + "!".repeat(Math.floor(duration / 2));
+        }
 
-    // Validate request
-    const validationError = validateAudioRequest(contentType, audioFile, language);
-    if (validationError) {
-      return validationError;
+        return NextResponse.json({ text: petSounds });
+      } catch (error) {
+        console.error("Error processing pet audio:", error);
+        // Fallback to simple pet sounds if audio processing fails
+        const defaultSound = languageString === "cat" ? "meow meow!" : "woof woof!";
+        return NextResponse.json({ text: defaultSound });
+      }
     }
 
-    // Process audio
-    return await transcribeAudio(audioFile as Blob, language);
+    // Regular language transcription
+    const transcription = await openai.audio.transcriptions.create({
+      file: audioFile,
+      model: "whisper-1",
+      response_format: "text",
+      language: languageString,
+    });
+
+    return NextResponse.json({ text: transcription });
   } catch (error) {
-    console.error("Speech to text error:", error instanceof Error ? {
-      name: error.name,
-      message: error.message,
-      stack: error.stack
-    } : 'Unknown error');
-    
+    console.error("Speech to text error:", error);
     return NextResponse.json(
-      { error: "Failed to process audio" },
+      {
+        error: error instanceof Error ? error.message : "Speech to text failed",
+      },
       { status: 500 }
     );
   }
