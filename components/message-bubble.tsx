@@ -93,32 +93,20 @@ export function MessageBubble({
       <div 
         className={cn(
           "group relative p-8 rounded-2xl w-full max-w-[90%] mx-auto",
-          "bg-white border border-gray-100 shadow-sm",
+          "bg-white border border-gray-100 shadow-sm pt-14",
           "hover:shadow-lg transition-shadow duration-200"
         )}
       >
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute -right-2 -top-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white shadow-sm hover:shadow-md"
-          onClick={handleDelete}
-        >
-          <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
-        </Button>
-
-        <p className="text-sm text-gray-500 mb-4">{text}</p>
-        <div className="mt-3">
-          <p className="text-lg font-medium text-gray-900 leading-relaxed">{translation}</p>
-          
-          <div className="flex justify-end gap-2 mt-4 opacity-40 group-hover:opacity-100 transition-opacity duration-200">
+        {/* Action buttons container */}
+        <div className="absolute -top-2 left-0 right-0 flex justify-between px-2">
+          {/* Left side buttons - always visible */}
+          <div className="flex gap-1">
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               className={cn(
-                "h-8 px-3 transition-all duration-500",
-                isPlaying 
-                  ? "text-blue-500 bg-blue-50 hover:bg-blue-100 hover:text-blue-600"
-                  : "text-gray-400 hover:text-gray-600"
+                "h-8 w-8 bg-white shadow-sm hover:shadow-md transition-all duration-500",
+                isPlaying && "text-blue-500 bg-blue-50 hover:bg-blue-100 hover:text-blue-600"
               )}
               onClick={onPlay}
             >
@@ -129,23 +117,35 @@ export function MessageBubble({
                   "relative",
                   "after:absolute after:inset-0",
                   "after:bg-blue-500/20 after:rounded-full",
-                  "after:animate-[pulse_2s_ease-in-out_infinite]",
-                  "before:absolute before:inset-0",
-                  "before:bg-blue-500/10 before:rounded-full",
-                  "before:animate-[pulse_2s_ease-in-out_infinite_0.5s]"
+                  "after:animate-[pulse_2s_ease-in-out_infinite]"
                 ]
               )} />
             </Button>
-
+            
             <Button
               variant="ghost"
-              size="sm"
-              className="h-8 px-3 text-gray-400 hover:text-gray-600"
+              size="icon"
+              className="h-8 w-8 bg-white shadow-sm hover:shadow-md"
               onClick={() => copyToClipboard(translation)}
             >
-              <Copy className="h-4 w-4" />
+              <Copy className="h-4 w-4 text-gray-400 hover:text-gray-600" />
             </Button>
           </div>
+
+          {/* Right side button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 bg-white shadow-sm hover:shadow-md"
+            onClick={handleDelete}
+          >
+            <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+          </Button>
+        </div>
+
+        <p className="text-sm text-gray-500 mb-4">{text}</p>
+        <div className="mt-3">
+          <p className="text-lg font-medium text-gray-900 leading-relaxed">{translation}</p>
 
           {cultural && (
             <p className="mt-4 pt-4 border-t border-gray-100 text-sm text-gray-600 italic leading-relaxed">
