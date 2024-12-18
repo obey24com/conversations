@@ -93,50 +93,70 @@ export function MessageBubble({
       <div 
         className={cn(
           "group relative p-8 rounded-2xl w-full max-w-[90%] mx-auto",
-          "bg-white border border-gray-100 shadow-sm pt-14",
+          "pr-20 md:pr-24", // Add right padding for icons
+          "bg-white border border-gray-100 shadow-sm",
           "hover:shadow-lg transition-shadow duration-200"
         )}
       >
-        {/* Action buttons container */}
-        <div className="absolute -top-2 left-0 right-0 flex justify-between px-2">
-          {/* Left side buttons - always visible */}
-          <div className="flex gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "h-8 w-8 bg-white shadow-sm hover:shadow-md transition-all duration-500",
-                isPlaying && "text-blue-500 bg-blue-50 hover:bg-blue-100 hover:text-blue-600"
-              )}
-              onClick={onPlay}
-            >
-              <Volume2 className={cn(
-                "h-4 w-4 transition-transform duration-500",
-                isPlaying && [
-                  "animate-[wave_2s_ease-in-out_infinite]",
-                  "relative",
-                  "after:absolute after:inset-0",
-                  "after:bg-blue-500/20 after:rounded-full",
-                  "after:animate-[pulse_2s_ease-in-out_infinite]"
-                ]
-              )} />
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 bg-white shadow-sm hover:shadow-md"
-              onClick={() => copyToClipboard(translation)}
-            >
-              <Copy className="h-4 w-4 text-gray-400 hover:text-gray-600" />
-            </Button>
-          </div>
-
-          {/* Right side button */}
+        {/* Mobile buttons - always visible at top */}
+        <div className="md:hidden absolute -top-2 left-4 flex gap-1">
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 bg-white shadow-sm hover:shadow-md"
+            className="h-8 w-8 bg-white/95 shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-sm"
+            onClick={onPlay}
+          >
+            <Volume2 className={cn(
+              "h-4 w-4 transition-transform duration-500",
+              isPlaying && "text-blue-500 animate-[wave_2s_ease-in-out_infinite]"
+            )} />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 bg-white/95 shadow-sm hover:shadow-md backdrop-blur-sm"
+            onClick={() => copyToClipboard(translation)}
+          >
+            <Copy className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+          </Button>
+        </div>
+
+        {/* Desktop buttons - right side, always visible */}
+        <div className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 flex-col gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 bg-white/95 shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-sm"
+            onClick={onPlay}
+          >
+            <Volume2 className={cn(
+              "h-4 w-4 transition-transform duration-500",
+              isPlaying && "text-blue-500 animate-[wave_2s_ease-in-out_infinite]",
+              "hover:scale-110"
+            )} />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 bg-white/95 shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-sm"
+            onClick={() => copyToClipboard(translation)}
+          >
+            <Copy className="h-4 w-4 text-gray-400 hover:text-gray-600 hover:scale-110" />
+          </Button>
+        </div>
+
+        {/* Close button - top right, visible on hover for desktop */}
+        <div className={cn(
+          "absolute -top-2 right-4",
+          "md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200"
+        )}
+        >
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 bg-white/95 shadow-sm hover:shadow-md backdrop-blur-sm"
             onClick={handleDelete}
           >
             <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
@@ -144,7 +164,7 @@ export function MessageBubble({
         </div>
 
         <p className="text-sm text-gray-500 mb-4">{text}</p>
-        <div className="mt-3">
+        <div className="mt-3 pr-2">
           <p className="text-lg font-medium text-gray-900 leading-relaxed">{translation}</p>
 
           {cultural && (
