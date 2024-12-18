@@ -11,6 +11,8 @@ import { useZoomControl } from "@/hooks/use-zoom-control";
 import { LanguageSelect } from "./language-select";
 import { MessageBubble } from "./message-bubble";
 
+import { Languages } from "lucide-react";
+
 interface Message {
   id: string;
   text: string;
@@ -375,11 +377,14 @@ export function TranslationInterface() {
     <div className="flex grow flex-col">
       <div className="relative flex-1 overflow-hidden bg-transparent backdrop-blur-[10px]">
         {isLoading && (
-          <div className="bg-background/80 absolute inset-0 z-10 flex items-center justify-center backdrop-blur-sm">
-            <div className="flex items-center space-x-2">
-              <div className="bg-primary h-3 w-3 animate-bounce rounded-full" />
-              <div className="bg-primary h-3 w-3 animate-bounce rounded-full [animation-delay:0.2s]" />
-              <div className="bg-primary h-3 w-3 animate-bounce rounded-full [animation-delay:0.4s]" />
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+            <div className="translation-loader">
+              <div className="icon-outer">
+                <Languages className="h-16 w-16 text-primary/20" />
+              </div>
+              <div className="icon-inner">
+                <Languages className="h-8 w-8 text-primary" />
+              </div>
             </div>
           </div>
         )}
