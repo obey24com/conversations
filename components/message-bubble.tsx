@@ -149,7 +149,7 @@ export function MessageBubble({
 
         {/* Close button - top right, visible on hover for desktop */}
         <div className={cn(
-          "absolute -top-2 -right-2",
+          "absolute -top-2 right-2",
           "md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200"
         )}>
           <Button
