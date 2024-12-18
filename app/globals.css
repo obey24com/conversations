@@ -59,6 +59,42 @@
   }
 }
 
+@keyframes spin {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scale {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+.translation-loader {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+}
+
+.translation-loader .icon-outer {
+  position: absolute;
+  animation: spin 3s linear infinite;
+}
+
+.translation-loader .icon-inner {
+  animation: scale 2s ease-in-out infinite;
+}
+
 @keyframes wave {
   0%, 100% {
     transform: scale(1);
