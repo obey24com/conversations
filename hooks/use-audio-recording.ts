@@ -113,4 +113,6 @@ export function useAudioRecording(
 
   return {
     isRecording,
-    toggle
+    toggleRecording,
+  };
+}
