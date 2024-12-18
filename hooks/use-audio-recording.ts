@@ -82,15 +82,23 @@ export function useAudioRecording(
     }
   }, [toast]);
 
-  const stopRecording = useCallback(async () => {
-    try {
-      mediaRecorderRef.current?.stop();
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
       streamRef.current?.getTracks().forEach((track) => track.stop());
       setIsRecording(false);
-    } catch (error) {
-      console.error("Error stopping recording:", error);
     }
   }, []);
+
+  const toggleRecording = useCallback(() => {
+    if (isRecording) {
+      stopRecording();
+      const audioBlob = new Blob(audioChunksRef.current, { type: "audio/mp3" });
+      handleSpeechToText(audioBlob);
+    } else {
+      startRecording();
+    }
+  }, [isRecording, startRecording, stopRecording]);
 
   useEffect(() => {
     return () => {
@@ -99,17 +107,6 @@ export function useAudioRecording(
       }
     };
   }, []);
-
-  const toggleRecording = useCallback(() => {
-    if (isRecording) {
-      stopRecording();
-      // Process the recorded audio after stopping
-      const audioBlob = new Blob(audioChunksRef.current, { type: "audio/mp3" });
-      handleSpeechToText(audioBlob);
-    } else {
-      startRecording();
-    }
-  }, [isRecording, startRecording, stopRecording, handleSpeechToText]);
 
   return {
     isRecording,
