@@ -4,8 +4,7 @@ export interface Message {
   translation: string;
   fromLang: string;
   toLang: string;
-  context?: string;
-  cultural?: string;
+  context?: string;  // Cultural context or additional information
   timestamp: number;
 }
 
@@ -14,7 +13,7 @@ export interface MessageBubbleProps {
   translation: string;
   fromLang: string;
   toLang: string;
-  context?: string;
+  context?: string;  // Cultural context or additional information
   isPlaying: boolean;
   onPlay: () => void;
   onDelete: () => void;
