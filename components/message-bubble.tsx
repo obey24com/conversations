@@ -11,7 +11,7 @@ export interface MessageBubbleProps {
   translation: string;
   fromLang: string;
   toLang: string;
-  cultural?: string;
+  context?: string;
   isPlaying: boolean;
   onPlay: () => void;
   onDelete: () => void;
