@@ -80,19 +80,26 @@
 .translation-loader {
   position: relative;
   display: flex;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   align-items: center;
   justify-content: center;
   width: 80px;
   height: 80px;
+  z-index: 9999;
 }
 
 .translation-loader .icon-outer {
   position: absolute;
   animation: spin 3s linear infinite;
+  z-index: 1;
 }
 
 .translation-loader .icon-inner {
   animation: scale 2s ease-in-out infinite;
+  z-index: 2;
 }
 
 @keyframes wave {
@@ -143,7 +150,7 @@
   --dot-color: #aaa;
   --dot-size: 1px;
   --dot-space: 22px;
-	background:
+  background:
 		linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
 		linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
 		var(--dot-color);
