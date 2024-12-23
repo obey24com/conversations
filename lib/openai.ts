@@ -34,7 +34,9 @@ Follow these rules:
    CONTEXT: [If there are any subtle, cultural, or humorous points that might need clarification, add them in ${toLang}. If unsure, provide a brief CONTEXT section. If truly none are needed, omit it.]
 3. Keep "TRANSLATION:" and "CONTEXT:" in English. Do not translate these headings.
 4. Only the text after these headings should be in ${toLang}.
-5. When translating between very different cultures, provide small notes or emojis (in the CONTEXT section) that help clarify sentiment or gestures.`;
+5. When translating between very different cultures, provide small notes or emojis (in the CONTEXT section) that help clarify sentiment or gestures.
+6. Always fully convert any idioms or phrases into ${toLang}, ensuring they are understandable in the ${toLang} culture. Do not leave them in ${fromLang}.
+7. Double-check that the final output truly reflects a ${toLang} audience’s perspective, not a ${fromLang} perspective.`;
 
   } else if (isPetTo && !isPetFrom) {
     // From Human Language to Pet Language
@@ -46,7 +48,9 @@ Follow these rules:
    CONTEXT: [If any cultural or meaning clarifications could help, include a brief note in ${toLang}. If unsure, provide a brief CONTEXT anyway. If truly none are needed, omit it.]
 3. Do not translate "TRANSLATION:" or "CONTEXT:" headings, keep them in English.
 4. Only the text after these headings is in ${toLang}.
-5. When translating between very different cultures, provide small notes or emojis (in the CONTEXT section) that help clarify sentiment or gestures.`;
+5. When translating between very different cultures, provide small notes or emojis (in the CONTEXT section) that help clarify sentiment or gestures.
+6. Always adapt any idioms, cultural references, or phrases from ${fromLang} so they make sense in ${toLang} animal language. Do not leave them in human language.
+7. Ensure the final output is fully in ${toLang}, not partially in ${fromLang}.`;
 
   } else if (isPetFrom && isPetTo) {
     // Pet to Pet Translation
@@ -58,7 +62,9 @@ Follow these rules:
    TRANSLATION: [${toLang} version]
    CONTEXT: [If there's any cultural nuance or hidden meaning that could be misunderstood, add a CONTEXT section in ${toLang}. If unsure, provide a brief CONTEXT. If truly none are needed, omit it.]
 4. Keep "TRANSLATION:" and "CONTEXT:" in English. Only the text after these headings is in ${toLang}.
-5. When translating between very different cultures, provide small notes or emojis (in the CONTEXT section) that help clarify sentiment or gestures.`;
+5. When translating between very different cultures, provide small notes or emojis (in the CONTEXT section) that help clarify sentiment or gestures.
+6. Avoid leaving original ${fromLang} content unaltered; always convert it fully into ${toLang}.
+7. If idioms or specialized expressions exist, adapt them into culturally or contextually equivalent sounds/gestures in ${toLang}.`;
 
   } else {
     // Human to Human Translation with Cultural Nuance
@@ -68,18 +74,15 @@ Follow these strict rules:
 2. Format:
    TRANSLATION: [Your ${toLang} translation]
    CONTEXT: [Cultural notes and explanations in ${toLang}]
-
 3. Keep "TRANSLATION:" and "CONTEXT:" in English, do not translate these headings.
 4. CRITICAL: ALL text after TRANSLATION: and CONTEXT: MUST be in proper ${toLang} script.
 5. For Burmese and similar languages:
    - Use the native script (မြန်မာအက္ခရာ for Burmese)
    - Never use romanization or English
    - Both translation and context must be in the native script
-6. Never mix languages - keep everything in ${toLang} except the headers
-
-Example format (but using ${toLang} script):
-TRANSLATION: [Full translation in native script]
-CONTEXT: [Explanation in native script]`;
+6. Never mix languages - keep everything in ${toLang} except the headers.
+7. Pay extra attention to idioms, phrases, and cultural references from ${fromLang}, and render them into ${toLang} so they are fully understandable and natural in the ${toLang} culture. Avoid literal word-for-word translations if they do not convey the right meaning.
+8. Double-check that the final text reflects a ${toLang} audience’s perspective and does not remain in the style or structure of ${fromLang}.`;
 
   }
 
@@ -113,6 +116,7 @@ CONTEXT: [Explanation in native script]`;
       hasTranslationMarker: response.includes('TRANSLATION:')
     });
 
+    // Ensure the required formatting "TRANSLATION:" is present.
     if (!response.includes('TRANSLATION:')) {
       console.log('Adding missing TRANSLATION marker to response');
       return `TRANSLATION: ${response}`;
