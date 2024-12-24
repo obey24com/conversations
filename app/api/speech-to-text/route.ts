@@ -4,18 +4,11 @@ import { isPetLanguage } from "@/lib/languages";
 
 export const runtime = "edge";
 
-async function getAudioDuration(audioBlob: Blob): Promise<number> {
-  const arrayBuffer = await audioBlob.arrayBuffer();
-  const audioContext = new AudioContext();
-  const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-  return audioBuffer.duration;
-}
-
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const audioFile = formData.get("audio");
-    const language = formData.get("language");
+    const language = formData.get("language") || "en";
 
     if (!audioFile || !(audioFile instanceof Blob)) {
       return NextResponse.json(
@@ -24,13 +17,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const languageString = typeof language === "string" ? language : undefined;
+    const languageString = typeof language === "string" ? language : "en";
 
     // Special handling for pet languages
     if (languageString && isPetLanguage(languageString)) {
       try {
-        // Get audio duration to determine the "intensity" of the pet's communication
-        const duration = await getAudioDuration(audioFile);
+        const duration = 2; // Default duration for pet sounds
         
         // Generate pet sounds based on duration
         let petSounds = "";
