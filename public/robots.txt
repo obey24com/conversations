@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Desktop version
+Host: https://desktop.ulocat.com
+Sitemap: https://desktop.ulocat.com/sitemap.xml
+
+# Mobile version
+Host: https://ulocat.com
+Sitemap: https://ulocat.com/sitemap.xml
