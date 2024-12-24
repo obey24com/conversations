@@ -15,7 +15,13 @@ export async function POST(request: Request) {
 
     const formData = await request.formData();
     const audioFile = formData.get("audio");
-    const language = formData.get("language") || "en";
+    const language = formData.get("language");
+
+    console.log("Received audio file:", {
+      exists: !!audioFile,
+      type: audioFile instanceof Blob ? audioFile.type : typeof audioFile,
+      size: audioFile instanceof Blob ? audioFile.size : 0
+    });
 
     if (!audioFile || !(audioFile instanceof Blob)) {
       console.error("Invalid audio file:", { 
@@ -29,12 +35,15 @@ export async function POST(request: Request) {
     }
 
     // Create a File object that OpenAI's API expects
-    const file = new File([audioFile], "audio.mp3", {
-      type: "audio/mpeg"
+    const file = new File([audioFile], "audio.webm", {
+      type: audioFile.type || "audio/webm",
+      lastModified: Date.now()
     });
+
     console.log("Processing audio file:", {
       size: audioFile.size,
-      type: audioFile.type
+      type: audioFile.type,
+      fileType: file.type
     });
 
     const languageString = typeof language === "string" ? language : "en";
@@ -74,7 +83,7 @@ export async function POST(request: Request) {
       file,
       model: "whisper-1",
       response_format: "text",
-      language: languageString,
+      language: languageString || undefined,
     });
 
     if (!transcription) {
