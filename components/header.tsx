@@ -6,6 +6,7 @@ import { Menu } from "lucide-react";
 import Image from "next/image";
 import Script from "next/script";
 import Link from "next/link";
+import { AppDownloadMenu } from "./app-download-menu";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -61,7 +62,7 @@ export default function Header() {
         {/* Header content */}
         <div className="relative mx-auto flex w-full max-w-5xl items-center justify-between p-2">
           {/* Logo container - now consistently left-aligned */}
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
             <Link 
               href="#" 
               className="inline-block"
@@ -86,7 +87,8 @@ export default function Header() {
           </div>
 
           {/* Menu button */}
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
+            <AppDownloadMenu />
             <Button 
               onClick={() => setMenuOpen(!menuOpen)} 
               variant="ghost" 
