@@ -19,12 +19,14 @@ export function useAudioRecording(
     try {
       setIsLoading(true);
       const formData = new FormData();
-      // Convert to mp3 since that's what Whisper expects
-      const audioFile = new File([audioBlob], "audio.mp3", {
-        type: "audio/mpeg"
-      });
-      formData.append("audio", audioFile);
+      formData.append("audio", audioBlob);
       formData.append("language", fromLang);
+
+      console.log("Sending audio:", {
+        size: audioBlob.size,
+        type: audioBlob.type,
+        language: fromLang
+      });
 
       const response = await fetch("/api/speech-to-text", {
         method: "POST",
@@ -55,8 +57,6 @@ export function useAudioRecording(
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
-          sampleRate: 44100,
-          sampleSize: 16,
           channelCount: 1,
           echoCancellation: true,
           noiseSuppression: true,
@@ -64,7 +64,13 @@ export function useAudioRecording(
       });
 
       streamRef.current = stream;
-      const mediaRecorder = new MediaRecorder(stream);
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm') 
+        ? 'audio/webm' 
+        : MediaRecorder.isTypeSupported('audio/mp4')
+          ? 'audio/mp4'
+          : '';
+
+      const mediaRecorder = new MediaRecorder(stream, { mimeType });
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
@@ -97,8 +103,8 @@ export function useAudioRecording(
   const toggleRecording = useCallback(() => {
     if (isRecording) {
       stopRecording();
-      const audioBlob = new Blob(audioChunksRef.current, { 
-        type: "audio/mpeg" 
+      const audioBlob = new Blob(audioChunksRef.current, {
+        type: mediaRecorderRef.current?.mimeType || 'audio/webm'
       });
       handleSpeechToText(audioBlob);
     } else {
