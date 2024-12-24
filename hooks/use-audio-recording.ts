@@ -19,7 +19,7 @@ export function useAudioRecording(
     try {
       setIsLoading(true);
       const formData = new FormData();
-      formData.append("audio", audioBlob);
+      formData.append("audio", audioBlob, "audio.webm");
       formData.append("language", fromLang);
 
       const response = await fetch("/api/speech-to-text", {
@@ -39,7 +39,7 @@ export function useAudioRecording(
       console.error("Speech to text error:", error);
       toast({
         title: "Error",
-        description: "Failed to process speech",
+        description: error instanceof Error ? error.message : "Failed to process speech",
         variant: "destructive",
       });
     } finally {
