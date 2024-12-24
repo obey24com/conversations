@@ -14,10 +14,6 @@ export const metadata: Metadata = {
     default: "ULOCAT – AI-Powered Natural Language Translation",
     template: "%s | ULOCAT",
   },
-  alternates: {
-    canonical: 'https://desktop.ulocat.com',
-    mobile: 'https://ulocat.com',
-  },
   description:
     "Experience seamless, natural language translation powered by advanced AI. ULOCAT helps you communicate effortlessly across languages with high accuracy and cultural context.",
   keywords: [
