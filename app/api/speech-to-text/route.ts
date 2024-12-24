@@ -80,6 +80,9 @@ export async function POST(request: Request) {
     if (!transcription) {
       throw new Error("No transcription received from OpenAI");
     }
+    
+    console.log("Transcription received:", transcription);
+    
     return NextResponse.json({ text: transcription });
   } catch (error) {
     console.error("Speech to text error:", error);
@@ -91,5 +94,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
-    console.log("Transcription received:", transcription);
