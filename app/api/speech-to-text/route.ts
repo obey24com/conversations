@@ -6,16 +6,32 @@ export const runtime = "edge";
 
 export async function POST(request: Request) {
   try {
+    if (!request.body) {
+      return NextResponse.json(
+        { error: "Request body is required" },
+        { status: 400 }
+      );
+    }
+
     const formData = await request.formData();
     const audioFile = formData.get("audio");
     const language = formData.get("language") || "en";
 
     if (!audioFile || !(audioFile instanceof Blob)) {
+      console.error("Invalid audio file:", { 
+        exists: !!audioFile, 
+        type: audioFile ? typeof audioFile : 'undefined' 
+      });
       return NextResponse.json(
         { error: "Audio file is required and must be a Blob" },
         { status: 400 }
       );
     }
+
+    console.log("Processing audio file:", {
+      size: audioFile.size,
+      type: audioFile.type
+    });
 
     const languageString = typeof language === "string" ? language : "en";
 
