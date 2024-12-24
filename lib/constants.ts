@@ -3,6 +3,7 @@ export const STORAGE_KEYS = {
   TO_LANG: 'ulocat-to-lang',
   AUTO_SWITCH: 'ulocat-auto-switch',
   MESSAGES: 'ulocat-messages',
+  APP_POPUP_SEEN: 'ulocat-app-popup-seen',
 } as const;
 
 export const STORE_URLS = {
