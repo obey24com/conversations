@@ -28,6 +28,10 @@ export async function POST(request: Request) {
       );
     }
 
+    // Create a File object that OpenAI's API expects
+    const file = new File([audioFile], "audio.mp3", {
+      type: "audio/mpeg"
+    });
     console.log("Processing audio file:", {
       size: audioFile.size,
       type: audioFile.type
@@ -67,12 +71,15 @@ export async function POST(request: Request) {
 
     // Regular language transcription
     const transcription = await openai.audio.transcriptions.create({
-      file: audioFile,
+      file,
       model: "whisper-1",
       response_format: "text",
       language: languageString,
     });
 
+    if (!transcription) {
+      throw new Error("No transcription received from OpenAI");
+    }
     return NextResponse.json({ text: transcription });
   } catch (error) {
     console.error("Speech to text error:", error);
@@ -84,3 +91,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
+    console.log("Transcription received:", transcription);
