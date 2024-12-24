@@ -19,7 +19,11 @@ export function useAudioRecording(
     try {
       setIsLoading(true);
       const formData = new FormData();
-      formData.append("audio", audioBlob, "audio.webm");
+      // Convert to mp3 since that's what Whisper expects
+      const audioFile = new File([audioBlob], "audio.mp3", {
+        type: "audio/mpeg"
+      });
+      formData.append("audio", audioFile);
       formData.append("language", fromLang);
 
       const response = await fetch("/api/speech-to-text", {
@@ -93,7 +97,9 @@ export function useAudioRecording(
   const toggleRecording = useCallback(() => {
     if (isRecording) {
       stopRecording();
-      const audioBlob = new Blob(audioChunksRef.current, { type: "audio/mp3" });
+      const audioBlob = new Blob(audioChunksRef.current, { 
+        type: "audio/mpeg" 
+      });
       handleSpeechToText(audioBlob);
     } else {
       startRecording();
