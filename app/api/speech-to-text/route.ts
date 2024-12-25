@@ -14,6 +14,18 @@ const SUPPORTED_MIME_TYPES = [
   'audio/mpga',
   'audio/m4a',
   'audio/wav'
+// Remove edge runtime to allow File API usage
+// export const runtime = "edge";
+
+const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
+const SUPPORTED_MIME_TYPES = [
+  'audio/webm',
+  'audio/mp3',
+  'audio/mp4',
+  'audio/mpeg',
+  'audio/mpga',
+  'audio/m4a',
+  'audio/wav'
 ];
 
 export async function POST(request: Request) {
@@ -24,11 +36,6 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
-    const formData = await request.formData();
-    const audioFile = formData.get("audio");
-    const language = formData.get("language");
-
     // Validate audio file
     if (!audioFile || !(audioFile instanceof Blob)) {
       return NextResponse.json(
@@ -37,6 +44,12 @@ export async function POST(request: Request) {
       );
     }
 
+        { status: 400 }
+      );
+    }
+
+    // Validate MIME type
+    if (!SUPPORTED_MIME_TYPES.includes(audioFile.type)) {
     // Validate file size
     if (audioFile.size > MAX_FILE_SIZE) {
       return NextResponse.json(
@@ -53,7 +66,6 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log("Processing audio file:", {
       size: audioFile.size,
       type: audioFile.type,
     });
