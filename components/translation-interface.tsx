@@ -7,10 +7,12 @@ import { useTranslation } from "@/hooks/use-translation";
 import { useAudioHandling } from "@/hooks/use-audio-handling";
 import { useScrollHandling } from "@/hooks/use-scroll-handling";
 import { useAudioRecording } from "@/hooks/use-audio-recording";
+import { useToast } from "@/components/ui/use-toast";
 import { MessageBubble } from "./message-bubble";
 import { TranslationControls } from "./translation-controls";
 
 export function TranslationInterface() {
+  const { toast } = useToast();
   const {
     messages,
     fromLang,
@@ -23,6 +25,7 @@ export function TranslationInterface() {
     handleSwapLanguages,
     setFromLang,
     setToLang,
+    setMessages,
   } = useTranslation();
 
   const {
