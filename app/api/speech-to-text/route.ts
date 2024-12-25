@@ -88,8 +88,13 @@ export async function POST(request: Request) {
 
     // Regular language transcription
     try {
+      // Convert Blob to File
+      const file = new File([audioFile], "audio.webm", {
+        type: audioFile.type || "audio/webm"
+      });
+
       const transcription = await openai.audio.transcriptions.create({
-        file: audioFile,
+        file,
         model: "whisper-1",
         response_format: "text",
         language: languageString || undefined,
