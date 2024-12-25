@@ -53,6 +53,10 @@ export function useTranslation() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  const setLoadingState = useCallback((state: boolean) => {
+    setIsLoading(state);
+  }, []);
+
   // Save messages whenever they change
   useEffect(() => {
     saveMessages(messages);
@@ -145,5 +149,6 @@ export function useTranslation() {
     setFromLang: updateFromLang,
     setToLang: updateToLang,
     setMessages,
+    setLoadingState,
   };
 }
