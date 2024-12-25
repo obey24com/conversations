@@ -120,7 +120,7 @@ export function useAudioRecording(
       }
 
       const audioBlob = new Blob(audioChunksRef.current, {
-        type: mediaRecorderRef.current?.mimeType || 'audio/webm'
+        type: 'audio/webm;codecs=opus'
       });
       
       // Check file size
