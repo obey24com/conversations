@@ -78,14 +78,16 @@ export function useAudioRecording(
       const mediaRecorder = new MediaRecorder(stream, { mimeType });
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
+      
+      // Configure data handling
+      mediaRecorder.addEventListener('dataavailable', (event) => {
+        if (event.data && event.data.size > 0) {
           audioChunksRef.current.push(event.data);
         }
-      };
+      });
 
-      mediaRecorder.start();
+      // Start recording with 100ms timeslices to ensure data is captured
+      mediaRecorder.start(100);
       setIsRecording(true);
     } catch (error) {
       console.error("Error starting recording:", error);
