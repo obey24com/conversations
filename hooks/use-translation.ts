@@ -144,5 +144,6 @@ export function useTranslation() {
     handleSwapLanguages,
     setFromLang: updateFromLang,
     setToLang: updateToLang,
+    setMessages,
   };
 }
