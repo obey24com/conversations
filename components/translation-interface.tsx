@@ -43,10 +43,51 @@ export function TranslationInterface() {
   const { isRecording, toggleRecording } = useAudioRecording(
     fromLang,
     toLang,
-    (transcribedText) => {
+    async (transcribedText) => {
       if (transcribedText) {
-        setInputText(transcribedText);
-        handleSend();
+        try {
+          setIsLoading(true);
+          const response = await fetch("/api/translate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              text: transcribedText,
+              fromLang,
+              toLang,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.translation) {
+            const translationMatch = data.translation.match(/TRANSLATION:\s*([\s\S]*?)(?=\s*CONTEXT:|$)/i);
+            const contextMatch = data.translation.match(/CONTEXT:\s*([\s\S]*?)$/i);
+            
+            const translation = translationMatch?.[1]?.trim() || data.translation.trim();
+            const context = contextMatch?.[1]?.trim();
+
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: Math.random().toString(36).substr(2, 9),
+                text: transcribedText,
+                translation: translation.replace(/^TRANSLATION:\s*/i, "").trim(),
+                context: context,
+                fromLang,
+                toLang,
+                timestamp: Date.now(),
+              },
+            ]);
+          }
+        } catch (error) {
+          toast({
+            title: "Error",
+            description: "Failed to translate speech",
+            variant: "destructive",
+          });
+        } finally {
+          setIsLoading(false);
+        }
       }
     }
   );
