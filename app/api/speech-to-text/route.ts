@@ -16,18 +16,6 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const audioFile = formData.get("audio");
     const language = formData.get("language");
-    
-    if (!audioFile || !(audioFile instanceof Blob)) {
-      console.error("Invalid audio file:", { 
-        exists: !!audioFile, 
-        type: audioFile ? typeof audioFile : 'undefined',
-        size: audioFile instanceof Blob ? audioFile.size : 0
-      });
-      return NextResponse.json(
-        { error: "Audio file is required and must be a Blob" },
-        { status: 400 }
-      );
-    }
 
     console.log("Received audio file:", {
       exists: !!audioFile,
