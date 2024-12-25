@@ -72,8 +72,14 @@ export async function POST(request: Request) {
     }
 
     // Regular language transcription
+    // Create a File object that OpenAI's API expects
+    const file = new File([audioFile], "audio.webm", {
+      type: audioFile.type || "audio/webm",
+      lastModified: Date.now()
+    });
+
     const transcription = await openai.audio.transcriptions.create({
-      file: audioFile,
+      file,
       model: "whisper-1",
       response_format: "text",
       language: languageString || undefined,
