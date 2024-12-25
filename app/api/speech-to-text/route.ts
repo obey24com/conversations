@@ -2,7 +2,19 @@ import { NextResponse } from "next/server";
 import { openai } from "@/lib/openai";
 import { isPetLanguage } from "@/lib/languages";
 
-export const runtime = "edge";
+// Remove edge runtime to allow File API usage
+// export const runtime = "edge";
+
+const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
+const SUPPORTED_MIME_TYPES = [
+  'audio/webm',
+  'audio/mp3',
+  'audio/mp4',
+  'audio/mpeg',
+  'audio/mpga',
+  'audio/m4a',
+  'audio/wav'
+];
 
 export async function POST(request: Request) {
   try {
@@ -17,19 +29,26 @@ export async function POST(request: Request) {
     const audioFile = formData.get("audio");
     const language = formData.get("language");
 
-    console.log("Received audio file:", {
-      exists: !!audioFile,
-      type: audioFile instanceof Blob ? audioFile.type : typeof audioFile,
-      size: audioFile instanceof Blob ? audioFile.size : 0
-    });
-
+    // Validate audio file
     if (!audioFile || !(audioFile instanceof Blob)) {
-      console.error("Invalid audio file:", { 
-        exists: !!audioFile, 
-        type: audioFile ? typeof audioFile : 'undefined' 
-      });
       return NextResponse.json(
         { error: "Audio file is required and must be a Blob" },
+        { status: 400 }
+      );
+    }
+
+    // Validate file size
+    if (audioFile.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: "Audio file size must be less than 25MB" },
+        { status: 400 }
+      );
+    }
+
+    // Validate MIME type
+    if (!SUPPORTED_MIME_TYPES.includes(audioFile.type)) {
+      return NextResponse.json(
+        { error: `Unsupported audio format. Supported formats: ${SUPPORTED_MIME_TYPES.join(', ')}` },
         { status: 400 }
       );
     }
@@ -44,16 +63,13 @@ export async function POST(request: Request) {
     // Special handling for pet languages
     if (languageString && isPetLanguage(languageString)) {
       try {
-        const duration = 2; // Default duration for pet sounds
-        
-        // Generate pet sounds based on duration
+        const duration = 2;
         let petSounds = "";
+        
         if (languageString === "cat") {
-          // Longer meows for longer recordings
           petSounds = "m" + "e".repeat(Math.floor(duration)) + "ow" + 
                      "!".repeat(Math.floor(duration / 2));
         } else if (languageString === "dog") {
-          // Mix of barks and woofs for longer recordings
           const sounds = ["woof", "bark", "ruff"];
           const repetitions = Math.floor(duration);
           petSounds = Array(repetitions)
@@ -65,39 +81,37 @@ export async function POST(request: Request) {
         return NextResponse.json({ text: petSounds });
       } catch (error) {
         console.error("Error processing pet audio:", error);
-        // Fallback to simple pet sounds if audio processing fails
         const defaultSound = languageString === "cat" ? "meow meow!" : "woof woof!";
         return NextResponse.json({ text: defaultSound });
       }
     }
 
     // Regular language transcription
-    // Create a File object that OpenAI's API expects
-    const file = new File([audioFile], "audio.webm", {
-      type: audioFile.type || "audio/webm",
-      lastModified: Date.now()
-    });
+    try {
+      const transcription = await openai.audio.transcriptions.create({
+        file: audioFile,
+        model: "whisper-1",
+        response_format: "text",
+        language: languageString || undefined,
+      });
 
-    const transcription = await openai.audio.transcriptions.create({
-      file,
-      model: "whisper-1",
-      response_format: "text",
-      language: languageString || undefined,
-    });
-
-    if (!transcription) {
-      throw new Error("No transcription received from OpenAI");
+      if (!transcription) {
+        throw new Error("No transcription received from OpenAI");
+      }
+      
+      console.log("Transcription received:", transcription);
+      return NextResponse.json({ text: transcription });
+    } catch (error) {
+      console.error("OpenAI transcription error:", error);
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : "Transcription failed" },
+        { status: 500 }
+      );
     }
-    
-    console.log("Transcription received:", transcription);
-    
-    return NextResponse.json({ text: transcription });
   } catch (error) {
     console.error("Speech to text error:", error);
     return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : "Speech to text failed",
-      },
+      { error: error instanceof Error ? error.message : "Speech to text failed" },
       { status: 500 }
     );
   }
