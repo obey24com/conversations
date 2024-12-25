@@ -36,5 +36,19 @@ async function testSpeechToText() {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     const recorder = new MediaRecorder(stream);
     console.log('✅ MediaRecorder initialized');
-    console.log('Supported MIME types:');
-    ['audio/webm
+    console.log('Supported MIME types:', [
+      'audio/webm',
+      'audio/ogg',
+      'audio/mp4'
+    ].filter(type => MediaRecorder.isTypeSupported(type)));
+    
+    // Clean up
+    stream.getTracks().forEach(track => track.stop());
+  } catch (error) {
+    console.error('❌ MediaRecorder initialization failed:', error);
+  }
+
+  console.groupEnd();
+}
+
+export { testSpeechToText };
