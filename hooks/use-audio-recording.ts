@@ -18,13 +18,19 @@ export function useAudioRecording(
   const handleSpeechToText = async (audioBlob: Blob) => {
     try {
       setIsLoading(true);
+      // Create a File object that OpenAI's API expects
+      const file = new File([audioBlob], "audio.webm", {
+        type: audioBlob.type || "audio/webm",
+        lastModified: Date.now()
+      });
+
       const formData = new FormData();
-      formData.append("audio", audioBlob);
+      formData.append("audio", file);
       formData.append("language", fromLang);
 
       console.log("Sending audio:", {
-        size: audioBlob.size,
-        type: audioBlob.type,
+        size: file.size,
+        type: file.type,
         language: fromLang
       });
 
@@ -57,18 +63,15 @@ export function useAudioRecording(
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
+          sampleRate: 44100,
           channelCount: 1,
           echoCancellation: true,
           noiseSuppression: true,
-        },
+        }
       });
 
       streamRef.current = stream;
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm') 
-        ? 'audio/webm' 
-        : MediaRecorder.isTypeSupported('audio/mp4')
-          ? 'audio/mp4'
-          : '';
+      const mimeType = 'audio/webm';
 
       const mediaRecorder = new MediaRecorder(stream, { mimeType });
       mediaRecorderRef.current = mediaRecorder;
