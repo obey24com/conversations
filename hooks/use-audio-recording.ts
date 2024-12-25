@@ -56,13 +56,24 @@ export function useAudioRecording(
   const startRecording = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true
+        audio: {
+          channelCount: 1,
+          sampleRate: 44100,
+          echoCancellation: true,
+          noiseSuppression: true
+        }
       });
 
       streamRef.current = stream;
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm') 
-        ? 'audio/webm' 
-        : 'audio/mp4';
+      // Try supported formats in order of preference
+      const mimeTypes = [
+        'audio/webm',
+        'audio/mp4',
+        'audio/mp3',
+        'audio/wav'
+      ];
+      
+      const mimeType = mimeTypes.find(type => MediaRecorder.isTypeSupported(type)) || 'audio/webm';
 
       const mediaRecorder = new MediaRecorder(stream, { mimeType });
       mediaRecorderRef.current = mediaRecorder;
@@ -97,14 +108,34 @@ export function useAudioRecording(
   const toggleRecording = useCallback(() => {
     if (isRecording) {
       stopRecording();
+      if (audioChunksRef.current.length === 0) {
+        toast({
+          title: "Error",
+          description: "No audio data recorded",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const audioBlob = new Blob(audioChunksRef.current, {
         type: mediaRecorderRef.current?.mimeType || 'audio/webm'
       });
+      
+      // Check file size
+      if (audioBlob.size > 25 * 1024 * 1024) {
+        toast({
+          title: "Error",
+          description: "Recording too long (max 25MB)",
+          variant: "destructive",
+        });
+        return;
+      }
+
       handleSpeechToText(audioBlob);
     } else {
       startRecording();
     }
-  }, [isRecording, startRecording, stopRecording]);
+  }, [isRecording, startRecording, stopRecording, toast]);
 
   useEffect(() => {
     return () => {
