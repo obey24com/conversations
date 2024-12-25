@@ -1,4 +1,6 @@
-async function testSpeechToText() {
+"use client";
+
+export async function testSpeechToText() {
   console.group('Speech-to-Text Diagnostic Tests');
 
   // 1. Test browser capabilities
@@ -50,5 +52,3 @@ async function testSpeechToText() {
 
   console.groupEnd();
 }
-
-export { testSpeechToText };
