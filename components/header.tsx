@@ -2,10 +2,11 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "./ui/button";
-import { Menu } from "lucide-react";
+import { Menu, Download } from "lucide-react";
 import Image from "next/image";
 import Script from "next/script";
 import Link from "next/link";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -86,7 +87,56 @@ export default function Header() {
           </div>
 
           {/* Menu button */}
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="hover:bg-black/5">
+                  <Download className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent>
+                <SheetHeader>
+                  <SheetTitle>Download ULOCAT Mobile App</SheetTitle>
+                </SheetHeader>
+                <div className="mt-8 flex flex-col gap-4">
+                  <a
+                    href="https://play.google.com/store/apps/details?id=com.ulocatbyobey24com.ulocat&pcampaignid=web_share"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="transition-transform hover:scale-105"
+                  >
+                    <Button className="w-full h-14 bg-black hover:bg-black/90">
+                      <div className="flex items-center gap-3">
+                        <svg viewBox="0 0 24 24" className="h-6 w-6 fill-current">
+                          <path d="M3.609 1.814L13.792 12 3.61 22.186a2.016 2.016 0 0 1-.02-2.629L8.82 12 3.592 4.445a2.016 2.016 0 0 1 .017-2.63zm13.444 2.814l2.032 3.006c.62.918.62 2.148 0 3.066l-2.032 3.006-3.354-3.944L17.053 4.63zM3.825.333a1.995 1.995 0 0 0-1.152.373A2.016 2.016 0 0 0 2 2.234v19.532c0 .62.283 1.204.673 1.528.39.324.894.473 1.152.373l7.931-4.12L3.825.334zm9.968 5.29l-2.839 3.384 2.839 3.384 3.119-1.62a2.016 2.016 0 0 0 0-3.528l-3.119-1.62z" />
+                        </svg>
+                        <div className="flex flex-col items-start">
+                          <span className="text-xs">GET IT ON</span>
+                          <span className="text-lg font-semibold">Google Play</span>
+                        </div>
+                      </div>
+                    </Button>
+                  </a>
+                  <Button 
+                    className="w-full h-14 bg-black hover:bg-black/90 opacity-50 cursor-not-allowed"
+                    disabled
+                  >
+                    <div className="flex items-center gap-3">
+                      <svg viewBox="0 0 24 24" className="h-6 w-6 fill-current">
+                        <path d="M11.624 7.222c-.876 0-2.232-.996-3.66-.96-1.884.024-3.612 1.092-4.584 2.784-1.956 3.396-.504 8.412 1.404 11.172.936 1.344 2.04 2.856 3.504 2.808 1.404-.06 1.932-.912 3.636-.912 1.692 0 2.172.912 3.66.876 1.512-.024 2.472-1.368 3.396-2.724 1.068-1.56 1.512-3.072 1.536-3.156-.036-.012-2.94-1.128-2.976-4.488-.024-2.808 2.292-4.152 2.4-4.212-1.32-1.932-3.348-2.148-4.056-2.196-1.848-.144-3.396 1.008-4.26 1.008zm3.12-2.832c.78-.936 1.296-2.244 1.152-3.54-1.116.048-2.46.744-3.264 1.68-.72.828-1.344 2.16-1.176 3.432 1.236.096 2.508-.636 3.288-1.572z" />
+                      </svg>
+                      <div className="flex flex-col items-start">
+                        <span className="text-xs">Download on the</span>
+                        <span className="text-lg font-semibold">App Store</span>
+                      </div>
+                    </div>
+                  </Button>
+                  <p className="text-xs text-center text-muted-foreground mt-4">
+                    iOS app coming soon!
+                  </p>
+                </div>
+              </SheetContent>
+            </Sheet>
             <Button 
               onClick={() => setMenuOpen(!menuOpen)} 
               variant="ghost" 
