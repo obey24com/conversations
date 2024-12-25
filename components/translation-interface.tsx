@@ -26,6 +26,7 @@ export function TranslationInterface() {
     setFromLang,
     setToLang,
     setMessages,
+    setLoadingState,
   } = useTranslation();
 
   const {
@@ -49,7 +50,7 @@ export function TranslationInterface() {
     async (transcribedText) => {
       if (transcribedText) {
         try {
-          setIsLoading(true);
+          setLoadingState(true);
           const response = await fetch("/api/translate", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -89,7 +90,7 @@ export function TranslationInterface() {
             variant: "destructive",
           });
         } finally {
-          setIsLoading(false);
+          setLoadingState(false);
         }
       }
     }
