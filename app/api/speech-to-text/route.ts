@@ -16,6 +16,18 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const audioFile = formData.get("audio");
     const language = formData.get("language");
+    
+    if (!audioFile || !(audioFile instanceof Blob)) {
+      console.error("Invalid audio file:", { 
+        exists: !!audioFile, 
+        type: audioFile ? typeof audioFile : 'undefined',
+        size: audioFile instanceof Blob ? audioFile.size : 0
+      });
+      return NextResponse.json(
+        { error: "Audio file is required and must be a Blob" },
+        { status: 400 }
+      );
+    }
 
     console.log("Received audio file:", {
       exists: !!audioFile,
@@ -34,16 +46,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create a File object that OpenAI's API expects
-    const file = new File([audioFile], "audio.webm", {
-      type: audioFile.type || "audio/webm",
-      lastModified: Date.now()
-    });
-
     console.log("Processing audio file:", {
       size: audioFile.size,
       type: audioFile.type,
-      fileType: file.type
     });
 
     const languageString = typeof language === "string" ? language : "en";
@@ -80,7 +85,7 @@ export async function POST(request: Request) {
 
     // Regular language transcription
     const transcription = await openai.audio.transcriptions.create({
-      file,
+      file: audioFile,
       model: "whisper-1",
       response_format: "text",
       language: languageString || undefined,
