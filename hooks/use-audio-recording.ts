@@ -6,7 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 export function useAudioRecording(
   fromLang: string,
   toLang: string,
-  onTranscription: (text: string) => void
+  onTranscription: (text: string) => Promise<void>
 ) {
   const [isRecording, setIsRecording] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +39,7 @@ export function useAudioRecording(
 
       const data = await response.json();
       if (data.text) {
-        onTranscription(data.text);
+        await onTranscription(data.text);
       }
     } catch (error) {
       console.error("Speech to text error:", error);
