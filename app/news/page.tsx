@@ -16,12 +16,12 @@ export default function NewsPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card className="transition-all hover:shadow-lg">
           <CardHeader>
-            <CardTitle>The Evolution of AI Translation</CardTitle>
-            <CardDescription>How artificial intelligence is revolutionizing language translation</CardDescription>
+            <CardTitle>The Evolution of Translation</CardTitle>
+            <CardDescription>From ancient scripts to modern AI-powered solutions</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="mb-4">Explore how AI is transforming the way we communicate across languages, from neural networks to contextual understanding...</p>
-            <Link href="/news/ai-translation">
+            <Link href="/news/translation-evolution">
               <Button variant="outline" className="w-full">
                 Read More <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -31,12 +31,12 @@ export default function NewsPage() {
 
         <Card className="transition-all hover:shadow-lg">
           <CardHeader>
-            <CardTitle>Language Learning in the Digital Age</CardTitle>
-            <CardDescription>Modern approaches to mastering new languages</CardDescription>
+            <CardTitle>AI Translation Future</CardTitle>
+            <CardDescription>The future of global communication</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="mb-4">Discover how technology and AI are creating new opportunities for language learning and cultural exchange...</p>
-            <Link href="/news/language-learning">
+            <p className="mb-4">Discover how artificial intelligence is revolutionizing language translation and reshaping global communication...</p>
+            <Link href="/news/ai-translation-future">
               <Button variant="outline" className="w-full">
                 Read More <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -46,12 +46,12 @@ export default function NewsPage() {
 
         <Card className="transition-all hover:shadow-lg">
           <CardHeader>
-            <CardTitle>Breaking Cultural Barriers</CardTitle>
-            <CardDescription>The importance of cultural context in translation</CardDescription>
+            <CardTitle>Deep Talk Translation</CardTitle>
+            <CardDescription>Beyond words: Understanding context and emotion</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="mb-4">Understanding how cultural nuances affect communication and why context matters in translation...</p>
-            <Link href="/news/cultural-exchange">
+            <p className="mb-4">Explore how deep learning enables more meaningful cross-cultural conversations through advanced translation...</p>
+            <Link href="/news/deep-talk-translation">
               <Button variant="outline" className="w-full">
                 Read More <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
