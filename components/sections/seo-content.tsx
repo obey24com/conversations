@@ -11,7 +11,7 @@ export function SeoContent() {
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
         viewport={{ once: true }}
-        className="prose prose-lg max-w-none"
+        className="max-w-none"
       >
         <h2 className="text-3xl font-bold mb-8 text-center">Breaking Language Barriers with AI</h2>
         
@@ -22,7 +22,7 @@ export function SeoContent() {
               Global Communication
             </h3>
             <p className="text-gray-600 mb-6">
-              In today's interconnected world, effective communication across languages is more crucial than ever. 
+              In today&apos;s interconnected world, effective communication across languages is more crucial than ever. 
               Our AI-powered translation service bridges the gap between different languages and cultures, 
               enabling seamless global communication for businesses, travelers, and individuals worldwide.
             </p>
