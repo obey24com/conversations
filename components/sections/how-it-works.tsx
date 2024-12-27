@@ -35,8 +35,6 @@ export function HowItWorks() {
       </div>
 
       <div className="relative">
-        <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gray-100 -translate-y-1/2 hidden md:block" />
-        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {steps.map((step, index) => (
             <motion.div
@@ -48,7 +46,7 @@ export function HowItWorks() {
               className="relative"
             >
               <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 rounded-full bg-white border border-gray-100 shadow-sm flex items-center justify-center mb-6 relative z-10">
+                <div className="w-16 h-16 rounded-full bg-white shadow-md flex items-center justify-center mb-6 hover:scale-105 transition-transform duration-200">
                   <step.icon className="w-8 h-8" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
@@ -57,7 +55,7 @@ export function HowItWorks() {
 
               {index < steps.length - 1 && (
                 <div className="hidden md:block absolute top-8 -right-6 z-20">
-                  <ArrowRight className="w-6 h-6 text-gray-300" />
+                  <ArrowRight className="w-6 h-6 text-gray-400" />
                 </div>
               )}
             </motion.div>
