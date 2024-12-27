@@ -8,19 +8,19 @@ import { ArrowRight } from "lucide-react";
 
 const articles = [
   {
-    title: "The Evolution of AI Translation",
-    description: "How artificial intelligence is revolutionizing language translation",
-    link: "/news/ai-translation",
+    title: "The Evolution of Translation",
+    description: "Journey from ancient scripts to modern AI solutions",
+    link: "/news/translation-evolution",
   },
   {
-    title: "Breaking Cultural Barriers",
-    description: "Understanding the role of cultural context in effective translation",
-    link: "/news/cultural-exchange",
+    title: "AI Translation Future",
+    description: "Revolutionizing global communication with artificial intelligence",
+    link: "/news/ai-translation-future",
   },
   {
-    title: "Language Learning in the Digital Age",
-    description: "How technology is transforming the way we learn languages",
-    link: "/news/language-learning",
+    title: "Deep Talk Translation",
+    description: "Beyond words: Understanding context and emotion in translation",
+    link: "/news/deep-talk-translation",
   },
 ];
 
