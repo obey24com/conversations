@@ -1,17 +1,21 @@
 "use client";
 
 import { TranslationWindow } from "@/components/translation-window";
-import { Benefits } from "@/components/sections/benefits";
-import { HowItWorks } from "@/components/sections/how-it-works";
-import { Comparison } from "@/components/sections/comparison";
-import { Navigation } from "@/components/sections/navigation";
-import { BackToTop } from "@/components/sections/back-to-top";
+import { 
+  Benefits,
+  HowItWorks, 
+  Comparison,
+  Navigation,
+  BackToTop,
+  SeoContent,
+  NewsTeaser
+} from "@/components/sections";
 
 export default function Home() {
   return (
     <main className="relative min-h-screen">
       {/* Translation Interface */}
-      <section className="relative min-h-[calc(100dvh-65px)] flex items-center">
+      <section className="relative min-h-[calc(100dvh-65px)] flex items-center border-none">
         <div className="absolute inset-0 animated-dots" />
         <div className="container mx-auto max-w-[1200px] px-6 py-12 w-full">
           <TranslationWindow />
@@ -26,6 +30,8 @@ export default function Home() {
           <Benefits />
           <HowItWorks />
           <Comparison />
+          <SeoContent />
+          <NewsTeaser />
         </div>
       </div>
 
