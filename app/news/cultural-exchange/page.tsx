@@ -11,7 +11,6 @@ export default function CulturalExchangePage() {
   return (
     <article className="container mx-auto px-4 py-8 max-w-4xl">
       <h1 className="text-4xl font-bold mb-4">Breaking Cultural Barriers Through Translation</h1>
-      <p className="text-muted-foreground mb-8">Published on November 11, 2024</p>
 
       <div className="prose prose-lg max-w-none">
         <h2 className="text-2xl font-semibold mt-8 mb-4">Beyond Word-for-Word Translation</h2>
