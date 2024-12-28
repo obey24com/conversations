@@ -16,11 +16,11 @@ export default function NewsPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card className="transition-all hover:shadow-lg">
           <CardHeader>
-            <CardTitle>The Evolution of Translation</CardTitle>
-            <CardDescription>From ancient scripts to modern AI-powered solutions</CardDescription>
+            <CardTitle>The Evolution of Translation: From Ancient Scripts to AI</CardTitle>
+            <CardDescription>Journey through the history of translation technology</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="mb-4">Explore how AI is transforming the way we communicate across languages, from neural networks to contextual understanding...</p>
+            <p className="mb-4">From ancient scribes to modern AI, discover the fascinating journey of how we&apos;ve broken down language barriers throughout history...</p>
             <Link href="/news/translation-evolution">
               <Button variant="outline" className="w-full">
                 Read More <ArrowRight className="ml-2 h-4 w-4" />
@@ -31,8 +31,8 @@ export default function NewsPage() {
 
         <Card className="transition-all hover:shadow-lg">
           <CardHeader>
-            <CardTitle>AI Translation Future</CardTitle>
-            <CardDescription>The future of global communication</CardDescription>
+            <CardTitle>AI Translation: The Future of Global Communication</CardTitle>
+            <CardDescription>Revolutionizing how we connect across languages</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="mb-4">Discover how artificial intelligence is revolutionizing language translation and reshaping global communication...</p>
@@ -46,11 +46,11 @@ export default function NewsPage() {
 
         <Card className="transition-all hover:shadow-lg">
           <CardHeader>
-            <CardTitle>Deep Talk Translation</CardTitle>
-            <CardDescription>Beyond words: Understanding context and emotion</CardDescription>
+            <CardTitle>Deep Talk Translation: Beyond Words</CardTitle>
+            <CardDescription>Understanding emotions and cultural context</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="mb-4">Explore how deep learning enables more meaningful cross-cultural conversations through advanced translation...</p>
+            <p className="mb-4">Experience translation that understands not just your words, but the emotions and cultural nuances behind them...</p>
             <Link href="/news/deep-talk-translation">
               <Button variant="outline" className="w-full">
                 Read More <ArrowRight className="ml-2 h-4 w-4" />
