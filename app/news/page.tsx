@@ -105,14 +105,23 @@ export default function NewsPage() {
         </Card>
       </div>
 
-      <div className="mt-12 text-center">
-        <h2 className="text-2xl font-bold mb-4">Experience Natural Language Translation</h2>
-        <p className="mb-6 text-muted-foreground">Try ULOCAT&apos;s AI-powered translation for seamless communication across languages</p>
-        <Link href="/">
-          <Button size="lg" className="animate-pulse">
-            Start Translating Now <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </Link>
+      <div className="mt-24 bg-gradient-to-r from-gray-50 via-white to-gray-50">
+        <div className="container mx-auto px-4 py-16">
+          <div className="text-center max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold mb-4">Experience Natural Language Translation</h2>
+            <p className="text-gray-600 mb-8">
+              Try ULOCAT&apos;s AI-powered translation for seamless communication across languages
+            </p>
+            <Link href="/" className="block">
+              <Button 
+                size="lg" 
+                className="w-full md:w-auto min-w-[200px] transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Start Translating Now <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
       </div>
     </main>
   );
