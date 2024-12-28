@@ -8,22 +8,34 @@ import { ArrowRight } from "lucide-react";
 
 const articles = [
   {
-    title: "The Evolution of Translation: From Ancient Scripts to AI",
-    description: "Journey through the history of translation technology",
-    excerpt: "From ancient scribes to modern AI, discover the fascinating journey of how we've broken down language barriers throughout history.",
+    title: "The Evolution of Translation",
+    description: "From ancient scripts to modern AI solutions",
     link: "/news/translation-evolution",
   },
   {
-    title: "AI Translation: The Future of Global Communication",
-    description: "Revolutionizing how we connect across languages",
-    excerpt: "Discover how artificial intelligence is revolutionizing language translation and reshaping global communication.",
+    title: "AI Translation Future",
+    description: "The future of global communication",
     link: "/news/ai-translation-future",
   },
   {
-    title: "Deep Talk Translation: Beyond Words",
-    description: "Understanding emotions and cultural context",
-    excerpt: "Experience translation that understands not just your words, but the emotions and cultural nuances behind them.",
+    title: "Deep Talk Translation",
+    description: "Beyond words and context",
     link: "/news/deep-talk-translation",
+  },
+  {
+    title: "Language Learning",
+    description: "Modern approaches to mastering languages",
+    link: "/news/language-learning",
+  },
+  {
+    title: "Cultural Exchange",
+    description: "Breaking cultural barriers through translation",
+    link: "/news/cultural-exchange",
+  },
+  {
+    title: "AI Translation",
+    description: "Evolution of AI-powered translation",
+    link: "/news/ai-translation",
   },
 ];
 
@@ -53,10 +65,9 @@ export function NewsTeaser() {
               <Card className="h-full transition-all hover:shadow-lg">
                 <CardHeader>
                   <CardTitle>{article.title}</CardTitle>
-                  <CardDescription className="mt-2">{article.description}</CardDescription>
+                  <CardDescription>{article.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="mb-4 text-sm text-gray-600">{article.excerpt}</p>
                   <Link href={article.link}>
                     <Button variant="outline" className="w-full">
                       Read More <ArrowRight className="ml-2 h-4 w-4" />
