@@ -64,7 +64,7 @@ export function MessageBubble({
   const handleShare = async () => {
     try {
       const message: TranslationMessage = {
-        id,
+        id: Math.random().toString(36).substr(2, 9),
         text,
         translation,
         fromLang,
