@@ -28,9 +28,9 @@ export function ShareDialog({ isOpen, onOpenChange, shareUrl }: ShareDialogProps
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" aria-describedby="share-dialog-description">
+        <DialogTitle>Share Translation</DialogTitle>
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Share Translation</h2>
           <div className="flex items-center space-x-2">
             <Input
               value={shareUrl}
@@ -53,7 +53,7 @@ export function ShareDialog({ isOpen, onOpenChange, shareUrl }: ShareDialogProps
               )}
             </Button>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p id="share-dialog-description" className="text-sm text-muted-foreground">
             Share this link with others to show them your translation
           </p>
         </div>
