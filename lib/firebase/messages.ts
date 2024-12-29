@@ -7,10 +7,8 @@ const MESSAGES_COLLECTION = 'shared_messages';
 
 export async function createSharedMessage(message: TranslationMessage): Promise<string> {
   try {
-    // Check if Firebase is initialized
     if (!db) {
-      console.warn('Firebase not initialized');
-      return '';
+      throw new Error('Firebase not initialized');
     }
     
     const shareId = nanoid(10); // Generate a short, unique ID
@@ -34,7 +32,7 @@ export async function createSharedMessage(message: TranslationMessage): Promise<
     return shareId;
   } catch (error) {
     console.error('Error creating shared message:', error);
-    return '';
+    throw error;
   }
 }
 
