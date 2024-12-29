@@ -69,6 +69,12 @@ export function MessageBubble({
   const handleShare = async () => {
     try {
       setShareLoading(true);
+      
+      // Check if Firebase is initialized
+      if (!db) {
+        console.warn('Firebase not initialized, but continuing...');
+      }
+      
       const message: TranslationMessage = {
         id: Math.random().toString(36).substr(2, 9),
         text,
@@ -80,6 +86,10 @@ export function MessageBubble({
       };
 
       const shareId = await createSharedMessage(message);
+      if (!shareId) {
+        throw new Error('Failed to generate share ID');
+      }
+      
       const shareUrl = `${window.location.origin}/share/${shareId}`;
       setShareUrl(shareUrl);
       setShowShareDialog(true);
@@ -90,6 +100,7 @@ export function MessageBubble({
         description: "Share this link with others to show them your translation",
       });
     } catch (error) {
+      console.error('Share error:', error);
       toast({
         title: "Error",
         description: "Failed to generate share link",
