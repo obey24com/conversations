@@ -1,15 +1,17 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
+if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+  throw new Error('Missing Firebase configuration');
+}
+
 const firebaseConfig = {
-  apiKey: "AIzaSyBw3eUPlSZZ_fDK8Q7-NJG6CGSI36GQbA0",
-  authDomain: "ulocatcom.firebaseapp.com",
-  databaseURL: "https://ulocatcom-default-rtdb.firebaseio.com",
-  projectId: "ulocatcom",
-  storageBucket: "ulocatcom.firebasestorage.app",
-  messagingSenderId: "444730804587",
-  appId: "1:444730804587:web:8fdf7031bf7d06e351a42e",
-  measurementId: "G-JVTY5SWGHY"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
 // Initialize Firebase
