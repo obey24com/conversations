@@ -7,6 +7,8 @@ import { useToast } from '@/components/ui/use-toast';
 import { useState, useRef, useEffect } from 'react';
 import { createSharedMessage } from '@/lib/firebase/messages';
 import type { TranslationMessage } from '@/lib/types';
+import { ShareDialog } from './share-dialog';
+import { Loader2 } from 'lucide-react';
 
 export interface MessageBubbleProps {
   text: string;
@@ -37,6 +39,9 @@ export function MessageBubble({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const bubbleRef = useRef<HTMLDivElement>(null);
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [showShareDialog, setShowShareDialog] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -63,6 +68,7 @@ export function MessageBubble({
 
   const handleShare = async () => {
     try {
+      setIsSharing(true);
       const message: TranslationMessage = {
         id: Math.random().toString(36).substr(2, 9),
         text,
@@ -75,6 +81,8 @@ export function MessageBubble({
 
       const shareId = await createSharedMessage(message);
       const shareUrl = `${window.location.origin}/share/${shareId}`;
+      setShareUrl(shareUrl);
+      setShowShareDialog(true);
       
       await navigator.clipboard.writeText(shareUrl);
       toast({
@@ -87,6 +95,8 @@ export function MessageBubble({
         description: "Failed to generate share link",
         variant: "destructive",
       });
+    } finally {
+      setIsSharing(false);
     }
   };
 
@@ -233,6 +243,14 @@ export function MessageBubble({
           )}
         </div>
       </div>
+      
+      {shareUrl && (
+        <ShareDialog
+          isOpen={showShareDialog}
+          onOpenChange={setShowShareDialog}
+          shareUrl={shareUrl}
+        />
+      )}
     </div>
   );
 }
