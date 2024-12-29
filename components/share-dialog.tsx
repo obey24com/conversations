@@ -1,6 +1,6 @@
 "use client";
 
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Copy, Check } from "lucide-react";
@@ -30,12 +30,12 @@ export function ShareDialog({ isOpen, onOpenChange, shareUrl }: ShareDialogProps
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md" aria-describedby="share-dialog-description">
         <DialogTitle>Share Translation</DialogTitle>
-        <div className="space-y-4">
+        <div className="space-y-4 pt-2">
           <div className="flex items-center space-x-2">
             <Input
               value={shareUrl}
               readOnly
-              className="font-mono text-sm"
+              className="font-mono text-sm select-all"
             />
             <Button
               size="icon"
