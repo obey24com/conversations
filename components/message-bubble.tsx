@@ -39,7 +39,7 @@ export function MessageBubble({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const bubbleRef = useRef<HTMLDivElement>(null);
-  const [isSharing, setIsSharing] = useState(false);
+  const [shareLoading, setShareLoading] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [showShareDialog, setShowShareDialog] = useState(false);
 
@@ -68,7 +68,7 @@ export function MessageBubble({
 
   const handleShare = async () => {
     try {
-      setIsSharing(true);
+      setShareLoading(true);
       const message: TranslationMessage = {
         id: Math.random().toString(36).substr(2, 9),
         text,
@@ -96,7 +96,7 @@ export function MessageBubble({
         variant: "destructive",
       });
     } finally {
-      setIsSharing(false);
+      setShareLoading(false);
     }
   };
 
@@ -172,8 +172,12 @@ export function MessageBubble({
               size="icon"
               className="h-8 w-8 bg-white/95 shadow-sm hover:shadow-md backdrop-blur-sm"
               onClick={handleShare}
+              disabled={shareLoading}
             >
-              <Share2 className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+              <Share2 className={cn(
+                "h-4 w-4 transition-all duration-300",
+                shareLoading ? "animate-spin text-blue-500" : "text-gray-400 hover:text-gray-600"
+              )} />
             </Button>
           )}
         </div>
@@ -208,8 +212,12 @@ export function MessageBubble({
               size="icon"
               className="h-9 w-9 bg-white/95 shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-sm"
               onClick={handleShare}
+              disabled={shareLoading}
             >
-              <Share2 className="h-4 w-4 text-gray-400 hover:text-gray-600 hover:scale-110" />
+              <Share2 className={cn(
+                "h-4 w-4 transition-all duration-300",
+                shareLoading ? "animate-spin text-blue-500" : "text-gray-400 hover:text-gray-600 hover:scale-110"
+              )} />
             </Button>
           )}
         </div>
