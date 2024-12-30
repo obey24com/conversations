@@ -1,10 +1,14 @@
 "use client";
 
 import { Button } from '@/components/ui/button';
-import { Volume2, Copy, X } from 'lucide-react';
+import { Volume2, Copy, X, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
 import { useState, useRef, useEffect } from 'react';
+import { createSharedMessage } from '@/lib/firebase/messages';
+import type { TranslationMessage } from '@/lib/types';
+import { ShareDialog } from './share-dialog';
+import { Loader2 } from 'lucide-react';
 
 export interface MessageBubbleProps {
   text: string;
@@ -15,6 +19,8 @@ export interface MessageBubbleProps {
   isPlaying: boolean;
   onPlay: () => void;
   onDelete: () => void;
+  hideDelete?: boolean;
+  hideShare?: boolean;
 }
 
 export function MessageBubble({ 
@@ -25,12 +31,17 @@ export function MessageBubble({
   cultural, 
   isPlaying, 
   onPlay,
-  onDelete
+  onDelete,
+  hideDelete = false,
+  hideShare = false,
 }: MessageBubbleProps) {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const bubbleRef = useRef<HTMLDivElement>(null);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [showShareDialog, setShowShareDialog] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -52,6 +63,62 @@ export function MessageBubble({
         description: "Failed to copy text",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleShare = async () => {
+    try {
+      setShareLoading(true);
+      let success = false;
+
+      const message: TranslationMessage = {
+        id: Math.random().toString(36).substr(2, 9),
+        text,
+        translation,
+        fromLang,
+        toLang,
+        cultural,
+        timestamp: Date.now(),
+      };
+
+      const shareId = await createSharedMessage(message);
+
+      if (shareId) {
+        const shareUrl = `${window.location.origin}/share/${shareId}`;
+        setShareUrl(shareUrl);
+        success = true;
+        setShowShareDialog(true);
+        
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          if (success) {
+            toast({
+              title: "Link copied!",
+              description: "Share this link with others to show them your translation",
+            });
+          }
+        } catch (clipboardError) {
+          console.error('Clipboard error:', clipboardError);
+          // Still show dialog even if copy fails
+          if (success) {
+            setShowShareDialog(true);
+          }
+        }
+      } else {
+        throw new Error('Could not generate share link');
+      }
+    } catch (error) {
+      console.error('Share error:', error);
+      // Only show error toast if we actually failed to generate the link
+      if (!shareUrl) {
+        toast({
+          title: "Error",
+          description: "Please try sharing again",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setShareLoading(false);
     }
   };
 
@@ -120,6 +187,21 @@ export function MessageBubble({
           >
             <Copy className="h-4 w-4 text-gray-400 hover:text-gray-600" />
           </Button>
+          
+          {!hideShare && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 bg-white/95 shadow-sm hover:shadow-md backdrop-blur-sm"
+              onClick={handleShare}
+              disabled={shareLoading}
+            >
+              <Share2 className={cn(
+                "h-4 w-4 transition-all duration-300",
+                shareLoading ? "animate-spin text-blue-500" : "text-gray-400 hover:text-gray-600"
+              )} />
+            </Button>
+          )}
         </div>
 
         {/* Desktop buttons - right side, always visible */}
@@ -145,9 +227,25 @@ export function MessageBubble({
           >
             <Copy className="h-4 w-4 text-gray-400 hover:text-gray-600 hover:scale-110" />
           </Button>
+          
+          {!hideShare && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 bg-white/95 shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-sm"
+              onClick={handleShare}
+              disabled={shareLoading}
+            >
+              <Share2 className={cn(
+                "h-4 w-4 transition-all duration-300",
+                shareLoading ? "animate-spin text-blue-500" : "text-gray-400 hover:text-gray-600 hover:scale-110"
+              )} />
+            </Button>
+          )}
         </div>
 
         {/* Close button - top right, visible on hover for desktop */}
+        {!hideDelete && (
         <div className={cn(
           "absolute -top-2 right-4",
           "md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200"
@@ -162,6 +260,7 @@ export function MessageBubble({
             <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
           </Button>
         </div>
+        )}
 
         <p className="text-sm text-gray-500 mb-4">{text}</p>
         <div className="mt-3 pr-2">
@@ -174,6 +273,14 @@ export function MessageBubble({
           )}
         </div>
       </div>
+      
+      {shareUrl && (
+        <ShareDialog
+          isOpen={showShareDialog}
+          onOpenChange={setShowShareDialog}
+          shareUrl={shareUrl}
+        />
+      )}
     </div>
   );
 }

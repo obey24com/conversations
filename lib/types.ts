@@ -2,7 +2,7 @@ export interface TranslationMessage {
   id: string;
   text: string;
   translation: string;
-  context?: string | null;
+  cultural?: string;
   fromLang: string;
   toLang: string;
   timestamp: number;
@@ -17,4 +17,8 @@ export interface TranslationRequest {
 export interface TranslationResponse {
   translation?: string;
   error?: string;
+}
+
+export interface SharedMessage extends TranslationMessage {
+  shareId: string;
 }
