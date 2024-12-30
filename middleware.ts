@@ -11,13 +11,13 @@ export function middleware(request: NextRequest) {
   // Get the User-Agent header
   const userAgent = request.headers.get('user-agent') || ''
 
-  // Redirection is currently disabled
-  // You can enable it by uncommenting the code below
-  /*
+  // If it's a desktop device and not already on the desktop domain
   if (!isMobileDevice(userAgent) && !request.url.includes('desktop.ulocat.com')) {
+    // Construct the new URL with the desktop domain
     const url = new URL(request.url)
     const newUrl = `${DESKTOP_DOMAIN}${url.pathname}${url.search}`
 
+    // Return permanent redirect (301)
     return NextResponse.redirect(newUrl, {
       status: 301,
       headers: {
@@ -26,7 +26,6 @@ export function middleware(request: NextRequest) {
       }
     })
   }
-  */
 
   return NextResponse.next()
 }
@@ -39,7 +38,7 @@ export const config = {
      * 2. /_next (Next.js internals)
      * 3. /_static (inside /public)
      * 4. /_vercel (Vercel internals)
-     * 5. /favicon.ico, sitemap.xml, robots.txt (static files)
+     * 5. /favicon.ico, /sitemap.xml, /robots.txt (static files)
      */
     '/((?!api|_next|_static|_vercel|favicon.ico|sitemap.xml|robots.txt).*)',
   ],
