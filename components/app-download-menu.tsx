@@ -2,9 +2,9 @@
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Apple, Download, PlaySquare } from "lucide-react";
-import { STORE_URLS } from "@/lib/constants";
+import { Download, Apple, PlaySquare } from "lucide-react";
 import { useState } from "react";
+import { STORE_URLS } from "@/lib/constants";
 
 export function AppDownloadMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,46 +26,26 @@ export function AppDownloadMenu() {
         <SheetHeader>
           <SheetTitle>Get the ULOCAT App</SheetTitle>
         </SheetHeader>
-        <div className="space-y-8 py-8">
-          <p className="text-muted-foreground">
-            Download our mobile app for a better translation experience on the go
+        <div className="py-8 space-y-6">
+          <Button
+            variant="outline"
+            className="w-full opacity-50 cursor-not-allowed"
+            disabled
+          >
+            <Apple className="mr-2 h-5 w-5" />
+            iOS App Coming Soon
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => window.open(STORE_URLS.PLAY_STORE, '_blank')}
+          >
+            <PlaySquare className="mr-2 h-5 w-5" />
+            Download for Android
+          </Button>
+          <p className="text-xs text-muted-foreground text-center">
+            iOS version coming soon. Android version available now!
           </p>
-          
-          <div className="space-y-4">
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full justify-start gap-2"
-              asChild
-            >
-              <a 
-                href={STORE_URLS.APP_STORE}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setIsOpen(false)}
-              >
-                <Apple className="h-5 w-5" />
-                Download on App Store
-              </a>
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full justify-start gap-2"
-              asChild
-            >
-              <a
-                href={STORE_URLS.PLAY_STORE}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setIsOpen(false)}
-              >
-                <PlaySquare className="h-5 w-5" />
-                Get it on Play Store
-              </a>
-            </Button>
-          </div>
         </div>
       </SheetContent>
     </Sheet>
