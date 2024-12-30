@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "./ui/button";
-import { Menu, Instagram } from "lucide-react";
+import { Menu, Instagram, X } from "lucide-react";
 import Image from "next/image";
 import Script from "next/script";
 import Link from "next/link";
@@ -23,7 +23,7 @@ export default function Header() {
   );
 
   const playMeow = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent the default link behavior
+    e.preventDefault();
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
       audioRef.current.play().catch(error => {
@@ -51,17 +51,17 @@ export default function Header() {
       <header className="fixed inset-x-0 top-0 z-50">
         {/* Backdrop blur container */}
         <div 
-             className="absolute inset-0 backdrop-blur-xl"
-    style={{
-      WebkitBackdropFilter: 'saturate(180%) blur(10px)',
-      backdropFilter: 'saturate(180%) blur(10px)',
-      backgroundColor: 'rgba(255, 255, 255, 0.4)', // Semi-transparent white
-    }}
+          className="absolute inset-0 backdrop-blur-xl"
+          style={{
+            WebkitBackdropFilter: 'saturate(180%) blur(10px)',
+            backdropFilter: 'saturate(180%) blur(10px)',
+            backgroundColor: 'rgba(255, 255, 255, 0.4)',
+          }}
         />
 
         {/* Header content */}
         <div className="relative mx-auto flex w-full max-w-5xl items-center justify-between p-2">
-          {/* Logo container - now consistently left-aligned */}
+          {/* Logo container */}
           <div className="flex items-center gap-2">
             <Link 
               href="#" 
@@ -86,7 +86,7 @@ export default function Header() {
             </span>
           </div>
 
-          {/* Menu button */}
+          {/* Menu buttons */}
           <div className="flex items-center gap-2">
             <AppDownloadMenu />
             <Button
@@ -137,6 +137,15 @@ export default function Header() {
               backdropFilter: 'saturate(180%) blur(20px)',
             }}
           >
+            <Button
+              onClick={() => setMenuOpen(false)}
+              variant="ghost"
+              size="icon"
+              className="absolute right-4 top-4 transition-colors hover:bg-gray-100/80"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+
             <div className="mb-6 rounded-xl border border-gray-200/50 bg-gray-50/50 p-4 text-center backdrop-blur-sm">
               <h3 className="mb-4 text-lg font-semibold text-gray-800">
                 Quick Tips
@@ -173,30 +182,6 @@ export default function Header() {
                 News
               </Link>
               <a
-                href="https://obey24.com/agbs/"
-                className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100/80"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Terms of Use
-              </a>
-              <a
-                href="https://obey24.com/datenschutz/"
-                className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100/80"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Privacy Policy
-              </a>
-              <a
-                href="https://obey24.com/impressum/"
-                className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100/80"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Imprint
-              </a>
-              <a
                 href="mailto:info@ulocat.com"
                 className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100/80"
                 target="_blank"
@@ -204,21 +189,40 @@ export default function Header() {
               >
                 Feedback
               </a>
-              <Button
-                onClick={() => setMenuOpen(false)}
-                variant="outline"
-                className="mt-4 w-full transition-colors hover:bg-gray-100/80"
-              >
-                Close Menu
-              </Button>
-              <div className="text-center">
-                <span className="text-[10px] text-gray-500">
+              <div className="flex justify-center gap-4 pt-4">
+                <a
+                  href="https://obey24.com/agbs/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] text-gray-500 hover:text-gray-700"
+                >
+                  Terms of Use
+                </a>
+                <a
+                  href="https://obey24.com/datenschutz/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] text-gray-500 hover:text-gray-700"
+                >
+                  Privacy Policy
+                </a>
+                <a
+                  href="https://obey24.com/impressum/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] text-gray-500 hover:text-gray-700"
+                >
+                  Imprint
+                </a>
+              </div>
+              <div className="mt-4 text-center">
+                <span className="text-[11px] text-gray-500">
                   Ulocat is powered by{" "}
                   <a
                     href="https://obey24.com/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-gray-800"
+                    className="hover:text-gray-700"
                   >
                     Obey24.com
                   </a>
