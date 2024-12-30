@@ -69,6 +69,7 @@ export function MessageBubble({
   const handleShare = async () => {
     try {
       setShareLoading(true);
+      let success = false;
 
       const message: TranslationMessage = {
         id: Math.random().toString(36).substr(2, 9),
@@ -85,29 +86,37 @@ export function MessageBubble({
       if (shareId) {
         const shareUrl = `${window.location.origin}/share/${shareId}`;
         setShareUrl(shareUrl);
+        success = true;
         setShowShareDialog(true);
         
         try {
           await navigator.clipboard.writeText(shareUrl);
-          toast({
-            title: "Link copied!",
-            description: "Share this link with others to show them your translation",
-          });
+          if (success) {
+            toast({
+              title: "Link copied!",
+              description: "Share this link with others to show them your translation",
+            });
+          }
         } catch (clipboardError) {
           console.error('Clipboard error:', clipboardError);
           // Still show dialog even if copy fails
-          setShowShareDialog(true);
+          if (success) {
+            setShowShareDialog(true);
+          }
         }
       } else {
         throw new Error('Could not generate share link');
       }
     } catch (error) {
       console.error('Share error:', error);
-      toast({
-        title: "Error",
-        description: "Please try sharing again",
-        variant: "destructive",
-      });
+      // Only show error toast if we actually failed to generate the link
+      if (!shareUrl) {
+        toast({
+          title: "Error",
+          description: "Please try sharing again",
+          variant: "destructive",
+        });
+      }
     } finally {
       setShareLoading(false);
     }
