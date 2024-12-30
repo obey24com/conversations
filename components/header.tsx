@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "./ui/button";
-import { Menu } from "lucide-react";
+import { Menu, Instagram } from "lucide-react";
 import Image from "next/image";
 import Script from "next/script";
 import Link from "next/link";
@@ -89,6 +89,20 @@ export default function Header() {
           {/* Menu button */}
           <div className="flex items-center gap-2">
             <AppDownloadMenu />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:bg-black/5"
+              asChild
+            >
+              <a
+                href="https://www.instagram.com/ulocatcom/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Instagram className="h-6 w-6" />
+              </a>
+            </Button>
             <Button 
               onClick={() => setMenuOpen(!menuOpen)} 
               variant="ghost" 
