@@ -126,6 +126,7 @@ export default function Header() {
           className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-300 ${
             menuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
           }`}
+          style={{ zIndex: 100 }}
         >
           <div
             ref={menuRef}
@@ -135,13 +136,15 @@ export default function Header() {
             style={{
               WebkitBackdropFilter: 'saturate(180%) blur(20px)',
               backdropFilter: 'saturate(180%) blur(20px)',
+              position: 'relative'
             }}
           >
             <Button
               onClick={() => setMenuOpen(false)}
               variant="ghost"
               size="icon"
-              className="absolute right-4 top-4 transition-colors hover:bg-gray-100/80"
+              className="absolute -right-2 -top-2 h-8 w-8 rounded-full bg-white/95 shadow-lg transition-colors hover:bg-gray-100/80"
+              style={{ zIndex: 110 }}
             >
               <X className="h-4 w-4" />
             </Button>
