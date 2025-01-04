@@ -4,6 +4,7 @@ export const STORAGE_KEYS = {
   AUTO_SWITCH: 'ulocat-auto-switch',
   MESSAGES: 'ulocat-messages',
   APP_POPUP_SEEN: 'ulocat-app-popup-seen',
+  MIC_SETTINGS: 'ulocat-mic-settings',
 } as const;
 
 export const STORE_URLS = {
