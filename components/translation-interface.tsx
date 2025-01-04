@@ -81,6 +81,11 @@ export function TranslationInterface() {
   const [swapMessage, setSwapMessage] = useState("");
   const [isSwapping, setIsSwapping] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [micSettings, setMicSettings] = useState(() => {
+    if (typeof window === 'undefined') return null;
+    const stored = localStorage.getItem(STORAGE_KEYS.MIC_SETTINGS);
+    return stored ? JSON.parse(stored) : null;
+  });
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -302,14 +307,22 @@ export function TranslationInterface() {
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
+      // Use stored settings if available
+      const constraints = micSettings || {
         audio: {
           sampleRate: 44100,
           sampleSize: 16,
           noiseSuppression: true,
           echoCancellation: true,
-        },
-      });
+        }
+      };
+
+      // If no stored settings, save the default ones
+      if (!micSettings) {
+        localStorage.setItem(STORAGE_KEYS.MIC_SETTINGS, JSON.stringify(constraints));
+        setMicSettings(constraints);
+      }
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       streamRef.current = stream;
       const mediaRecorder = new MediaRecorder(stream);
 
