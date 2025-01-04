@@ -10,7 +10,6 @@ import { supportedLanguages, isPetLanguage } from "@/lib/languages";
 import { useZoomControl } from "@/hooks/use-zoom-control";
 import { LanguageSelect } from "./language-select";
 import { MessageBubble } from "./message-bubble";
-import { STORAGE_KEYS } from "@/lib/constants";
 
 import { Languages } from "lucide-react";
 
@@ -24,6 +23,12 @@ interface Message {
   timestamp?: number;
 }
 
+const STORAGE_KEYS = {
+  FROM_LANG: "ulocat-from-lang",
+  TO_LANG: "ulocat-to-lang",
+  AUTO_SWITCH: "ulocat-auto-switch",
+  MESSAGES: "ulocat-messages",
+} as const;
 
 const MAX_STORED_MESSAGES = 50;
 
@@ -76,11 +81,6 @@ export function TranslationInterface() {
   const [swapMessage, setSwapMessage] = useState("");
   const [isSwapping, setIsSwapping] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [micSettings, setMicSettings] = useState(() => {
-    if (typeof window === 'undefined') return null;
-    const stored = localStorage.getItem(STORAGE_KEYS.MIC_SETTINGS);
-    return stored ? JSON.parse(stored) : null;
-  });
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -302,22 +302,14 @@ export function TranslationInterface() {
 
   const startRecording = async () => {
     try {
-      // Use stored settings if available
-      const constraints = micSettings || {
+      const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           sampleRate: 44100,
           sampleSize: 16,
           noiseSuppression: true,
           echoCancellation: true,
-        }
-      };
-
-      // If no stored settings, save the default ones
-      if (!micSettings) {
-        localStorage.setItem(STORAGE_KEYS.MIC_SETTINGS, JSON.stringify(constraints));
-        setMicSettings(constraints);
-      }
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        },
+      });
       streamRef.current = stream;
       const mediaRecorder = new MediaRecorder(stream);
 
