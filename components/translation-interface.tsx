@@ -10,6 +10,7 @@ import { supportedLanguages, isPetLanguage } from "@/lib/languages";
 import { useZoomControl } from "@/hooks/use-zoom-control";
 import { LanguageSelect } from "./language-select";
 import { MessageBubble } from "./message-bubble";
+import { STORAGE_KEYS } from "@/lib/constants";
 
 import { Languages } from "lucide-react";
 
@@ -23,12 +24,6 @@ interface Message {
   timestamp?: number;
 }
 
-const STORAGE_KEYS = {
-  FROM_LANG: "ulocat-from-lang",
-  TO_LANG: "ulocat-to-lang",
-  AUTO_SWITCH: "ulocat-auto-switch",
-  MESSAGES: "ulocat-messages",
-} as const;
 
 const MAX_STORED_MESSAGES = 50;
 
