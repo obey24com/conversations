@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import Script from "next/script";
 import { CookieBanner } from "@/components/cookie-banner";
 import Header from "@/components/header";
@@ -92,11 +93,13 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <CookieBanner />
+        <TooltipProvider>
         <div className="fixed inset-x-0 top-0 z-50 bg-zinc-50">
           <Header />
         </div>
         <div className="pt-[65px]">{children}</div>
         <Toaster />
+        </TooltipProvider>
       </body>
     </html>
   );
