@@ -162,14 +162,28 @@ export function MessageBubble({
           </Button>
         </div>
 
-        <p className="text-sm text-gray-500 mb-4">{text}</p>
+        <div 
+          className="text-sm text-gray-500 mb-4 prose prose-sm"
+          dangerouslySetInnerHTML={{ 
+            __html: text.replace(/\n/g, '<br>')
+          }}
+        >
+        </div>
         <div className="mt-3">
-          <p className="text-lg font-medium text-gray-900 leading-relaxed">{translation}</p>
+          <div 
+            className="text-lg font-medium text-gray-900 leading-relaxed prose prose-lg"
+            dangerouslySetInnerHTML={{ 
+              __html: translation.replace(/\n/g, '<br>')
+            }}
+          />
 
           {context && (
-            <p className="mt-4 pt-4 border-t border-gray-100 text-sm text-gray-600 italic leading-relaxed">
-              {context}
-            </p>
+            <div 
+              className="mt-4 pt-4 border-t border-gray-100 text-sm text-gray-600 italic leading-relaxed prose prose-sm"
+              dangerouslySetInnerHTML={{ 
+                __html: context.replace(/\n/g, '<br>')
+              }}
+            />
           )}
         </div>
       </div>
