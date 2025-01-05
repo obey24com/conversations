@@ -28,7 +28,15 @@ export function RichTextEditor({
     editable: !disabled,
     editorProps: {
       attributes: {
-        class: 'prose prose-sm max-w-none focus:outline-none px-3 py-3 min-h-[48px]'
+        class: 'prose prose-sm max-w-none focus:outline-none px-3 py-3 min-h-[48px]',
+      },
+      handleKeyDown: (view, event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          onKeyDown?.();
+          return true;
+        }
+        return false;
       }
     },
     onCreate: ({ editor }) => {
@@ -43,12 +51,6 @@ export function RichTextEditor({
     },
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
-    },
-    handleKeyDown: ({ event }) => {
-      if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault();
-        onKeyDown?.();
-      }
     },
   });
 
