@@ -59,6 +59,14 @@
   }
 }
 
+.tiptap p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
 @keyframes wave {
   0%, 100% {
     transform: scale(1);
