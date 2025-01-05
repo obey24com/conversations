@@ -8,6 +8,7 @@ import { useAudioHandling } from "@/hooks/use-audio-handling";
 import { useScrollHandling } from "@/hooks/use-scroll-handling";
 import { useAudioRecording } from "@/hooks/use-audio-recording";
 import { useToast } from "@/components/ui/use-toast";
+import type { EditorMode } from "@/lib/types";
 import { MessageBubble } from "./message-bubble";
 import { TranslationControls } from "./translation-controls";
 
@@ -42,6 +43,7 @@ export function TranslationInterface() {
   const [isSwapActiveFirst, setIsSwapActiveFirst] = useState(true);
   const [swapMessage, setSwapMessage] = useState("");
   const [isSwapping, setIsSwapping] = useState(false);
+  const [editorMode, setEditorMode] = useState<EditorMode>("rich-text");
 
   // Initialize audio recording hook
   const { isRecording, toggleRecording } = useAudioRecording(
@@ -157,12 +159,14 @@ export function TranslationInterface() {
         fromLang={fromLang}
         toLang={toLang}
         inputText={inputText}
+        editorMode={editorMode}
         isLoading={isLoading}
         isRecording={isRecording}
         isSwapping={isSwapping}
         isSwapActive={isSwapActive}
         isSwapActiveFirst={isSwapActiveFirst}
         swapMessage={swapMessage}
+        onEditorModeChange={setEditorMode}
         onFromLangChange={setFromLang}
         onToLangChange={setToLang}
         onInputChange={setInputText}
