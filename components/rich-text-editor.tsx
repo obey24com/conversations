@@ -34,7 +34,8 @@ export function RichTextEditor({
     onCreate: ({ editor }) => {
       onEditor?.(editor);
       if (placeholder) {
-        editor.view.dom.setAttribute('data-placeholder', placeholder);
+        const element = editor.view.dom as HTMLElement;
+        element.dataset.placeholder = placeholder;
       }
     },
     onDestroy: () => {
@@ -43,7 +44,7 @@ export function RichTextEditor({
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
-    onKeyDown: ({ event }) => {
+    handleKeyDown: ({ event }) => {
       if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
         onKeyDown?.();
