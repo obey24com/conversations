@@ -11,43 +11,51 @@ interface RichTextEditorProps {
   onEditor?: (editor: Editor | null) => void;
   placeholder?: string;
   disabled?: boolean;
-  onKeyDown?: (event: KeyboardEvent) => void;
+  onKeyDown?: () => void;
 }
 
 export function RichTextEditor({
   value,
   onChange,
   onEditor,
-  placeholder,
+  placeholder = "Speak naturally and let ULOCAT translate it for you ...",
   disabled,
   onKeyDown,
 }: RichTextEditorProps) {
   const editor = useEditor({
     extensions: [StarterKit],
     content: value,
+    editable: !disabled,
     editorProps: {
       attributes: {
         class: 'prose prose-sm max-w-none focus:outline-none px-3 py-3 min-h-[48px]'
       }
     },
     onCreate: ({ editor }) => {
-      editor.view.dom.setAttribute('data-placeholder', 'Speak naturally and let ULOCAT translate it for you ...');
+      onEditor?.(editor);
+      if (placeholder) {
+        editor.view.dom.setAttribute('data-placeholder', placeholder);
+      }
+    },
+    onDestroy: () => {
+      onEditor?.(null);
     },
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
-    onKeyDown: (event) => {
+    onKeyDown: ({ event }) => {
       if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
-        onKeyDown?.(event);
+        onKeyDown?.();
       }
     },
-  }, []);
+  });
 
   useEffect(() => {
-    onEditor?.(editor);
-    return () => onEditor?.(null);
-  });
+    if (editor && editor.isEditable !== !disabled) {
+      editor.setEditable(!disabled);
+    }
+  }, [editor, disabled]);
 
   if (!editor) {
     return null;
@@ -55,8 +63,7 @@ export function RichTextEditor({
 
   return (
     <EditorContent 
-      editor={editor} 
-      disabled={disabled}
+      editor={editor}
       className="min-h-[48px] max-h-[200px] overflow-y-auto"
     />
   );
