@@ -20,12 +20,12 @@ import {
 import { Editor } from '@tiptap/core';
 
 const headingOptions = [
-  { level: 1, icon: Heading1, label: 'Heading 1' },
-  { level: 2, icon: Heading2, label: 'Heading 2' },
-  { level: 3, icon: Heading3, label: 'Heading 3' },
-  { level: 4, icon: Heading4, label: 'Heading 4' },
-  { level: 5, icon: Heading5, label: 'Heading 5' },
-  { level: 6, icon: Heading6, label: 'Heading 6' },
+  { level: 1 as const, icon: Heading1, label: 'Heading 1' },
+  { level: 2 as const, icon: Heading2, label: 'Heading 2' },
+  { level: 3 as const, icon: Heading3, label: 'Heading 3' },
+  { level: 4 as const, icon: Heading4, label: 'Heading 4' },
+  { level: 5 as const, icon: Heading5, label: 'Heading 5' },
+  { level: 6 as const, icon: Heading6, label: 'Heading 6' },
 ];
 
 interface HeadingDropdownProps {
@@ -33,13 +33,15 @@ interface HeadingDropdownProps {
   disabled?: boolean;
 }
 
+type Level = 1 | 2 | 3 | 4 | 5 | 6;
+
 export function HeadingDropdown({ editor, disabled }: HeadingDropdownProps) {
-  const setHeading = (level: number) => {
+  const setHeading = (level: Level) => {
     if (!editor) return;
     editor.chain().focus().toggleHeading({ level }).run();
   };
 
-  const isActive = (level: number) => {
+  const isActive = (level: Level) => {
     if (!editor) return false;
     return editor.isActive('heading', { level });
   };
@@ -63,7 +65,7 @@ export function HeadingDropdown({ editor, disabled }: HeadingDropdownProps) {
       </KeyboardShortcutTooltip>
       <DropdownMenuContent align="start" className="w-32">
         {headingOptions.map(({ level, icon: Icon, label }) => (
-          <DropdownMenuItem
+          <DropdownMenuItem 
             key={level}
             onClick={() => setHeading(level)}
             className={cn(
