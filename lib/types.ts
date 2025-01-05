@@ -8,6 +8,8 @@ export interface Message {
   timestamp: number;
 }
 
+export type EditorMode = 'rich-text' | 'html';
+
 export interface MessageBubbleProps {
   text: string;
   translation: string;
@@ -36,12 +38,14 @@ export interface TranslationControlsProps {
   fromLang: string;
   toLang: string;
   inputText: string;
+  editorMode: EditorMode;
   isLoading: boolean;
   isRecording: boolean;
   isSwapping: boolean;
   isSwapActive: boolean;
   isSwapActiveFirst: boolean;
   swapMessage: string;
+  onEditorModeChange: (mode: EditorMode) => void;
   onFromLangChange: (value: string) => void;
   onToLangChange: (value: string) => void;
   onInputChange: (value: string) => void;
