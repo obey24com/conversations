@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Script from "next/script";
 import { CookieBanner } from "@/components/cookie-banner";
 import Header from "@/components/header";
+import { MobileNotice } from "@/components/mobile-notice";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -93,6 +94,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <CookieBanner />
+        <MobileNotice />
         <TooltipProvider>
         <div className="fixed inset-x-0 top-0 z-50 bg-zinc-50">
           <Header />
