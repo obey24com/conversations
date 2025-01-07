@@ -30,8 +30,11 @@ export function RichTextEditor({
       attributes: {
         class: 'prose prose-sm max-w-none focus:outline-none px-3 py-3 min-h-[48px]',
       },
-      handleKeyDown: (view, event) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
+      handleKeyDown: ({ view, event }) => {
+        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+        const modKey = isMac ? event.metaKey : event.ctrlKey;
+        
+        if (event.key === 'Enter' && modKey) {
           event.preventDefault();
           onKeyDown?.();
           return true;
