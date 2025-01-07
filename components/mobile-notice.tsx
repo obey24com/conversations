@@ -21,7 +21,7 @@ export function MobileNotice() {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-[425px] border-0">
+      <DialogContent className="sm:max-w-[425px]">
         <div className="grid gap-6 py-4">
           <div className="flex flex-col items-center gap-4 text-center">
             <h2 className="text-lg font-semibold">Desktop Version</h2>
