@@ -24,7 +24,10 @@ export function HTMLCodeEditor({
       placeholder={placeholder}
       disabled={disabled}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
+        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+        const modKey = isMac ? e.metaKey : e.ctrlKey;
+        
+        if (e.key === 'Enter' && modKey) {
           e.preventDefault();
           onKeyDown?.();
         }
