@@ -4,22 +4,14 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Menu, Instagram, X } from "lucide-react";
 import Image from "next/image";
-import Script from "next/script"; 
+import Script from "next/script";
 import Link from "next/link";
-//import { AppDownloadMenu } from "./app-download-menu";//
-import { useEffect, useState } from "react";
+/*import { AppDownloadMenu } from "./app-download-menu";*/
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isAppleDevice, setIsAppleDevice] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  useEffect(() => {
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    const isIOS = /iphone|ipad|ipod/.test(userAgent);
-    setIsAppleDevice(isIOS);
-  }, []);
 
   const handleClickOutside = useCallback(
     (event: MouseEvent) => {
@@ -96,7 +88,7 @@ export default function Header() {
 
           {/* Menu buttons */}
           <div className="flex items-center gap-2">
-            {!isAppleDevice && <AppDownloadMenu />}
+            <AppDownloadMenu />
             <Button
               variant="ghost"
               size="icon"
