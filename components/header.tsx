@@ -87,7 +87,6 @@ export default function Header() {
 
           {/* Menu buttons */}
           <div className="flex items-center gap-2">
-            <AppDownloadMenu />
             <Button
               variant="ghost"
               size="icon"
