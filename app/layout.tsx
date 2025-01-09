@@ -90,7 +90,6 @@ export default function RootLayout({
         <link rel="canonical" href="https://ulocat.com" />
       </head>
       <body className={inter.className}>
-        <CookieBanner />
         <div className="fixed inset-x-0 top-0 z-50 bg-zinc-50">
           <Header />
         </div>
