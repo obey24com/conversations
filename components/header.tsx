@@ -6,7 +6,6 @@ import { Menu, Instagram, X } from "lucide-react";
 import Image from "next/image";
 import Script from "next/script";
 import Link from "next/link";
-/*import { AppDownloadMenu } from "./app-download-menu";*/
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
