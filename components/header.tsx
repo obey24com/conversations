@@ -6,7 +6,6 @@ import { Menu, Instagram, X } from "lucide-react";
 import Image from "next/image";
 import Script from "next/script";
 import Link from "next/link";
-import { AppDownloadMenu } from "./app-download-menu";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -88,7 +87,6 @@ export default function Header() {
 
           {/* Menu buttons */}
           <div className="flex items-center gap-2">
-            <AppDownloadMenu />
             <Button
               variant="ghost"
               size="icon"
@@ -201,13 +199,14 @@ export default function Header() {
                 >
                   Terms of Use
                 </a>
-                <Link
-                  href="/privacy-policy"
+                <a
+                  href="https://obey24.com/datenschutz/"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-[11px] text-gray-500 hover:text-gray-700"
-                  onClick={() => setMenuOpen(false)}
                 >
                   Privacy Policy
-                </Link>
+                </a>
                 <a
                   href="https://obey24.com/impressum/"
                   target="_blank"
