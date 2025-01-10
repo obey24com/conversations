@@ -192,7 +192,7 @@ export default function Header() {
               </a>
               <div className="flex justify-center gap-4 pt-4">
                 <a
-                  href="https://obey24.com/agbs/"
+                  href="/terms"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[11px] text-gray-500 hover:text-gray-700"
@@ -200,15 +200,13 @@ export default function Header() {
                   Terms of Use
                 </a>
                 <a
-                  href="https://obey24.com/datenschutz/"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="/privacy"
                   className="text-[11px] text-gray-500 hover:text-gray-700"
                 >
                   Privacy Policy
                 </a>
                 <a
-                  href="https://obey24.com/impressum/"
+                  href="/imprint"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[11px] text-gray-500 hover:text-gray-700"
