@@ -100,18 +100,18 @@
   justify-content: center;
   width: 80px;
   height: 80px;
-  z-index: 100;
+  z-index: 9999;
 }
 
 .translation-loader .icon-outer {
   position: absolute;
   animation: spin 3s linear infinite;
-  z-index: 101;
+  z-index: 10000;
 }
 
 .translation-loader .icon-inner {
   animation: scale 2s ease-in-out infinite;
-  z-index: 102;
+  z-index: 10001;
 }
 
 @keyframes wave {
