@@ -385,7 +385,7 @@ export function TranslationInterface() {
     <div className="flex grow flex-col">
       <div className="relative flex-1 overflow-hidden bg-transparent backdrop-blur-[10px]">
         {isLoading && (
-          <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[9998] bg-background/80 backdrop-blur-sm">
             <div className="translation-loader">
               <div className="icon-outer">
                 <Languages className="h-16 w-16 text-primary/20" />
