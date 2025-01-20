@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server'
+/* 
+import { NextResponse } from 'next/server' 
 import type { NextRequest } from 'next/server'
-
 const DESKTOP_DOMAIN = 'https://desktop.ulocat.com'
 
 function isMobileDevice(userAgent: string): boolean {
