@@ -384,19 +384,6 @@ export function TranslationInterface() {
   return (
     <div className="flex grow flex-col">
       <div className="relative flex-1 overflow-hidden bg-transparent backdrop-blur-[10px]">
-        {isLoading && (
-          <div className="fixed inset-0 z-[9998] bg-background/80 backdrop-blur-sm">
-            <div className="translation-loader">
-              <div className="icon-outer">
-                <Languages className="h-16 w-16 text-primary/20" />
-              </div>
-              <div className="icon-inner">
-                <Languages className="h-8 w-8 text-primary" />
-              </div>
-            </div>
-          </div>
-        )}
-
         <div className="mx-auto mb-4 flex h-full w-full max-w-5xl flex-col-reverse space-y-4 overflow-y-auto px-4">
           <div ref={messagesEndRef} />
           {[...messages].reverse().map((message, index) => (
@@ -505,6 +492,19 @@ export function TranslationInterface() {
       </div>
 
       <audio ref={audioRef} className="hidden" />
+      
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <div className="relative flex h-20 w-20 items-center justify-center">
+            <div className="absolute">
+              <Languages className="h-16 w-16 animate-spin text-primary/20" />
+            </div>
+            <div className="relative">
+              <Languages className="h-8 w-8 animate-pulse text-primary" />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
