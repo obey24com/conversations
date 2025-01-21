@@ -3,7 +3,7 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Copy, Check, Facebook, Twitter, Linkedin, Send, MessageCircle, Instagram } from "lucide-react";
+import { Copy, Check, Facebook, Twitter, Linkedin, Send, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -23,45 +23,39 @@ interface ShareButton {
 const shareButtons: ShareButton[] = [
   {
     name: "WhatsApp",
-    icon: <Send className="h-4 w-4 rotate-[-45deg]" />,
+    icon: <Send className="h-4 w-4" />,
     color: "bg-[#25D366] hover:bg-[#128C7E]",
-    getShareUrl: (url) => `https://wa.me/?text=${encodeURIComponent(url)}`,
+    getShareUrl: (url) => `whatsapp://send?text=${encodeURIComponent(url)}`,
   },
   {
     name: "Telegram",
     icon: <Send className="h-4 w-4" />,
     color: "bg-[#0088cc] hover:bg-[#0077b3]",
-    getShareUrl: (url) => `https://t.me/share/url?url=${encodeURIComponent(url)}`,
+    getShareUrl: (url) => `tg://msg?text=${encodeURIComponent(url)}`,
   },
   {
     name: "LINE",
     icon: <MessageCircle className="h-4 w-4" />,
     color: "bg-[#00B900] hover:bg-[#009900]",
-    getShareUrl: (url) => `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}`,
-  },
-  {
-    name: "Instagram",
-    icon: <Instagram className="h-4 w-4" />,
-    color: "bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737] hover:opacity-90",
-    getShareUrl: (url) => `instagram://share?text=${encodeURIComponent(url)}`,
+    getShareUrl: (url) => `line://msg/text/?${encodeURIComponent(url)}`,
   },
   {
     name: "X (Twitter)",
     icon: <Twitter className="h-4 w-4" />,
     color: "bg-black hover:bg-gray-900",
-    getShareUrl: (url) => `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`,
+    getShareUrl: (url) => `twitter://post?message=${encodeURIComponent(url)}`,
   },
   {
     name: "Facebook",
     icon: <Facebook className="h-4 w-4" />,
     color: "bg-[#1877F2] hover:bg-[#166FE5]",
-    getShareUrl: (url) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    getShareUrl: (url) => `fb://share?link=${encodeURIComponent(url)}`,
   },
   {
     name: "LinkedIn",
     icon: <Linkedin className="h-4 w-4" />,
     color: "bg-[#0A66C2] hover:bg-[#004182]",
-    getShareUrl: (url) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+    getShareUrl: (url) => `linkedin://shareArticle?mini=true&url=${encodeURIComponent(url)}`,
   },
 ];
 
@@ -79,12 +73,29 @@ export function ShareDialog({ isOpen, onOpenChange, shareUrl }: ShareDialogProps
   };
 
   const handleShare = (shareButton: ShareButton) => {
-    const shareWindowUrl = shareButton.getShareUrl(shareUrl);
-    window.open(
-      shareWindowUrl,
-      `Share on ${shareButton.name}`,
-      'width=600,height=400,location=0,menubar=0'
-    );
+    try {
+      // Try app URL scheme first
+      window.location.href = shareButton.getShareUrl(shareUrl);
+    } catch (error) {
+      console.error('Failed to open app:', error);
+      // Fallback to web URLs if app scheme fails
+      const webUrls = {
+        'WhatsApp': `https://wa.me/?text=${encodeURIComponent(shareUrl)}`,
+        'Telegram': `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}`,
+        'LINE': `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}`,
+        'X (Twitter)': `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}`,
+        'Facebook': `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
+        'LinkedIn': `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
+      };
+      
+      if (webUrls[shareButton.name]) {
+        window.open(
+          webUrls[shareButton.name],
+          `Share on ${shareButton.name}`,
+          'width=600,height=400,location=0,menubar=0'
+        );
+      }
+    }
   };
 
   return (
@@ -120,24 +131,19 @@ export function ShareDialog({ isOpen, onOpenChange, shareUrl }: ShareDialogProps
 
           <div className="mt-6">
             <h3 className="text-sm font-medium mb-3">Share on social media</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div className="flex flex-wrap gap-2 justify-center">
               {shareButtons.map((button) => (
                 <Button
                   key={button.name}
                   onClick={() => handleShare(button)}
                   className={cn(
-                    "w-full text-white transition-all duration-200 gap-2",
+                    "h-10 w-10 p-0 text-white transition-all duration-200",
                     button.color
                   )}
                 >
                   {button.icon}
-                  <span className="text-sm">{button.name}</span>
                 </Button>
               ))}
-            </div>
-            <div className="mt-4 text-xs text-muted-foreground text-center">
-              <p>Note: Instagram and WeChat sharing may not work on all devices due to platform restrictions.</p>
-              <p>For these platforms, you can copy the link and share it manually.</p>
             </div>
           </div>
         </div>
