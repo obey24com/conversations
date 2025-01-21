@@ -7,6 +7,8 @@ import { Copy, Check, Facebook, Twitter, Linkedin, Send, MessageCircle } from "l
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
+type ShareButtonName = 'WhatsApp' | 'Telegram' | 'LINE' | 'X (Twitter)' | 'Facebook' | 'LinkedIn';
+
 interface ShareDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -14,11 +16,20 @@ interface ShareDialogProps {
 }
 
 interface ShareButton {
-  name: string;
+  name: ShareButtonName;
   icon: React.ReactNode;
   color: string;
   getShareUrl: (url: string) => string;
 }
+
+const WEB_URLS: Record<ShareButtonName, string> = {
+  'WhatsApp': 'https://wa.me/?text=',
+  'Telegram': 'https://t.me/share/url?url=',
+  'LINE': 'https://social-plugins.line.me/lineit/share?url=',
+  'X (Twitter)': 'https://twitter.com/intent/tweet?url=',
+  'Facebook': 'https://www.facebook.com/sharer/sharer.php?u=',
+  'LinkedIn': 'https://www.linkedin.com/sharing/share-offsite/?url='
+};
 
 const shareButtons: ShareButton[] = [
   {
@@ -76,25 +87,17 @@ export function ShareDialog({ isOpen, onOpenChange, shareUrl }: ShareDialogProps
     try {
       // Try app URL scheme first
       window.location.href = shareButton.getShareUrl(shareUrl);
+      
+      // Set a small timeout to allow the app to open before falling back
+      setTimeout(() => {
+        const webUrl = WEB_URLS[shareButton.name] + encodeURIComponent(shareUrl);
+        window.open(webUrl, `Share on ${shareButton.name}`, 'width=600,height=400,location=0,menubar=0');
+      }, 100);
     } catch (error) {
       console.error('Failed to open app:', error);
-      // Fallback to web URLs if app scheme fails
-      const webUrls = {
-        'WhatsApp': `https://wa.me/?text=${encodeURIComponent(shareUrl)}`,
-        'Telegram': `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}`,
-        'LINE': `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}`,
-        'X (Twitter)': `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}`,
-        'Facebook': `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
-        'LinkedIn': `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
-      };
-      
-      if (webUrls[shareButton.name]) {
-        window.open(
-          webUrls[shareButton.name],
-          `Share on ${shareButton.name}`,
-          'width=600,height=400,location=0,menubar=0'
-        );
-      }
+      // Immediate fallback if app URL fails
+      const webUrl = WEB_URLS[shareButton.name] + encodeURIComponent(shareUrl);
+      window.open(webUrl, `Share on ${shareButton.name}`, 'width=600,height=400,location=0,menubar=0');
     }
   };
 
