@@ -49,18 +49,8 @@ export function ShareDialog({ isOpen, onOpenChange, shareUrl }: ShareDialogProps
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md" aria-describedby="share-dialog-description">
-        <DialogTitle className="flex items-center justify-between">
+        <DialogTitle>
           Share Translation
-          {canShare && (
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handleNativeShare}
-              className="ml-auto"
-            >
-              <Share2 className="h-4 w-4" />
-            </Button>
-          )}
         </DialogTitle>
         <div className="space-y-4 pt-2">
           <div className="flex items-center space-x-2">
@@ -85,6 +75,16 @@ export function ShareDialog({ isOpen, onOpenChange, shareUrl }: ShareDialogProps
               )}
             </Button>
           </div>
+          {canShare && (
+            <Button
+              variant="outline"
+              onClick={handleNativeShare}
+              className="w-full gap-2"
+            >
+              <Share2 className="h-4 w-4" />
+              Share via...
+            </Button>
+          )}
           <p id="share-dialog-description" className="text-sm text-muted-foreground">
             Share this link with others to show them your translation
           </p>
