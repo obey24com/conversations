@@ -59,6 +59,27 @@
   }
 }
 
+@keyframes slideOutUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: var(--message-height);
+    margin-bottom: 1rem;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+    max-height: 0;
+    margin-bottom: 0;
+  }
+}
+
+.message-delete {
+  animation: slideOutUp 0.5s ease-out forwards;
+  overflow: hidden;
+  will-change: transform, opacity, max-height, margin;
+}
+
 @keyframes wave {
   0%, 100% {
     transform: scale(1);
