@@ -3,11 +3,9 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Copy, Check, Facebook, Twitter, Linkedin, Send, MessageCircle } from "lucide-react";
-import { useState } from "react";
+import { Copy, Check, Share2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-
-type ShareButtonName = 'WhatsApp' | 'Telegram' | 'LINE' | 'X (Twitter)' | 'Facebook' | 'LinkedIn';
 
 interface ShareDialogProps {
   isOpen: boolean;
@@ -15,63 +13,13 @@ interface ShareDialogProps {
   shareUrl: string;
 }
 
-interface ShareButton {
-  name: ShareButtonName;
-  icon: React.ReactNode;
-  color: string;
-  getShareUrl: (url: string) => string;
-}
-
-const WEB_URLS: Record<ShareButtonName, string> = {
-  'WhatsApp': 'https://wa.me/?text=',
-  'Telegram': 'https://t.me/share/url?url=',
-  'LINE': 'https://social-plugins.line.me/lineit/share?url=',
-  'X (Twitter)': 'https://twitter.com/intent/tweet?url=',
-  'Facebook': 'https://www.facebook.com/sharer/sharer.php?u=',
-  'LinkedIn': 'https://www.linkedin.com/sharing/share-offsite/?url='
-};
-
-const shareButtons: ShareButton[] = [
-  {
-    name: "WhatsApp",
-    icon: <Send className="h-4 w-4" />,
-    color: "bg-[#25D366] hover:bg-[#128C7E]",
-    getShareUrl: (url) => `whatsapp://send?text=${encodeURIComponent(url)}`,
-  },
-  {
-    name: "Telegram",
-    icon: <Send className="h-4 w-4" />,
-    color: "bg-[#0088cc] hover:bg-[#0077b3]",
-    getShareUrl: (url) => `tg://msg?text=${encodeURIComponent(url)}`,
-  },
-  {
-    name: "LINE",
-    icon: <MessageCircle className="h-4 w-4" />,
-    color: "bg-[#00B900] hover:bg-[#009900]",
-    getShareUrl: (url) => `line://msg/text/?${encodeURIComponent(url)}`,
-  },
-  {
-    name: "X (Twitter)",
-    icon: <Twitter className="h-4 w-4" />,
-    color: "bg-black hover:bg-gray-900",
-    getShareUrl: (url) => `twitter://post?message=${encodeURIComponent(url)}`,
-  },
-  {
-    name: "Facebook",
-    icon: <Facebook className="h-4 w-4" />,
-    color: "bg-[#1877F2] hover:bg-[#166FE5]",
-    getShareUrl: (url) => `fb://share?link=${encodeURIComponent(url)}`,
-  },
-  {
-    name: "LinkedIn",
-    icon: <Linkedin className="h-4 w-4" />,
-    color: "bg-[#0A66C2] hover:bg-[#004182]",
-    getShareUrl: (url) => `linkedin://shareArticle?mini=true&url=${encodeURIComponent(url)}`,
-  },
-];
-
 export function ShareDialog({ isOpen, onOpenChange, shareUrl }: ShareDialogProps) {
   const [copied, setCopied] = useState(false);
+  const [canShare, setCanShare] = useState(false);
+
+  useEffect(() => {
+    setCanShare(!!navigator.share);
+  }, []);
 
   const handleCopy = async () => {
     try {
@@ -83,28 +31,37 @@ export function ShareDialog({ isOpen, onOpenChange, shareUrl }: ShareDialogProps
     }
   };
 
-  const handleShare = (shareButton: ShareButton) => {
+  const handleNativeShare = async () => {
     try {
-      // Try app URL scheme first
-      window.location.href = shareButton.getShareUrl(shareUrl);
-      
-      // Set a small timeout to allow the app to open before falling back
-      setTimeout(() => {
-        const webUrl = WEB_URLS[shareButton.name] + encodeURIComponent(shareUrl);
-        window.open(webUrl, `Share on ${shareButton.name}`, 'width=600,height=400,location=0,menubar=0');
-      }, 100);
+      await navigator.share({
+        title: 'ULOCAT Translation',
+        text: 'Check out this translation from ULOCAT',
+        url: shareUrl
+      });
+      onOpenChange(false); // Close dialog after successful share
     } catch (error) {
-      console.error('Failed to open app:', error);
-      // Immediate fallback if app URL fails
-      const webUrl = WEB_URLS[shareButton.name] + encodeURIComponent(shareUrl);
-      window.open(webUrl, `Share on ${shareButton.name}`, 'width=600,height=400,location=0,menubar=0');
+      if (error instanceof Error && error.name !== 'AbortError') {
+        console.error('Error sharing:', error);
+      }
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md" aria-describedby="share-dialog-description">
-        <DialogTitle>Share Translation</DialogTitle>
+        <DialogTitle className="flex items-center justify-between">
+          Share Translation
+          {canShare && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleNativeShare}
+              className="ml-auto"
+            >
+              <Share2 className="h-4 w-4" />
+            </Button>
+          )}
+        </DialogTitle>
         <div className="space-y-4 pt-2">
           <div className="flex items-center space-x-2">
             <Input
@@ -131,24 +88,6 @@ export function ShareDialog({ isOpen, onOpenChange, shareUrl }: ShareDialogProps
           <p id="share-dialog-description" className="text-sm text-muted-foreground">
             Share this link with others to show them your translation
           </p>
-
-          <div className="mt-6">
-            <h3 className="text-sm font-medium mb-3">Share on social media</h3>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {shareButtons.map((button) => (
-                <Button
-                  key={button.name}
-                  onClick={() => handleShare(button)}
-                  className={cn(
-                    "h-10 w-10 p-0 text-white transition-all duration-200",
-                    button.color
-                  )}
-                >
-                  {button.icon}
-                </Button>
-              ))}
-            </div>
-          </div>
         </div>
       </DialogContent>
     </Dialog>
