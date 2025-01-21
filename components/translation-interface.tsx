@@ -11,6 +11,7 @@ import { useZoomControl } from "@/hooks/use-zoom-control";
 import { LanguageSelect } from "./language-select";
 import { MessageBubble } from "./message-bubble";
 import { STORAGE_KEYS } from "@/lib/constants";
+import { useMicrophonePermission } from "@/hooks/use-microphone-permission";
 
 import { Languages } from "lucide-react";
 
@@ -76,6 +77,7 @@ export function TranslationInterface() {
   const [swapMessage, setSwapMessage] = useState("");
   const [isSwapping, setIsSwapping] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const { permissionState, requestPermission } = useMicrophonePermission();
   const [micSettings, setMicSettings] = useState(() => {
     if (typeof window === 'undefined') return null;
     const stored = localStorage.getItem(STORAGE_KEYS.MIC_SETTINGS);
@@ -302,21 +304,33 @@ export function TranslationInterface() {
 
   const startRecording = async () => {
     try {
+      // First ensure we have permission
+      if (permissionState.status === 'denied') {
+        toast({
+          title: "Microphone Access Denied",
+          description: "Please enable microphone access in your browser settings to use voice input.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (permissionState.status === 'prompt') {
+        const granted = await requestPermission();
+        if (!granted) return;
+      }
+
       // Use stored settings if available
-      const constraints = micSettings || {
-        audio: {
+      const constraints = {
+        audio: micSettings || {
           sampleRate: 44100,
           sampleSize: 16,
-          noiseSuppression: true,
+          channelCount: 1,
           echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
         }
       };
 
-      // If no stored settings, save the default ones
-      if (!micSettings) {
-        localStorage.setItem(STORAGE_KEYS.MIC_SETTINGS, JSON.stringify(constraints));
-        setMicSettings(constraints);
-      }
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       streamRef.current = stream;
       const mediaRecorder = new MediaRecorder(stream);
