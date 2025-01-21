@@ -1,4 +1,3 @@
-/* 
 import { NextResponse } from 'next/server' 
 import type { NextRequest } from 'next/server'
 const DESKTOP_DOMAIN = 'https://desktop.ulocat.com'
