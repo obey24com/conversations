@@ -5,6 +5,7 @@ export const STORAGE_KEYS = {
   MESSAGES: 'ulocat-messages',
   APP_POPUP_SEEN: 'ulocat-app-popup-seen',
   MIC_SETTINGS: 'ulocat-mic-settings',
+  MIC_PERMISSION: 'ulocat-mic-permission',
 } as const;
 
 export const STORE_URLS = {
