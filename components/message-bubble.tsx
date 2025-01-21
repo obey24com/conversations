@@ -42,10 +42,14 @@ export function MessageBubble({
   const [shareLoading, setShareLoading] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const heightRef = useRef<number>(0);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(true);
+      if (bubbleRef.current) {
+        heightRef.current = bubbleRef.current.offsetHeight;
+      }
     }, 50);
     return () => clearTimeout(timer);
   }, []);
@@ -125,37 +129,26 @@ export function MessageBubble({
   const handleDelete = () => {
     setIsDeleting(true);
     
-    if (bubbleRef.current) {
-      const height = bubbleRef.current.offsetHeight;
-      bubbleRef.current.style.setProperty('--message-height', `${height}px`);
-      
-      requestAnimationFrame(() => {
-        if (bubbleRef.current) {
-          bubbleRef.current.style.height = '0px';
-          bubbleRef.current.style.marginBottom = '0px';
-          bubbleRef.current.style.opacity = '0';
-          bubbleRef.current.style.transform = 'translateY(-20px)';
-        }
-      });
+    // Set the height CSS variable for the animation
+    if (bubbleRef.current && heightRef.current) {
+      bubbleRef.current.style.setProperty('--message-height', `${heightRef.current}px`);
     }
 
+    // Wait for animation to complete before removing
     setTimeout(() => {
       onDelete();
-    }, 300);
+    }, 500);
   };
 
   return (
     <div 
       ref={bubbleRef}
       className={cn(
-        "transition-all duration-300 ease-out mb-4",
+        "mb-4",
         "opacity-0 translate-y-4",
         isVisible && "opacity-100 translate-y-0",
-        isDeleting && "pointer-events-none"
+        isDeleting && "message-delete pointer-events-none"
       )}
-      style={{
-        willChange: 'transform, opacity, height, margin',
-      }}
     >
       <div 
         className={cn(
