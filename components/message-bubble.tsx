@@ -43,6 +43,7 @@ export function MessageBubble({
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const messageContentRef = useRef<HTMLDivElement>(null);
+  const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
   const heightRef = useRef<number>(0);
 
   useEffect(() => {
@@ -75,6 +76,9 @@ export function MessageBubble({
     try {
       setShareLoading(true);
       let success = false;
+      
+      // Get the HTML content of the message
+      const messageHtml = messageContentRef.current?.outerHTML;
 
       const message: TranslationMessage = {
         id: Math.random().toString(36).substr(2, 9),
@@ -86,7 +90,8 @@ export function MessageBubble({
         timestamp: Date.now(),
       };
 
-      const shareId = await createSharedMessage(message, messageContentRef.current);
+      const shareId = await createSharedMessage(message, messageHtml);
+      setIsGeneratingPreview(false);
 
       if (shareId) {
         const shareUrl = `${window.location.origin}/share/${shareId}`;
@@ -124,6 +129,7 @@ export function MessageBubble({
       }
     } finally {
       setShareLoading(false);
+      setIsGeneratingPreview(false);
     }
   };
 
