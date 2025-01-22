@@ -18,6 +18,27 @@ export async function createSharedMessage(message: TranslationMessage): Promise<
       shareId,
     };
 
+    // Generate preview image
+    try {
+      const previewResponse = await fetch('/api/generate-preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: message.text,
+          translation: message.translation,
+          shareId
+        })
+      });
+
+      if (previewResponse.ok) {
+        const { imageUrl } = await previewResponse.json();
+        sharedMessage.previewImage = `${window.location.origin}${imageUrl}`;
+      }
+    } catch (error) {
+      console.error('Failed to generate preview:', error);
+      // Continue without preview image
+    }
+
     // Create the document with the generated ID
     await setDoc(doc(db, MESSAGES_COLLECTION, shareId), sharedMessage);
     
