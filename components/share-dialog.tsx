@@ -16,6 +16,7 @@ interface ShareDialogProps {
 export function ShareDialog({ isOpen, onOpenChange, shareUrl }: ShareDialogProps) {
   const [copied, setCopied] = useState(false);
   const [canShare, setCanShare] = useState(false);
+  const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
 
   useEffect(() => {
     setCanShare(!!navigator.share);
@@ -33,16 +34,28 @@ export function ShareDialog({ isOpen, onOpenChange, shareUrl }: ShareDialogProps
 
   const handleNativeShare = async () => {
     try {
+      setIsGeneratingPreview(true);
+      
+      // Get the preview image URL from the share URL
+      const response = await fetch(shareUrl);
+      const data = await response.json();
+      
       await navigator.share({
         title: 'ULOCAT Translation',
         text: 'Check out this translation from ULOCAT',
-        url: shareUrl
+        url: shareUrl,
+        files: data.previewImage ? [
+          await fetch(data.previewImage).then(res => res.blob())
+        ] : undefined
       });
+      
       onOpenChange(false); // Close dialog after successful share
     } catch (error) {
       if (error instanceof Error && error.name !== 'AbortError') {
         console.error('Error sharing:', error);
       }
+    } finally {
+      setIsGeneratingPreview(false);
     }
   };
 
