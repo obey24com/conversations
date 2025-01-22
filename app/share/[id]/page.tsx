@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { SharedMessageContent } from "./shared-message-content";
 import { getSharedMessage } from "@/lib/firebase/messages";
-import type { Metadata } from "next";
 
 interface SharedMessagePageProps {
   params: {
