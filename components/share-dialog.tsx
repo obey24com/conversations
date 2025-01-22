@@ -35,8 +35,11 @@ export function ShareDialog({ isOpen, onOpenChange, shareUrl }: ShareDialogProps
   const handleNativeShare = async () => {
     try {
       setIsGeneratingPreview(true);
-
-      let files: File[] | undefined;
+      let shareData: ShareData = {
+        title: 'ULOCAT Translation',
+        text: 'Check out this translation from ULOCAT',
+        url: shareUrl
+      };
 
       try {
         // Get the preview image URL from the share URL
@@ -44,31 +47,39 @@ export function ShareDialog({ isOpen, onOpenChange, shareUrl }: ShareDialogProps
         const data = await response.json();
 
         if (data.previewImage) {
-          const imageBlob = await fetch(data.previewImage).then(res => res.blob());
-          // Convert Blob to File
-          files = [
-            new File([imageBlob], 'translation-preview.png', { 
-              type: 'image/png',
-              lastModified: Date.now()
-            })
-          ];
+          const imageResponse = await fetch(data.previewImage);
+          const imageBlob = await imageResponse.blob();
+          
+          if (navigator.canShare && navigator.canShare({ files: [new File([imageBlob], 'translation.png', { type: 'image/png' })] })) {
+            shareData.files = [
+              new File([imageBlob], 'translation.png', { 
+                type: 'image/png',
+                lastModified: Date.now()
+              })
+            ];
+          }
         }
+        
+        await navigator.share(shareData);
+        onOpenChange(false);
       } catch (error) {
-        console.error('Error preparing preview:', error);
-        // Continue without preview if there's an error
+        if (error instanceof Error && error.name !== 'AbortError') {
+          console.error('Share error:', error);
+          toast({
+            title: "Error",
+            description: "Failed to share translation",
+            variant: "destructive",
+          });
+        }
       }
-
-      await navigator.share({
-        title: 'ULOCAT Translation',
-        text: 'Check out this translation from ULOCAT',
-        url: shareUrl,
-        files
-      });
-      
-      onOpenChange(false); // Close dialog after successful share
     } catch (error) {
       if (error instanceof Error && error.name !== 'AbortError') {
         console.error('Error sharing:', error);
+        toast({
+          title: "Error",
+          description: "Failed to share translation",
+          variant: "destructive",
+        });
       }
     } finally {
       setIsGeneratingPreview(false);
