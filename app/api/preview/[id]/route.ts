@@ -9,20 +9,18 @@ export async function GET(
 ) {
   try {
     const key = `preview:${params.id}`;
-    const imageData = await kv.get<string>(key);
+    const svg = await kv.get<string>(key);
 
-    if (!imageData) {
+    if (!svg) {
       return NextResponse.json(
         { error: "Preview not found" },
         { status: 404 }
       );
     }
-
-    const buffer = Buffer.from(imageData, 'base64');
     
-    return new Response(buffer, {
+    return new Response(svg, {
       headers: {
-        'Content-Type': 'image/png',
+        'Content-Type': 'image/svg+xml',
         'Cache-Control': 'public, max-age=31536000, immutable',
       },
     });
