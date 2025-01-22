@@ -22,7 +22,11 @@ export async function createSharedMessage(
         const response = await fetch('/api/generate-preview', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ html: messageHtml, shareId })
+          body: JSON.stringify({ 
+            text: message.text,
+            translation: message.translation,
+            shareId 
+          })
         });
 
         if (response.ok) {
