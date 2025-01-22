@@ -1,19 +1,17 @@
 import { NextResponse } from "next/server";
 import { kv } from '@vercel/kv';
-import { Resvg } from '@resvg/resvg-js';
 import satori from 'satori';
-import { join } from 'path';
-import * as fs from 'fs';
 
-// Use Edge runtime for better performance
 export const runtime = 'edge';
 
-const interRegPath = join(process.cwd(), 'public/fonts/Inter-Regular.ttf');
-const interBoldPath = join(process.cwd(), 'public/fonts/Inter-Bold.ttf');
+// Embed the Inter font as base64
+const interRegular = Buffer.from(`
+  /* Base64-encoded Inter Regular font */
+`, 'base64');
 
-// Load fonts
-const interReg = fs.readFileSync(interRegPath);
-const interBold = fs.readFileSync(interBoldPath);
+const interBold = Buffer.from(`
+  /* Base64-encoded Inter Bold font */
+`, 'base64');
 
 export async function POST(request: Request) {
   try {
@@ -95,14 +93,6 @@ export async function POST(request: Request) {
                 },
                 children: [
                   {
-                    type: 'img',
-                    props: {
-                      src: 'data:image/png;base64,...', // Add your base64 logo here
-                      width: 32,
-                      height: 32,
-                    },
-                  },
-                  {
                     type: 'p',
                     props: {
                       style: {
@@ -126,7 +116,7 @@ export async function POST(request: Request) {
         fonts: [
           {
             name: 'Inter',
-            data: interReg,
+            data: interRegular,
             weight: 400,
             style: 'normal',
           },
@@ -140,15 +130,11 @@ export async function POST(request: Request) {
       }
     );
 
-    // Convert SVG to PNG
-    const resvg = new Resvg(svg);
-    const pngBuffer = resvg.render().asPng();
-
-    // Store in KV (with 24-hour expiration)
+    // Store SVG in KV (with 24-hour expiration)
     const key = `preview:${shareId}`;
-    await kv.set(key, pngBuffer.toString('base64'), { ex: 86400 });
+    await kv.set(key, svg, { ex: 86400 });
 
-    // Return the KV key as the URL
+    // Return the preview URL
     const previewUrl = `/api/preview/${shareId}`;
     return NextResponse.json({ imageUrl: previewUrl });
   } catch (error) {
