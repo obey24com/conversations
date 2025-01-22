@@ -8,7 +8,7 @@ const MESSAGES_COLLECTION = 'shared_messages';
 
 export async function createSharedMessage(
   message: TranslationMessage,
-  previewElement?: HTMLElement
+  previewElement?: HTMLElement | null
 ): Promise<string> {
   try {
     if (!db) {
@@ -19,7 +19,7 @@ export async function createSharedMessage(
     let previewImage: string | undefined;
 
     // Generate preview image if element is provided
-    if (previewElement) {
+    if (previewElement instanceof HTMLElement) {
       try {
         previewImage = await toPng(previewElement, {
           quality: 0.95,
