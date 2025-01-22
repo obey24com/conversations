@@ -3,11 +3,6 @@ import { SharedMessageContent } from "./shared-message-content";
 import { getSharedMessage } from "@/lib/firebase/messages";
 import type { SharedMessage } from "@/lib/types";
 
-export const metadata: Metadata = {
-  title: "Shared Translation | ULOCAT",
-  description: "View this shared translation and start translating your own messages with ULOCAT.",
-};
-
 interface SharedMessagePageProps {
   params: {
     id: string;
@@ -17,7 +12,12 @@ interface SharedMessagePageProps {
 export async function generateMetadata({ params }: SharedMessagePageProps) {
   try {
     const message = await getSharedMessage(params.id);
-    if (!message) return {};
+    if (!message) {
+      return {
+        title: "Shared Translation | ULOCAT",
+        description: "View this shared translation and start translating your own messages with ULOCAT."
+      };
+    }
 
     return {
       title: "Shared Translation | ULOCAT",
