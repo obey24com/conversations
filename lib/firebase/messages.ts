@@ -5,60 +5,36 @@ import type { SharedMessage, TranslationMessage } from '../types';
 
 const MESSAGES_COLLECTION = 'shared_messages';
 
-export async function createSharedMessage(
-  message: TranslationMessage,
-  messageHtml?: string
-): Promise<string> {
+export async function createSharedMessage(message: TranslationMessage): Promise<string> {
   try {
     if (!db) {
-      throw new Error('Firebase not initialized');
+      throw new Error('Firebase not initialized - check your environment variables');
     }
     
     const shareId = nanoid(10); // Generate a short, unique ID
-    let previewImage: string | undefined;
-
-    if (messageHtml) {
-      try {
-        const response = await fetch('/api/generate-preview', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            text: message.text,
-            translation: message.translation,
-            shareId 
-          })
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          previewImage = data.imageUrl;
-        }
-      } catch (error) {
-        console.error('Failed to generate preview image:', error);
-      }
-    }
-
+    
     const sharedMessage: SharedMessage = {
       ...message,
       shareId,
-      previewImage
     };
+
+    // Create the document with the generated ID
     await setDoc(doc(db, MESSAGES_COLLECTION, shareId), sharedMessage);
     
+    // Track share event with your existing GA setup
     if (typeof window !== 'undefined' && (window as any).gtag) {
       (window as any).gtag('event', 'share_message', {
         message_id: message.id,
         share_id: shareId,
         from_lang: message.fromLang,
         to_lang: message.toLang,
-        has_preview: !!previewImage
       });
     }
 
     return shareId;
   } catch (error) {
     console.error('Error creating shared message:', error);
-    throw error;
+    throw new Error('Failed to create shared message');
   }
 }
 
