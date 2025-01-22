@@ -35,18 +35,34 @@ export function ShareDialog({ isOpen, onOpenChange, shareUrl }: ShareDialogProps
   const handleNativeShare = async () => {
     try {
       setIsGeneratingPreview(true);
-      
-      // Get the preview image URL from the share URL
-      const response = await fetch(shareUrl);
-      const data = await response.json();
-      
+
+      let files: File[] | undefined;
+
+      try {
+        // Get the preview image URL from the share URL
+        const response = await fetch(shareUrl);
+        const data = await response.json();
+
+        if (data.previewImage) {
+          const imageBlob = await fetch(data.previewImage).then(res => res.blob());
+          // Convert Blob to File
+          files = [
+            new File([imageBlob], 'translation-preview.png', { 
+              type: 'image/png',
+              lastModified: Date.now()
+            })
+          ];
+        }
+      } catch (error) {
+        console.error('Error preparing preview:', error);
+        // Continue without preview if there's an error
+      }
+
       await navigator.share({
         title: 'ULOCAT Translation',
         text: 'Check out this translation from ULOCAT',
         url: shareUrl,
-        files: data.previewImage ? [
-          await fetch(data.previewImage).then(res => res.blob())
-        ] : undefined
+        files
       });
       
       onOpenChange(false); // Close dialog after successful share
