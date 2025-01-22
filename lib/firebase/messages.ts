@@ -2,19 +2,42 @@ import { db } from './config';
 import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
 import { nanoid } from 'nanoid';
 import type { SharedMessage, TranslationMessage } from '../types';
+import { toPng } from 'html-to-image';
 
 const MESSAGES_COLLECTION = 'shared_messages';
 
-export async function createSharedMessage(message: TranslationMessage): Promise<string> {
+export async function createSharedMessage(
+  message: TranslationMessage,
+  previewElement?: HTMLElement
+): Promise<string> {
   try {
     if (!db) {
-      throw new Error('Firebase not initialized');
+      throw new Error('Sharing functionality is not available');
     }
     
     const shareId = nanoid(10); // Generate a short, unique ID
+    let previewImage: string | undefined;
+
+    // Generate preview image if element is provided
+    if (previewElement) {
+      try {
+        previewImage = await toPng(previewElement, {
+          quality: 0.95,
+          backgroundColor: '#ffffff',
+          style: {
+            transform: 'scale(1)',
+            transformOrigin: 'top left'
+          }
+        });
+      } catch (imageError) {
+        console.error('Failed to generate preview image:', imageError);
+      }
+    }
+
     const sharedMessage: SharedMessage = {
       ...message,
       shareId,
+      previewImage
     };
 
     await setDoc(doc(db, MESSAGES_COLLECTION, shareId), sharedMessage);
@@ -38,6 +61,11 @@ export async function createSharedMessage(message: TranslationMessage): Promise<
 
 export async function getSharedMessage(shareId: string): Promise<SharedMessage | null> {
   try {
+    if (!db) {
+      console.warn('Firebase not initialized, sharing functionality unavailable');
+      return null;
+    }
+
     const docRef = doc(db, MESSAGES_COLLECTION, shareId);
     const docSnap = await getDoc(docRef);
 
