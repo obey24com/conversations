@@ -21,4 +21,5 @@ export interface TranslationResponse {
 
 export interface SharedMessage extends TranslationMessage {
   shareId: string;
+  previewImage?: string;
 }
