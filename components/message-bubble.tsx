@@ -42,6 +42,7 @@ export function MessageBubble({
   const [shareLoading, setShareLoading] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const messageContentRef = useRef<HTMLDivElement>(null);
   const heightRef = useRef<number>(0);
 
   useEffect(() => {
@@ -85,7 +86,7 @@ export function MessageBubble({
         timestamp: Date.now(),
       };
 
-      const shareId = await createSharedMessage(message);
+      const shareId = await createSharedMessage(message, messageContentRef.current);
 
       if (shareId) {
         const shareUrl = `${window.location.origin}/share/${shareId}`;
@@ -157,6 +158,7 @@ export function MessageBubble({
           "bg-white border border-gray-100 shadow-sm",
           "hover:shadow-lg transition-shadow duration-200"
         )}
+        ref={messageContentRef}
       >
         {/* Mobile buttons - always visible at top */}
         <div className="md:hidden absolute -top-2 left-4 flex gap-1">
