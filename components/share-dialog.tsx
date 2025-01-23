@@ -3,6 +3,7 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 import { Copy, Check, Share2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,7 @@ export function ShareDialog({ isOpen, onOpenChange, shareUrl }: ShareDialogProps
   const [copied, setCopied] = useState(false);
   const [canShare, setCanShare] = useState(false);
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     setCanShare(!!navigator.share);
