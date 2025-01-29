@@ -15,7 +15,11 @@ export async function translateText(
   toLang: string
 ) {
   if (!text || !fromLang || !toLang) {
-    console.error('Missing translation parameters:', { text: !!text, fromLang, toLang });
+    console.error('Missing translation parameters:', {
+      text: !!text,
+      fromLang,
+      toLang,
+    });
     throw new Error('Missing required parameters for translation');
   }
 
@@ -26,7 +30,7 @@ export async function translateText(
 
   if (isPetFrom && !isPetTo) {
     // From Pet Language to Human Language
-    systemPrompt = `You are a translator that converts ${fromLang} animal language into ${toLang}. 
+    systemPrompt = `You are a translator that converts ${fromLang} animal language into ${toLang}.
 Follow these rules:
 1. Interpret the ${fromLang}'s sounds or body language accurately.
 2. Present the final output with:
@@ -34,7 +38,10 @@ Follow these rules:
    CONTEXT: [If there are any subtle, cultural, or humorous points that might need clarification, add them in ${toLang}. If unsure, provide a brief CONTEXT section. If truly none are needed, omit it.]
 3. Keep "TRANSLATION:" and "CONTEXT:" in English. Do not translate these headings.
 4. Only the text after these headings should be in ${toLang}.
-5. When translating between very different cultures, provide small notes or emojis (in the CONTEXT section) that help clarify sentiment or gestures.`;
+5. When translating between very different cultures, provide small notes or emojis (in the CONTEXT section) that help clarify sentiment or gestures.
+6. Always fully convert any idioms or phrases into ${toLang}, ensuring they are understandable in the ${toLang} culture. Do not leave them in ${fromLang}.
+7. Double-check that the final output truly reflects a ${toLang} audience’s perspective, not a ${fromLang} perspective.
+8. Do not invent extra details or meaning. Remain faithful to the original.`;
 
   } else if (isPetTo && !isPetFrom) {
     // From Human Language to Pet Language
@@ -46,7 +53,10 @@ Follow these rules:
    CONTEXT: [If any cultural or meaning clarifications could help, include a brief note in ${toLang}. If unsure, provide a brief CONTEXT anyway. If truly none are needed, omit it.]
 3. Do not translate "TRANSLATION:" or "CONTEXT:" headings, keep them in English.
 4. Only the text after these headings is in ${toLang}.
-5. When translating between very different cultures, provide small notes or emojis (in the CONTEXT section) that help clarify sentiment or gestures.`;
+5. When translating between very different cultures, provide small notes or emojis (in the CONTEXT section) that help clarify sentiment or gestures.
+6. Always adapt any idioms, cultural references, or phrases from ${fromLang} so they make sense in ${toLang} animal language. Do not leave them in human language.
+7. Ensure the final output is fully in ${toLang}, not partially in ${fromLang}.
+8. Do not invent extra details or meaning. Remain faithful to the original.`;
 
   } else if (isPetFrom && isPetTo) {
     // Pet to Pet Translation
@@ -58,58 +68,70 @@ Follow these rules:
    TRANSLATION: [${toLang} version]
    CONTEXT: [If there's any cultural nuance or hidden meaning that could be misunderstood, add a CONTEXT section in ${toLang}. If unsure, provide a brief CONTEXT. If truly none are needed, omit it.]
 4. Keep "TRANSLATION:" and "CONTEXT:" in English. Only the text after these headings is in ${toLang}.
-5. When translating between very different cultures, provide small notes or emojis (in the CONTEXT section) that help clarify sentiment or gestures.`;
+5. When translating between very different cultures, provide small notes or emojis (in the CONTEXT section) that help clarify sentiment or gestures.
+6. Avoid leaving original ${fromLang} content unaltered; always convert it fully into ${toLang}.
+7. If idioms or specialized expressions exist, adapt them into culturally or contextually equivalent sounds/gestures in ${toLang}.
+8. Do not invent extra details or meaning. Remain faithful to the original.`;
 
   } else {
     // Human to Human Translation with Cultural Nuance
+    //
+    // CHANGES BELOW: We added points 9-13 for tone, context usage, handling brand names,
+    // profanity, avoiding hallucinations, and preserving structure.
+    //
     systemPrompt = `You are a professional translator from ${fromLang} to ${toLang}.
-Follow these rules:
+Follow these strict rules:
 1. Translate the message naturally into ${toLang} as if originally written in ${toLang}.
 2. Format:
    TRANSLATION: [Your ${toLang} translation]
-   CONTEXT: [If cultural nuances, idioms, or subtle points might cause misunderstanding, provide a brief explanation in ${toLang}. If you're unsure whether context is needed, provide a brief CONTEXT anyway. If truly none are needed, omit it.]
+   CONTEXT: [Cultural notes and explanations in ${toLang}. If no additional context is needed, write: "No additional context."]
 3. Keep "TRANSLATION:" and "CONTEXT:" in English, do not translate these headings.
-4. Only the text after "TRANSLATION:" or "CONTEXT:" should be in ${toLang}.
-
-Example:
-If the ${fromLang} text contains an idiom, like "Il pleut des cordes" (French for "It's raining heavily"), you would do:
-TRANSLATION: [A ${toLang} equivalent meaning "It's raining heavily."]
-CONTEXT: [In ${toLang}, explain that this is a French idiom that literally means "It's raining ropes" but signifies heavy rain.]
-If the text is straightforward, like "It is raining a lot today," you may omit CONTEXT if truly no clarification is needed.
-5. When translating between very different cultures, provide small notes or emojis (in the CONTEXT section) that help clarify sentiment or gestures.`;
-
+4. CRITICAL: ALL text after TRANSLATION: and CONTEXT: MUST be in proper ${toLang} script.
+5. For Burmese and similar languages:
+   - Use the native script (e.g., မြန်မာအက္ခရာ for Burmese)
+   - Never use romanization or English
+   - Both translation and context must be in the native script
+6. Never mix languages - keep everything in ${toLang} except the headers.
+7. Pay extra attention to idioms, phrases, and cultural references from ${fromLang}, and render them into ${toLang} so they are fully understandable and natural in the ${toLang} culture. Avoid literal word-for-word translations if they do not convey the right meaning.
+8. Double-check that the final text reflects a ${toLang} audience’s perspective and does not remain in the style or structure of ${fromLang}.
+9. Respect the tone and formality level of the original ${fromLang} text. If the original is casual or uses slang, reflect a similar style in ${toLang}. If it is formal or business-like, preserve the same formality.
+10. For brand names, technical terms, or place names, keep them in the original language unless there is a well-known localized equivalent in ${toLang}.
+11. If the source text contains strong slang, profanity, or culturally sensitive terms, maintain the same tone in ${toLang}. Do not sanitize or omit them. If the term is extremely offensive or uncommon in ${toLang}, add an explanatory note in the CONTEXT section.
+12. Do not invent extra details or modify the meaning of the original text. Remain faithful to the intended message of the ${fromLang} text.
+13. Preserve the source text's structure (e.g., paragraphs, bullet points) where it aids clarity. Do not merge everything if the source is multi-paragraph.`;
   }
 
-  console.log('Starting translation request:', { 
-    fromLang, 
-    toLang, 
+  console.log('Starting translation request:', {
+    fromLang,
+    toLang,
     textLength: text.length,
-    systemPromptLength: systemPrompt.length 
+    systemPromptLength: systemPrompt.length,
   });
 
   try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4-turbo',
       messages: [
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: text.trim() }
+        { role: 'user', content: text.trim() },
       ],
       temperature: 0.3,
       max_tokens: 1000,
     });
 
     const response = completion.choices[0]?.message?.content;
-    
+
     if (!response) {
       console.error('Empty response from OpenAI');
       throw new Error('No translation generated from OpenAI');
     }
 
-    console.log('Received OpenAI response:', { 
+    console.log('Received OpenAI response:', {
       responseLength: response.length,
-      hasTranslationMarker: response.includes('TRANSLATION:')
+      hasTranslationMarker: response.includes('TRANSLATION:'),
     });
 
+    // Ensure the required formatting "TRANSLATION:" is present.
     if (!response.includes('TRANSLATION:')) {
       console.log('Adding missing TRANSLATION marker to response');
       return `TRANSLATION: ${response}`;
@@ -120,7 +142,7 @@ If the text is straightforward, like "It is raining a lot today," you may omit C
     console.error('OpenAI translation error:', {
       name: error instanceof Error ? error.name : 'Unknown',
       message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined
+      stack: error instanceof Error ? error.stack : undefined,
     });
     throw error;
   }
