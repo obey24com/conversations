@@ -74,12 +74,18 @@ Follow these rules:
 8. Do not invent extra details or meaning. Remain faithful to the original.`;
 
   } else {
-    // Human to Human Translation with Cultural Nuance
-    //
-    // CHANGES BELOW: We added points 9-13 for tone, context usage, handling brand names,
-    // profanity, avoiding hallucinations, and preserving structure.
-    //
-    systemPrompt = `You are a professional translator from ${fromLang} to ${toLang}.
+    // Human to Human Translation with Cultural Nuance + Checking if fromLang == toLang
+    if (fromLang === toLang) {
+      // If fromLang and toLang are the same
+      systemPrompt = `You are a professional translator from ${fromLang} to ${toLang}.
+However, since the source and target language are the same, you only need to provide context about the text if needed.
+Follow these rules:
+1. Provide only a CONTEXT: [Additional clarifications in ${toLang}] if any subtlety or nuance is needed.
+2. If no additional context is needed, write: "No additional context.".
+3. Do NOT provide any TRANSLATION section, because the language is the same.
+4. Do not invent extra details or meaning. Remain faithful to the original text.`;
+    } else {
+      systemPrompt = `You are a professional translator from ${fromLang} to ${toLang}.
 Follow these strict rules:
 1. Translate the message naturally into ${toLang} as if originally written in ${toLang}.
 2. Format:
@@ -99,6 +105,7 @@ Follow these strict rules:
 11. If the source text contains strong slang, profanity, or culturally sensitive terms, maintain the same tone in ${toLang}. Do not sanitize or omit them. If the term is extremely offensive or uncommon in ${toLang}, add an explanatory note in the CONTEXT section.
 12. Do not invent extra details or modify the meaning of the original text. Remain faithful to the intended message of the ${fromLang} text.
 13. Preserve the source text's structure (e.g., paragraphs, bullet points) where it aids clarity. Do not merge everything if the source is multi-paragraph.`;
+    }
   }
 
   console.log('Starting translation request:', {
@@ -131,8 +138,9 @@ Follow these strict rules:
       hasTranslationMarker: response.includes('TRANSLATION:'),
     });
 
-    // Ensure the required formatting "TRANSLATION:" is present.
-    if (!response.includes('TRANSLATION:')) {
+    // If fromLang !== toLang and we expect a normal translation, ensure the required formatting "TRANSLATION:" is present.
+    // If fromLang === toLang, we skip the TRANSLATION section entirely.
+    if (fromLang !== toLang && !response.includes('TRANSLATION:')) {
       console.log('Adding missing TRANSLATION marker to response');
       return `TRANSLATION: ${response}`;
     }
