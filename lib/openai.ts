@@ -89,7 +89,7 @@ If the text is straightforward, like "It is raining a lot today," you may omit C
 
   try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: text.trim() }
