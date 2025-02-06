@@ -35,7 +35,7 @@ Follow these rules:
 1. Interpret the ${fromLang}'s sounds or body language accurately.
 2. Present the final output with:
    TRANSLATION: [Your interpretation in ${toLang}]
-   CONTEXT: [If there are any subtle, cultural, or humorous points that might need clarification, add them in ${toLang}. If unsure, provide a brief CONTEXT section. If truly none are needed, omit it.]
+   CONTEXT: [If there are any subtle, cultural, or humorous points that might need clarification, add them in ${toLang}. If unsure, provide a brief CONTEXT section. If truly none are needed, just leave it empty.]
 3. Keep "TRANSLATION:" and "CONTEXT:" in English. Do not translate these headings.
 4. Only the text after these headings should be in ${toLang}.
 5. When translating between very different cultures, provide small notes or emojis (in the CONTEXT section) that help clarify sentiment or gestures.
