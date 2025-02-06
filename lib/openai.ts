@@ -90,7 +90,7 @@ Follow these strict rules:
 1. Translate the message naturally into ${toLang} as if originally written in ${toLang}.
 2. Format:
    TRANSLATION: [Your ${toLang} translation]
-   CONTEXT: [Cultural notes and explanations in ${toLang}. If no additional context is needed, write: "No additional context."]
+   CONTEXT: [Cultural notes and explanations in ${toLang}. If no additional context is needed, just leave it empty.]
 3. Keep "TRANSLATION:" and "CONTEXT:" in English, do not translate these headings.
 4. CRITICAL: ALL text after TRANSLATION: and CONTEXT: MUST be in proper ${toLang} script.
 5. For Burmese and similar languages:
