@@ -94,7 +94,7 @@ export default function RootLayout({
           <Header />
         </div>
         <div>{children}</div>
-        <Toaster className="z-[300]" />
+        <Toaster />
       </body>
     </html>
   );
