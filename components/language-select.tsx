@@ -71,7 +71,6 @@ export function LanguageSelect({
         <Button
           aria-expanded={open}
           variant="outline"
-          variant="outline"
           className={cn(
             "w-full justify-between transition-all duration-300 ease-in-out bg-white hover:bg-accent",
             isChanging && "scale-95 opacity-50 transform",
