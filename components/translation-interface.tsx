@@ -396,7 +396,7 @@ export function TranslationInterface() {
   }
 
   return (
-    <div className="flex grow flex-col">
+    <div className="flex grow flex-col pt-[65px]">
       <div className="relative flex-1 overflow-hidden">
         <div className="mx-auto mb-4 flex h-full w-full max-w-5xl flex-col-reverse space-y-4 overflow-y-auto px-4">
           <div ref={messagesEndRef} />
@@ -416,7 +416,7 @@ export function TranslationInterface() {
         </div>
       </div>
 
-      <div className="bg-background fixed inset-x-0 bottom-0 space-y-3 px-4 py-3 shadow-[0_-1px_3px_rgba(0,0,0,0.1)] z-[9000]">
+      <div className="fixed inset-x-0 bottom-0 space-y-3 px-4 py-3 shadow-[0_-1px_3px_rgba(0,0,0,0.1)] z-[100] backdrop-blur-[8px] bg-white/30">
         <div className="mx-auto w-full max-w-5xl space-y-3">
           <div className="flex w-full items-center gap-2">
             <LanguageSelect
@@ -479,11 +479,11 @@ export function TranslationInterface() {
             <Button
               variant="outline"
               size="icon"
-              onClick={toggleRecording}
               className={cn(
-                "shrink-0 transition-colors duration-200",
+                "shrink-0 transition-colors duration-200 bg-white",
                 isRecording && "bg-red-500 border-red-500 hover:bg-red-600 hover:border-red-600"
               )}
+              onClick={toggleRecording}
               disabled={isLoading}
             >
               {isRecording ? (
@@ -496,6 +496,7 @@ export function TranslationInterface() {
             <Button
               onClick={handleSend}
               disabled={!inputText.trim() || isLoading}
+              className={cn("shrink-0 transition-all duration-200 bg-white", isLoading && "opacity-70")}
               className={cn(
                 "shrink-0 transition-all duration-200",
                 isLoading && "opacity-70",
@@ -510,7 +511,7 @@ export function TranslationInterface() {
       <audio ref={audioRef} className="hidden" />
       
       {isLoading && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-background/80 backdrop-blur-sm">
           <div className="relative flex h-20 w-20 items-center justify-center">
             <div className="absolute">
               <Languages className="h-16 w-16 animate-spin text-primary/20" />
