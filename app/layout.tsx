@@ -90,11 +90,11 @@ export default function RootLayout({
         <link rel="canonical" href="https://ulocat.com" />
       </head>
       <body className={inter.className}>
-        <div className="fixed inset-x-0 top-0 z-50 bg-zinc-50">
+        <div className="fixed inset-x-0 top-0 z-[150]">
           <Header />
         </div>
-        <div className="pt-[65px]">{children}</div>
-        <Toaster />
+        <div>{children}</div>
+        <Toaster containerClassName="z-[300]" />
       </body>
     </html>
   );
