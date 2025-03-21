@@ -171,7 +171,6 @@ export async function textToSpeech(text: string) {
       model: 'gpt-4o-mini-tts',
       voice: 'echo',
       input: text,
-      input: text,
       speed: 0.9, // Slightly slower for more empathetic delivery
       response_format: "mp3"
     });
