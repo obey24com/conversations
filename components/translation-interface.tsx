@@ -416,7 +416,7 @@ export function TranslationInterface() {
         </div>
       </div>
 
-      <div className="bg-background fixed inset-x-0 bottom-0 space-y-3 px-4 py-3 shadow-[0_-1px_3px_rgba(0,0,0,0.1)]">
+      <div className="bg-background fixed inset-x-0 bottom-0 space-y-3 px-4 py-3 shadow-[0_-1px_3px_rgba(0,0,0,0.1)] z-[9000]">
         <div className="mx-auto w-full max-w-5xl space-y-3">
           <div className="flex w-full justify-between gap-2">
             <LanguageSelect
