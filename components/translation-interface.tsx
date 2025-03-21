@@ -418,19 +418,20 @@ export function TranslationInterface() {
 
       <div className="bg-background fixed inset-x-0 bottom-0 space-y-3 px-4 py-3 shadow-[0_-1px_3px_rgba(0,0,0,0.1)] z-[9000]">
         <div className="mx-auto w-full max-w-5xl space-y-3">
-          <div className="flex w-full justify-between gap-2">
+          <div className="flex w-full items-center gap-2">
             <LanguageSelect
               value={fromLang}
               setValue={setFromLang}
               onValueChange={(value) =>
                 localStorage.setItem(STORAGE_KEYS.FROM_LANG, value)
               }
+              className="flex-1"
             />
             <div className="relative">
               <Button
                 variant="outline"
-                className={cn(
-                  "relative mx-2 flex items-center justify-center transition-all duration-300",
+                className={cn( 
+                  "relative flex items-center justify-center transition-all duration-300",
                   isSwapping && "scale-90 opacity-50",
                   isSwapActiveFirst
                     ? "bg-transparent"
@@ -457,6 +458,7 @@ export function TranslationInterface() {
               onValueChange={(value) =>
                 localStorage.setItem(STORAGE_KEYS.TO_LANG, value)
               }
+              className="flex-1"
               align="end"
             />
           </div>
