@@ -168,9 +168,10 @@ export async function textToSpeech(text: string) {
 
   try {
     const mp3 = await openai.audio.speech.create({
-      model: 'tts-1',
-      voice: 'nova',
+      model: 'gpt-4o-mini-tts',
+      voice: 'echo',
       input: text,
+      instructions: "Speak in a sympathetic and empathetic tone, with natural pacing and warm inflection."
     });
 
     const buffer = await mp3.arrayBuffer();
