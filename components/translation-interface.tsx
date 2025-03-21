@@ -397,7 +397,7 @@ export function TranslationInterface() {
 
   return (
     <div className="flex grow flex-col">
-      <div className="relative flex-1 overflow-hidden bg-transparent backdrop-blur-[10px]">
+      <div className="relative flex-1 overflow-hidden">
         <div className="mx-auto mb-4 flex h-full w-full max-w-5xl flex-col-reverse space-y-4 overflow-y-auto px-4">
           <div ref={messagesEndRef} />
           {[...messages].reverse().map((message, index) => (
