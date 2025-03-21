@@ -29,6 +29,7 @@ export function LanguageSelect({
   value?: string;
   setValue?: (value: string) => void;
   onValueChange?: (value: string) => void;
+  className?: string;
 }) {
   const [open, setOpen] = React.useState(false);
   const [isChanging, setIsChanging] = React.useState(false);
@@ -68,11 +69,11 @@ export function LanguageSelect({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
-          role="combobox"
           aria-expanded={open}
+          variant="outline"
+          variant="outline"
           className={cn(
-            "w-[120px] justify-between sm:w-full transition-all duration-300 ease-in-out",
+            "w-full justify-between transition-all duration-300 ease-in-out bg-white hover:bg-accent",
             isChanging && "scale-95 opacity-50 transform",
           )}
         >
@@ -89,8 +90,8 @@ export function LanguageSelect({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        align={align}
-        className="w-[250px] p-0 md:w-[500px] lg:w-[780px]"
+        align={align} 
+        className="w-[90vw] p-0 md:w-[500px] lg:w-[780px]"
       >
         <Command>
           <CommandInput placeholder="Search language..." />
