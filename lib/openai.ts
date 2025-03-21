@@ -171,7 +171,9 @@ export async function textToSpeech(text: string) {
       model: 'gpt-4o-mini-tts',
       voice: 'echo',
       input: text,
-      instructions: "Speak in a sympathetic and empathetic tone, with natural pacing and warm inflection."
+      input: text,
+      speed: 0.9, // Slightly slower for more empathetic delivery
+      response_format: "mp3"
     });
 
     const buffer = await mp3.arrayBuffer();
