@@ -3,19 +3,36 @@
 import { useState, useEffect } from 'react';
 import { STORAGE_KEYS } from '@/lib/constants';
 
+const AUDIO_CONSTRAINTS = {
+  sampleRate: 44100,
+  sampleSize: 16,
+  channelCount: 1,
+  echoCancellation: true,
+  noiseSuppression: true,
+  autoGainControl: true
+};
+
 interface MicrophonePermissionState {
   status: 'prompt' | 'granted' | 'denied';
   error?: string;
+  stream?: MediaStream | null;
 }
 
 export function useMicrophonePermission() {
   const [permissionState, setPermissionState] = useState<MicrophonePermissionState>({
-    status: 'prompt'
+    status: 'prompt',
+    stream: null
   });
 
   // Check permission status on mount
   useEffect(() => {
     checkPermissionStatus();
+    return () => {
+      // Cleanup stream on unmount
+      if (permissionState.stream) {
+        permissionState.stream.getTracks().forEach(track => track.stop());
+      }
+    };
   }, []);
 
   const checkPermissionStatus = async () => {
@@ -27,12 +44,50 @@ export function useMicrophonePermission() {
       }
 
       const result = await navigator.permissions.query({ name: 'microphone' as PermissionName });
-      setPermissionState({ status: result.state as 'prompt' | 'granted' | 'denied' });
+      
+      if (result.state === 'granted') {
+        // Pre-initialize stream if permission is already granted
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ 
+            audio: AUDIO_CONSTRAINTS
+          });
+          setPermissionState({ 
+            status: 'granted',
+            stream
+          });
+        } catch (error) {
+          console.error('Error initializing stream:', error);
+          setPermissionState({ status: 'granted' });
+        }
+      } else {
+        setPermissionState({ status: result.state as 'prompt' | 'granted' | 'denied' });
+      }
 
       // Listen for permission changes
-      result.addEventListener('change', () => {
-        setPermissionState({ status: result.state as 'prompt' | 'granted' | 'denied' });
+      result.addEventListener('change', async () => {
+        if (result.state === 'granted') {
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+              audio: AUDIO_CONSTRAINTS
+            });
+            setPermissionState({ 
+              status: 'granted',
+              stream
+            });
+          } catch (error) {
+            setPermissionState({ status: 'granted' });
+          }
+        } else {
+          if (permissionState.stream) {
+            permissionState.stream.getTracks().forEach(track => track.stop());
+          }
+          setPermissionState({ 
+            status: result.state as 'prompt' | 'granted' | 'denied',
+            stream: null
+          });
+        }
       });
+
     } catch (error) {
       console.error('Error checking microphone permission:', error);
       setPermissionState({ 
@@ -65,10 +120,8 @@ export function useMicrophonePermission() {
         autoGainControl: true
       }));
 
-      // Stop the stream immediately since we only needed it for permission
-      stream.getTracks().forEach(track => track.stop());
-      
-      setPermissionState({ status: 'granted' });
+      // Keep the stream active for future use
+      setPermissionState({ status: 'granted', stream });
       return true;
     } catch (error) {
       console.error('Error requesting microphone permission:', error);
@@ -83,6 +136,7 @@ export function useMicrophonePermission() {
   return {
     permissionState,
     requestPermission,
-    checkPermissionStatus
+    checkPermissionStatus,
+    AUDIO_CONSTRAINTS
   };
 }
