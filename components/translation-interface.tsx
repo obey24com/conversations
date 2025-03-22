@@ -298,7 +298,7 @@ export function TranslationInterface() {
   const startRecording = async () => {
     try {
       // First ensure we have permission
-      if (permissionState.status === 'denied' || !navigator.mediaDevices) {
+      if (permissionState.status === 'denied') {
         toast({
           title: "Microphone Access Denied",
           description: "Please enable microphone access in your browser settings to use voice input.",
@@ -311,15 +311,11 @@ export function TranslationInterface() {
         const granted = await requestPermission();
         if (!granted) return;
       }
-
-      let stream = permissionState.stream;
       
-      // If we don't have a stream yet, create one
-      if (!stream) {
-        stream = await navigator.mediaDevices.getUserMedia({ 
-          audio: AUDIO_CONSTRAINTS
-        });
-      }
+      // Create a new stream for recording
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: AUDIO_CONSTRAINTS
+      });
       
       streamRef.current = stream;
       const mediaRecorder = new MediaRecorder(stream);
