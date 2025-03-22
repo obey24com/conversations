@@ -75,7 +75,7 @@ export function TranslationInterface() {
   const [swapMessage, setSwapMessage] = useState("");
   const [isSwapping, setIsSwapping] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { permissionState, requestPermission } = useMicrophonePermission();
+  const { permissionState, requestPermission, AUDIO_CONSTRAINTS } = useMicrophonePermission();
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -298,7 +298,7 @@ export function TranslationInterface() {
   const startRecording = async () => {
     try {
       // First ensure we have permission
-      if (permissionState.status === 'denied') {
+      if (permissionState.status === 'denied' || !navigator.mediaDevices) {
         toast({
           title: "Microphone Access Denied",
           description: "Please enable microphone access in your browser settings to use voice input.",
@@ -312,16 +312,14 @@ export function TranslationInterface() {
         if (!granted) return;
       }
 
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          sampleRate: 44100,
-          sampleSize: 16,
-          channelCount: 1,
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
-        }
-      });
+      let stream = permissionState.stream;
+      
+      // If we don't have a stream yet, create one
+      if (!stream) {
+        stream = await navigator.mediaDevices.getUserMedia({ 
+          audio: AUDIO_CONSTRAINTS
+        });
+      }
       
       streamRef.current = stream;
       const mediaRecorder = new MediaRecorder(stream);
@@ -329,6 +327,9 @@ export function TranslationInterface() {
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
+      // Start recording immediately
+      setIsRecording(true);
+      
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
@@ -343,7 +344,6 @@ export function TranslationInterface() {
       };
 
       mediaRecorder.start(1000);
-      setIsRecording(true);
     } catch (error) {
       console.error("Error accessing microphone:", error);
       toast({
