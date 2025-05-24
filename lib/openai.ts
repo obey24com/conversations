@@ -168,10 +168,10 @@ export async function textToSpeech(text: string) {
 
   try {
     const mp3 = await openai.audio.speech.create({
-      model: 'gpt-4o-mini-tts',
-      voice: 'echo',
+      model: 'tts-1-hd',
+      voice: 'shimmer',
       input: text,
-      speed: 0.9, // Slightly slower for more empathetic delivery
+      speed: 1.0,
       response_format: "mp3"
     });
 
