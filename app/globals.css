@@ -59,6 +59,29 @@
   }
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-blur {
+  filter: blur(2px);
+  opacity: 0.6;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: filter, opacity;
+}
+
+.message-blur:hover {
+  filter: blur(0);
+  opacity: 1;
+}
+
 @keyframes slideOutUp {
   from {
     opacity: 1;
@@ -75,7 +98,7 @@
 }
 
 .message-delete {
-  animation: slideOutUp 0.5s ease-out forwards;
+  animation: slideOutUp 300ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
   overflow: hidden;
   will-change: transform, opacity, max-height, margin;
 }
@@ -105,22 +128,8 @@
 }
 
 .message-bubble {
-  animation: fadeIn 300ms ease-out forwards;
-  will-change: transform, opacity, height, margin;
-}
-
-.message-bubble-exit {
-  transition: all 300ms ease-out;
-  height: var(--message-height);
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.message-bubble-exit-active {
-  height: 0;
-  opacity: 0;
-  transform: translateY(-20px);
-  margin-bottom: 0;
+  animation: fadeIn 200ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  will-change: transform, opacity;
 }
 
 .animated-dots {
