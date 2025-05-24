@@ -153,17 +153,12 @@ export function TranslationInterface() {
   };
 
   const handleSwapLanguages = () => {
-    setIsSwapping(true);
     const newFromLang = toLang;
     const newToLang = fromLang;
-    
-    setTimeout(() => {
-      setFromLang(newFromLang);
-      setToLang(newToLang);
-      localStorage.setItem(STORAGE_KEYS.FROM_LANG, newFromLang);
-      localStorage.setItem(STORAGE_KEYS.TO_LANG, newToLang);
-      setIsSwapping(false);
-    }, 300);
+    setFromLang(newFromLang);
+    setToLang(newToLang);
+    localStorage.setItem(STORAGE_KEYS.FROM_LANG, newFromLang);
+    localStorage.setItem(STORAGE_KEYS.TO_LANG, newToLang);
   };
 
   const toggleSwapActive = () => {
@@ -416,21 +411,14 @@ export function TranslationInterface() {
             <div className="relative">
               <Button
                 variant="outline"
-                className={cn(
-                  "relative mx-2 flex items-center justify-center transition-all duration-300",
-                  isSwapping && "scale-90 opacity-50",
-                  isSwapActiveFirst
-                    ? "bg-transparent"
-                    : isSwapActive
-                      ? "bg-green-600 text-white"
-                      : "bg-red-600 text-white",
-                )}
+                className={cn("mx-2", {
+                  "bg-green-600 text-white": isSwapActive && !isSwapActiveFirst,
+                  "bg-red-600 text-white": !isSwapActive && !isSwapActiveFirst,
+                  "bg-transparent": isSwapActiveFirst
+                })}
                 onClick={handleButtonClick}
               >
-                <ArrowLeftRight className={cn(
-                  "transition-transform duration-300",
-                  isSwapping && "rotate-180"
-                )} />
+                <ArrowLeftRight />
                 {swapMessage && (
                   <div className="absolute -top-10 left-1/2 w-[135px] -translate-x-1/2 transform rounded bg-black px-3 py-2 text-xs text-white">
                     {swapMessage}
