@@ -240,14 +240,14 @@ export const MessageBubble = memo(function MessageBubble({
         {/* Close button - top right, visible on hover for desktop */}
         {!hideDelete && (
         <div className={cn(
-          "absolute -top-2 right-4",
+          "absolute -top-3 -right-3",
           "md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200"
         )}
         >
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 bg-white/95 shadow-sm hover:shadow-md backdrop-blur-sm"
+            className="h-7 w-7 rounded-full bg-white/95 shadow-sm hover:shadow-md backdrop-blur-sm"
             onClick={handleDelete}
           >
             <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
