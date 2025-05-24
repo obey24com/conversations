@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mic, Square, Send, ArrowLeftRight } from "lucide-react";
+import { Mic, Square, Send, ArrowLeftRight, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { supportedLanguages, isPetLanguage } from "@/lib/languages";
@@ -298,7 +298,6 @@ export function TranslationInterface() {
 
   const startRecording = async () => {
     try {
-      // First ensure we have permission
       if (permissionState.status === 'denied') {
         toast({
           title: "Microphone Access Denied",
@@ -313,7 +312,6 @@ export function TranslationInterface() {
         if (!granted) return;
       }
       
-      // Create a new stream for recording
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: AUDIO_CONSTRAINTS
       });
@@ -324,7 +322,6 @@ export function TranslationInterface() {
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
-      // Start recording immediately
       setIsRecording(true);
       
       mediaRecorder.ondataavailable = (event) => {
@@ -375,19 +372,21 @@ export function TranslationInterface() {
 
   useEffect(() => {
     if (messagesEndRef.current) {
-      // Use a more immediate scroll on initial load
       messagesEndRef.current.scrollIntoView({ 
         behavior: messages.length === 1 ? "auto" : "smooth" 
       });
     }
   }, [messages]);
 
-  // Auto-scroll on page load
   useEffect(() => {
     if (mounted && messagesEndRef.current && messages.length > 0) {
       messagesEndRef.current.scrollIntoView({ behavior: "auto" });
     }
   }, [mounted]);
+
+  const handleShowPrevious = () => {
+    setShowPrevious(!showPrevious);
+  };
 
   if (!mounted) {
     return null;
@@ -395,42 +394,67 @@ export function TranslationInterface() {
 
   return (
     <div className="flex grow flex-col">
-      <div className="relative flex-1 overflow-hidden">
-        <div className="mx-auto mb-4 flex h-full w-full max-w-5xl flex-col-reverse space-y-4 overflow-y-auto px-4 pt-16">
-          <div ref={messagesEndRef} />
-          {reversedMessages.map((message, index, array) => {
-            const isLatest = index === 0;
-            const shouldBlur = !isLatest && !showPrevious;
-            
-            return (
-              <div key={message.id} className={cn(
-                "transition-all duration-300",
-                shouldBlur && "message-blur"
-              )}>
+      <div className="relative flex-1 overflow-y-auto">
+        <div className="mx-auto w-full max-w-5xl px-4 pt-20 flex flex-col items-center">
+          {reversedMessages.length > 1 && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="mb-4 mt-2 h-8 w-8 rounded-full border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 bg-white/95 backdrop-blur-sm"
+              onClick={handleShowPrevious}
+            >
+              <ChevronUp className={cn(
+                "h-4 w-4 text-gray-400 transition-transform duration-200",
+                showPrevious && "rotate-180"
+              )} />
+            </Button>
+          )}
+          
+          {/* Previous translation */}
+          <div className="w-full">
+            {showPrevious && reversedMessages.length > 1 && reversedMessages.slice(1).map((message, index) => (
+              <div
+                key={message.id} 
+                className={cn(
+                  "w-full transition-all duration-300",
+                  "opacity-0 translate-y-4",
+                  showPrevious && "opacity-100 translate-y-0"
+                )}
+              >
                 <MessageBubble
                   text={message.text}
                   translation={message.translation}
                   fromLang={message.fromLang}
                   toLang={message.toLang}
                   cultural={message.cultural}
-                  isPlaying={isPlaying === index}
-                  onPlay={() => playTranslation(message.translation, index, message.toLang)}
+                  isPlaying={isPlaying === index + 1}
+                  onPlay={() => playTranslation(message.translation, index + 1, message.toLang)}
                   onDelete={() => handleDeleteMessage(message.id)}
                 />
-                
-                {isLatest && array.length > 1 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="mt-2 w-full text-xs text-muted-foreground hover:text-foreground"
-                    onClick={() => setShowPrevious(!showPrevious)}
-                  >
-                    {showPrevious ? "Hide" : "Show"} Previous Translations
-                  </Button>
-                )}
               </div>
-            );
-          })}
+            ))}
+          </div>
+        </div>
+
+        {/* Current translation */}
+        <div className="flex-1 flex items-center justify-center px-4 pb-8 mt-4">
+          <div ref={messagesEndRef} />
+          {reversedMessages.length > 0 && (
+            <div className="w-full">
+              {reversedMessages[0] && (
+                <MessageBubble
+                  text={reversedMessages[0].text}
+                  translation={reversedMessages[0].translation}
+                  fromLang={reversedMessages[0].fromLang}
+                  toLang={reversedMessages[0].toLang}
+                  cultural={reversedMessages[0].cultural}
+                  isPlaying={isPlaying === 0}
+                  onPlay={() => playTranslation(reversedMessages[0].translation, 0, reversedMessages[0].toLang)}
+                  onDelete={() => handleDeleteMessage(reversedMessages[0].id)}
+                />
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -507,7 +531,7 @@ export function TranslationInterface() {
               disabled={!inputText.trim() || isLoading}
               className={cn(
                 "shrink-0 transition-all duration-200",
-                isLoading && "opacity-70",
+                isLoading && "opacity-70"
               )}
             >
               <Send className="h-4 w-4" />
