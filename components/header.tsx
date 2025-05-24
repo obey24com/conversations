@@ -86,21 +86,7 @@ export default function Header() {
           </div>
 
           {/* Menu buttons */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-black/5"
-              asChild
-            >
-              <a
-                href="https://www.instagram.com/ulocatcom/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Instagram className="h-6 w-6" />
-              </a>
-            </Button>
+          <div className="flex items-center">
             <Button 
               onClick={() => setMenuOpen(!menuOpen)} 
               variant="ghost" 
@@ -190,6 +176,17 @@ export default function Header() {
               >
                 Feedback
               </a>
+              <div className="flex justify-center gap-4 pt-4">
+                <a
+                  href="https://www.instagram.com/ulocatcom/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 rounded-lg py-2 text-gray-700 transition-colors hover:bg-gray-100/80"
+                >
+                  <Instagram className="h-5 w-5" />
+                  Instagram
+                </a>
+              </div>
               <div className="flex justify-center gap-4 pt-4">
                 <a
                   href="https://obey24.com/agbs/"
