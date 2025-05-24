@@ -167,12 +167,19 @@ export async function textToSpeech(text: string) {
   }
 
   try {
-    const mp3 = await openai.audio.speech.create({
+    // Create params object with type assertion
+    const params = {
       model: 'gpt-4o-mini-tts',
-      voice: 'shimmer' as any, // Type assertion needed until OpenAI types are updated
+      voice: 'shimmer',
       input: text,
       instructions: "Voice Affect: Clear tone, like a teacher or translator. Tone: clear pronunciation. Slightly slower during dramatic pauses to let key points sink in. Emotion: Relaxed, positive energy. Personality: Relatable and smart. Pauses: Purposeful pauses after key moments.",
       response_format: "mp3"
+    } as const;
+
+    const mp3 = await openai.audio.speech.create({
+      ...params,
+      // @ts-ignore - OpenAI types don't include instructions yet
+      instructions: params.instructions
     });
 
     const buffer = await mp3.arrayBuffer();
