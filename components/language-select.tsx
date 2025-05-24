@@ -17,14 +17,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { supportedLanguages, LanguageCode, isValidLanguageCode } from "@/lib/languages";
+import { supportedLanguages, LanguageCode, LanguageName, isValidLanguageCode, isValidLanguageName } from "@/lib/languages";
 
 // Pre-calculate language maps for better performance
-const languageNameMap = new Map(
+const languageNameMap = new Map<LanguageCode, LanguageName>(
   supportedLanguages.map(lang => [lang.code, lang.name])
 );
 
-const languageCodeMap = new Map(
+const languageCodeMap = new Map<LanguageName, LanguageCode>(
   supportedLanguages.map(lang => [lang.name, lang.code])
 );
 
@@ -46,24 +46,27 @@ export function LanguageSelect({
   const [isChanging, setIsChanging] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
   
-  // Get selected language name from pre-calculated map
-  const selectedLanguage = isValidLanguageCode(value) ? languageNameMap.get(value) : null;
+  const selectedLanguage = React.useMemo(() => {
+    if (!isValidLanguageCode(value)) return null;
+    return languageNameMap.get(value);
+  }, [value]);
 
   React.useEffect(() => {
     setMounted(true);
   }, []);
 
-  const handleLanguageChange = (currentValue: string) => {
+  const handleLanguageChange = React.useCallback((currentValue: string) => {
+    if (!isValidLanguageName(currentValue)) return;
+    
     const selectedCode = languageCodeMap.get(currentValue);
-    if (selectedCode && isValidLanguageCode(selectedCode)) {
+    if (selectedCode) {
       setIsChanging(true);
       setValue(selectedCode);
       onValueChange(selectedCode);
-      // Reduce animation duration
-      setTimeout(() => setIsChanging(false), 150);
+      setTimeout(() => setIsChanging(false), 150); // Animation duration
     }
     setOpen(false);
-  };
+  }, [setValue, onValueChange]);
 
   if (!mounted) {
     return (
