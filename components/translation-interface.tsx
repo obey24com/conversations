@@ -592,10 +592,11 @@ export function TranslationInterface() {
                     const reader = new FileReader();
                     
                     reader.onloadend = async () => {
-                      const base64Image = reader.result as string;
-                      
-                      // Show loading state before API call
-                      setIsTranslating(true);
+                      try {
+                        const base64Image = reader.result as string;
+                        
+                        // Show loading state before API call
+                        setIsTranslating(true);
                       
                       const response = await fetch("/api/analyze-image", {
                         method: "POST",
@@ -633,6 +634,18 @@ export function TranslationInterface() {
                           handleSwapLanguages();
                         }
                       }
+                    } catch (error) {
+                      console.error("Image analysis error:", error);
+                      toast({
+                        title: "Error",
+                        description: "Failed to analyze image",
+                        variant: "destructive",
+                      });
+                    } finally {
+                      setIsImageProcessing(false);
+                      setIsTranslating(false);
+                      setIsLoading(false);
+                    }
                     };
                     reader.readAsDataURL(file);
                   } catch (error) {
@@ -642,10 +655,10 @@ export function TranslationInterface() {
                       description: "Failed to analyze image",
                       variant: "destructive",
                     });
-                  } finally {
                     setIsImageProcessing(false);
                     setIsTranslating(false);
                     setIsLoading(false);
+                  } finally {
                     e.target.value = ''; // Reset file input
                   }
                 }}
@@ -686,22 +699,12 @@ export function TranslationInterface() {
       <audio ref={audioRef} className="hidden" />
       
       {isLoading && (
-        <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="flex flex-col items-center gap-4">
-            <div className="relative flex h-32 w-32 items-center justify-center">
-              <div className="absolute animate-[spin_4s_linear_infinite]">
-                <Languages className="h-28 w-28 text-primary/20" />
-              </div>
-              <div className="relative animate-[pulse_1.5s_ease-in-out_infinite]">
-                <Languages className="h-12 w-12 text-primary" />
-              </div>
-            </div>
-            <p className="text-base font-medium text-primary/80 animate-pulse text-center px-6">
-              {isImageProcessing ? 'Processing image...' : 'Processing your content...'}
-            </p>
-            <p className="text-sm text-muted-foreground animate-pulse text-center px-6">
-              This may take a few moments
-            </p>
+        <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[150] bg-white/95 px-6 py-3 rounded-full shadow-lg backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="flex items-center gap-2">
+            <Languages className="h-4 w-4 animate-spin" />
+            <span className="text-sm font-medium">
+              {isImageProcessing ? 'Processing image...' : 'Translating...'}
+            </span>
           </div>
         </div>
       )}
