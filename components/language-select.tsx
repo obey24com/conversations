@@ -90,11 +90,11 @@ export function LanguageSelect({
       </PopoverTrigger>
       <PopoverContent
         align={align} 
-        className="w-[90vw] p-0 md:w-[500px] lg:w-[780px]"
+        className="w-[90vw] p-0 md:w-[500px] lg:w-[780px] max-h-[calc(100vh-180px)] mt-28"
       >
         <Command>
           <CommandInput placeholder="Search language..." />
-          <CommandList className="h-[calc(100dvh-180px)] max-h-[75vh] md:max-h-[80vh]">
+          <CommandList className="max-h-[calc(100vh-240px)]">
             <CommandEmpty>No language found.</CommandEmpty>
             <CommandGroup>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:w-full md:grid-cols-4 lg:grid-cols-5">
