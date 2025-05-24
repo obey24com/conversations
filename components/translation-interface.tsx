@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mic, Square, Send, ArrowLeftRight } from "lucide-react";
@@ -75,6 +75,7 @@ export function TranslationInterface() {
   const [swapMessage, setSwapMessage] = useState("");
   const [isSwapping, setIsSwapping] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showPrevious, setShowPrevious] = useState(false);
   const { permissionState, requestPermission, AUDIO_CONSTRAINTS } = useMicrophonePermission();
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -95,13 +96,13 @@ export function TranslationInterface() {
     }
   }, [messages]);
 
-  const handleDeleteMessage = (messageId: string) => {
+  const handleDeleteMessage = useCallback((messageId: string) => {
     setMessages(prevMessages => 
       prevMessages.filter(msg => msg.id !== messageId)
     );
-  };
+  }, []);
 
-  const handleSend = async () => {
+  const handleSend = useCallback(async () => {
     if (!inputText.trim() || isLoading) return;
 
     try {
@@ -150,7 +151,12 @@ export function TranslationInterface() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [inputText, isLoading, fromLang, toLang, isSwapActive, toast]);
+
+  const reversedMessages = useMemo(() => 
+    [...messages].reverse(),
+    [messages]
+  );
 
   const handleSwapLanguages = () => {
     const newFromLang = toLang;
@@ -369,9 +375,19 @@ export function TranslationInterface() {
 
   useEffect(() => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      // Use a more immediate scroll on initial load
+      messagesEndRef.current.scrollIntoView({ 
+        behavior: messages.length === 1 ? "auto" : "smooth" 
+      });
     }
   }, [messages]);
+
+  // Auto-scroll on page load
+  useEffect(() => {
+    if (mounted && messagesEndRef.current && messages.length > 0) {
+      messagesEndRef.current.scrollIntoView({ behavior: "auto" });
+    }
+  }, [mounted]);
 
   if (!mounted) {
     return null;
@@ -382,19 +398,39 @@ export function TranslationInterface() {
       <div className="relative flex-1 overflow-hidden">
         <div className="mx-auto mb-4 flex h-full w-full max-w-5xl flex-col-reverse space-y-4 overflow-y-auto px-4 pt-16">
           <div ref={messagesEndRef} />
-          {[...messages].reverse().map((message, index) => (
-            <MessageBubble
-              key={message.id}
-              text={message.text}
-              translation={message.translation}
-              fromLang={message.fromLang}
-              toLang={message.toLang}
-              cultural={message.cultural}
-              isPlaying={isPlaying === index}
-              onPlay={() => playTranslation(message.translation, index, message.toLang)}
-              onDelete={() => handleDeleteMessage(message.id)}
-            />
-          ))}
+          {reversedMessages.map((message, index, array) => {
+            const isLatest = index === 0;
+            const shouldBlur = !isLatest && !showPrevious;
+            
+            return (
+              <div key={message.id} className={cn(
+                "transition-all duration-300",
+                shouldBlur && "message-blur"
+              )}>
+                <MessageBubble
+                  text={message.text}
+                  translation={message.translation}
+                  fromLang={message.fromLang}
+                  toLang={message.toLang}
+                  cultural={message.cultural}
+                  isPlaying={isPlaying === index}
+                  onPlay={() => playTranslation(message.translation, index, message.toLang)}
+                  onDelete={() => handleDeleteMessage(message.id)}
+                />
+                
+                {isLatest && array.length > 1 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="mt-2 w-full text-xs text-muted-foreground hover:text-foreground"
+                    onClick={() => setShowPrevious(!showPrevious)}
+                  >
+                    {showPrevious ? "Hide" : "Show"} Previous Translations
+                  </Button>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
