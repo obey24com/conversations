@@ -97,26 +97,27 @@ export function LanguageSelect({
       </PopoverTrigger>
       <PopoverContent
         align={align} 
-        className="w-[90vw] p-0 md:w-[500px] lg:w-[780px] max-h-[calc(100vh-180px)] mt-28"
+        className="w-[90vw] p-0 md:w-[500px] lg:w-[780px] max-h-[min(420px,_calc(100vh-280px))] mt-2"
       >
         <Command>
           <CommandInput placeholder="Search language..." />
-          <CommandList className="max-h-[calc(100vh-240px)]">
+          <CommandList className="max-h-[min(360px,_calc(100vh-320px))] overflow-y-auto">
             <CommandEmpty>No language found.</CommandEmpty>
             <CommandGroup>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:w-full md:grid-cols-4 lg:grid-cols-5">
+              <div className="grid grid-cols-2 gap-1.5 p-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                 {supportedLanguages.map((lang) => (
                   <CommandItem
                     key={lang.name}
                     value={lang.name}
                     onSelect={handleLanguageChange}
-                    className="hover:bg-accent"
+                    className="flex items-center justify-between px-3 py-2.5 rounded-md cursor-pointer hover:bg-accent/50"
                   >
-                    {lang.name}
+                    <span className="truncate">{lang.name}</span>
                     <Check
                       className={cn(
                         "ml-auto h-4 w-4",
                         value === lang.code ? "opacity-100 scale-100" : "opacity-0 scale-75",
+                        "transition-all duration-150"
                       )}
                     />
                   </CommandItem>
