@@ -19,6 +19,15 @@ import {
 } from "@/components/ui/popover";
 import { supportedLanguages } from "@/lib/languages";
 
+// Pre-calculate language maps for better performance
+const languageNameMap = new Map(
+  supportedLanguages.map(lang => [lang.code, lang.name])
+);
+
+const languageCodeMap = new Map(
+  supportedLanguages.map(lang => [lang.name, lang.code])
+);
+
 export function LanguageSelect({
   align = "start",
   value = "en",
@@ -35,24 +44,21 @@ export function LanguageSelect({
   const [isChanging, setIsChanging] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
   
+  // Get selected language name from pre-calculated map
+  const selectedLanguage = languageNameMap.get(value);
+
   React.useEffect(() => {
     setMounted(true);
   }, []);
 
-  const selectedLanguage = React.useMemo(() => 
-    supportedLanguages.find((lang) => lang.code === value)?.name,
-    [value]
-  );
-
   const handleLanguageChange = (currentValue: string) => {
-    const selected = supportedLanguages.find(
-      (lang) => lang.name === currentValue,
-    );
-    if (selected) {
+    const selectedCode = languageCodeMap.get(currentValue);
+    if (selectedCode) {
       setIsChanging(true);
-      setValue(selected.code);
-      onValueChange(selected.code);
-      setTimeout(() => setIsChanging(false), 300);
+      setValue(selectedCode);
+      onValueChange(selectedCode);
+      // Reduce animation duration
+      setTimeout(() => setIsChanging(false), 150);
     }
     setOpen(false);
   };
@@ -71,19 +77,15 @@ export function LanguageSelect({
         <Button
           aria-expanded={open}
           variant="outline"
-          className={cn(
-            "w-full justify-between transition-all duration-300 ease-in-out bg-white hover:bg-accent",
-            isChanging && "scale-95 opacity-50 transform",
-          )}
+          className={cn("w-full justify-between bg-white hover:bg-accent", {
+            "opacity-50": isChanging
+          })}
         >
-          <span className={cn(
-            "transition-all duration-300 ease-in-out",
-            isChanging && "blur-sm"
-          )}>
+          <span>
             {selectedLanguage || "Select language..."}
           </span>
           <ChevronDown className={cn(
-            "h-4 w-4 opacity-50 transition-transform duration-200",
+            "h-4 w-4 opacity-50",
             open && "rotate-180"
           )} />
         </Button>
@@ -103,12 +105,12 @@ export function LanguageSelect({
                     key={lang.name}
                     value={lang.name}
                     onSelect={handleLanguageChange}
-                    className="transition-all duration-200 hover:scale-[1.02]"
+                    className="hover:bg-accent"
                   >
                     {lang.name}
                     <Check
                       className={cn(
-                        "ml-auto h-4 w-4 transition-all duration-200",
+                        "ml-auto h-4 w-4",
                         value === lang.code ? "opacity-100 scale-100" : "opacity-0 scale-75",
                       )}
                     />
