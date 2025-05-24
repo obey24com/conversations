@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Mic, Square, Send, ArrowLeftRight, ChevronUp, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
-import { supportedLanguages, isPetLanguage } from "@/lib/languages";
+import { supportedLanguages, isPetLanguage, LanguageCode, isValidLanguageCode } from "@/lib/languages";
 import { useZoomControl } from "@/hooks/use-zoom-control";
 import { LanguageSelect } from "./language-select";
 import { MessageBubble } from "./message-bubble";
@@ -18,21 +18,18 @@ interface Message {
   id: string;
   text: string;
   translation: string;
-  fromLang: string;
-  toLang: string;
+  fromLang: LanguageCode;
+  toLang: LanguageCode;
   cultural?: string;
   timestamp?: number;
 }
 
 const MAX_STORED_MESSAGES = 50;
 
-function getStoredLanguage(key: string, fallback: string): string {
+function getStoredLanguage(key: string, fallback: LanguageCode): LanguageCode {
   if (typeof window === "undefined") return fallback;
   const stored = localStorage.getItem(key);
-  if (!stored) return fallback;
-  return supportedLanguages.some((lang) => lang.code === stored)
-    ? stored
-    : fallback;
+  return stored && isValidLanguageCode(stored) ? stored : fallback;
 }
 
 function getStoredAutoSwitch(): boolean {
