@@ -97,8 +97,8 @@ export function TranslationInterface() {
   const handleDeleteMessage = useCallback((messageId: string) => {
     setMessages(prevMessages => 
       prevMessages.filter(msg => msg.id !== messageId)
-    );
-  }, []);
+    ); 
+  }, []); // No dependencies needed as setMessages is stable
 
   const handleSend = useCallback(async () => {
     if (!inputText.trim() || isLoading) return;
@@ -388,7 +388,7 @@ export function TranslationInterface() {
         behavior: "smooth"
       });
     }
-  }, [messages]);
+  }, [messages.length]); // Add messages.length as dependency
 
   useEffect(() => {
     if (mounted && messagesEndRef.current && messages.length > 0) {
@@ -686,22 +686,14 @@ export function TranslationInterface() {
       <audio ref={audioRef} className="hidden" />
       
       {isLoading && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background/80 backdrop-blur-sm transition-opacity duration-300">
-          <div className="flex flex-col items-center gap-4">
-            <div className="relative flex h-32 w-32 items-center justify-center">
-              <div className="absolute animate-[spin_4s_linear_infinite]">
-                <Languages className="h-28 w-28 text-primary/20" />
-              </div>
-              <div className="relative animate-[pulse_1.5s_ease-in-out_infinite]">
-                <Languages className="h-12 w-12 text-primary" />
-              </div>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <div className="relative flex h-32 w-32 items-center justify-center">
+            <div className="absolute animate-[spin_4s_linear_infinite]">
+              <Languages className="h-28 w-28 text-primary/20" />
             </div>
-            <p className="text-base font-medium text-primary/80 animate-pulse">
-              Processing your content...
-            </p>
-            <p className="text-sm text-muted-foreground animate-pulse">
-              This may take a few moments
-            </p>
+            <div className="relative animate-[pulse_1.5s_ease-in-out_infinite]">
+              <Languages className="h-12 w-12 text-primary" />
+            </div>
           </div>
         </div>
       )}
