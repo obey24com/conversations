@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Volume2, Copy, X, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, memo } from 'react';
 import { createSharedMessage } from '@/lib/firebase/messages';
 import type { TranslationMessage } from '@/lib/types';
 import { ShareDialog } from './share-dialog';
@@ -23,7 +23,7 @@ export interface MessageBubbleProps {
   hideShare?: boolean;
 }
 
-export function MessageBubble({ 
+export const MessageBubble = memo(function MessageBubble({ 
   text, 
   translation,
   fromLang,
@@ -135,9 +135,9 @@ export function MessageBubble({
     }
 
     // Wait for animation to complete before removing
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       onDelete();
-    }, 500);
+    });
   };
 
   return (
@@ -276,4 +276,4 @@ export function MessageBubble({
       )}
     </div>
   );
-}
+});
