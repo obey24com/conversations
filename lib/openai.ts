@@ -167,11 +167,11 @@ export async function textToSpeech(text: string) {
   }
 
   try {
- const mp3 = await openai.audio.speech.create({
-      model: 'tts-1',
+    const mp3 = await openai.audio.speech.create({
+      model: 'gpt-4o-mini-tts',
       voice: 'shimmer',
       input: text,
-      speed: 0.6,
+      instructions: "Voice Affect: Clear tone, like a teacher or translator. Tone: clear pronunciation. Slightly slower during dramatic pauses to let key points sink in. Emotion: Relaxed, positive energy. Personality: Relatable and smart. Pauses: Purposeful pauses after key moments.",
       response_format: "mp3"
     });
 
