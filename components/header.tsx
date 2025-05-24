@@ -99,7 +99,7 @@ export default function Header() {
 
         {/* Menu Overlay */}
         <div
-          className={`fixed inset-0 z-50 bg-black transition-opacity duration-300 ${
+          className={`fixed inset-0 z-50 bg-black/50 transition-opacity duration-300 ${
             menuOpen ? "pointer-events-auto opacity-50" : "pointer-events-none opacity-0"
           }`}
           onClick={() => setMenuOpen(false)}
@@ -107,16 +107,14 @@ export default function Header() {
 
         {/* Menu Content */}
         <div
-          className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-300 ${
-            menuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+          className={`fixed inset-y-0 right-0 z-50 w-full max-w-sm transform transition-all duration-300 ease-in-out ${
+            menuOpen ? "translate-x-0" : "translate-x-full"
           }`}
           style={{ zIndex: 100 }}
         >
           <div
             ref={menuRef}
-            className={`mx-4 w-11/12 max-w-[600px] transform rounded-2xl bg-white/95 p-6 shadow-2xl backdrop-blur-xl transition-all duration-300 md:w-[600px] ${
-              menuOpen ? "translate-y-0 scale-100" : "translate-y-4 scale-95"
-            }`}
+            className="h-full w-full bg-white/95 p-6 shadow-2xl backdrop-blur-xl"
             style={{
               WebkitBackdropFilter: 'saturate(180%) blur(20px)',
               backdropFilter: 'saturate(180%) blur(20px)',
@@ -127,11 +125,15 @@ export default function Header() {
               onClick={() => setMenuOpen(false)}
               variant="ghost"
               size="icon"
-              className="absolute -right-2 -top-2 h-8 w-8 rounded-full bg-white/95 shadow-lg transition-colors hover:bg-gray-100/80"
+              className="absolute right-4 top-4 h-8 w-8 rounded-full bg-white/95 shadow-lg transition-colors hover:bg-gray-100/80"
               style={{ zIndex: 110 }}
             >
               <X className="h-4 w-4" />
             </Button>
+
+            <div className="mb-8 mt-2">
+              <h2 className="text-xl font-semibold text-gray-900">Menu</h2>
+            </div>
 
             <div className="mb-6 rounded-xl border border-gray-200/50 bg-gray-50/50 p-4 text-center backdrop-blur-sm">
               <h3 className="mb-4 text-lg font-semibold text-gray-800">
@@ -153,68 +155,74 @@ export default function Header() {
               </div>
             </div>
 
-            <div className="flex flex-col space-y-2">
+            <div className="flex flex-col space-y-1">
+              <div className="mb-2 px-2 text-xs font-medium uppercase text-gray-500">
+                Navigation
+              </div>
               <Link
                 href="/"
-                className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100/80"
+                className="flex items-center gap-2 rounded-lg px-2 py-2 text-gray-700 transition-colors hover:bg-gray-100/80"
                 onClick={() => setMenuOpen(false)}
               >
                 Home
               </Link>
               <Link
                 href="/news"
-                className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100/80"
+                className="flex items-center gap-2 rounded-lg px-2 py-2 text-gray-700 transition-colors hover:bg-gray-100/80"
                 onClick={() => setMenuOpen(false)}
               >
                 News
               </Link>
+              
+              <div className="mt-4 mb-2 px-2 text-xs font-medium uppercase text-gray-500">
+                Social & Support
+              </div>
               <a
                 href="mailto:info@ulocat.com"
-                className="rounded-lg py-2 text-center text-gray-700 transition-colors hover:bg-gray-100/80"
+                className="flex items-center gap-2 rounded-lg px-2 py-2 text-gray-700 transition-colors hover:bg-gray-100/80"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 Feedback
               </a>
-              <div className="flex justify-center gap-4 pt-4">
-                <a
-                  href="https://www.instagram.com/ulocatcom/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 rounded-lg py-2 text-gray-700 transition-colors hover:bg-gray-100/80"
-                >
-                  <Instagram className="h-5 w-5" />
-                  Instagram
-                </a>
-              </div>
-              <div className="flex justify-center gap-4 pt-4">
-                <a
-                  href="https://obey24.com/agbs/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[11px] text-gray-500 hover:text-gray-700"
-                >
-                  Terms of Use
-                </a>
-                <a
-                  href="https://obey24.com/datenschutz/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[11px] text-gray-500 hover:text-gray-700"
-                >
-                  Privacy Policy
-                </a>
-                <a
-                  href="https://obey24.com/impressum/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[11px] text-gray-500 hover:text-gray-700"
-                >
-                  Imprint
-                </a>
-              </div>
-              <div className="mt-4 text-center">
-                <span className="text-[11px] text-gray-500">
+              <a
+                href="https://www.instagram.com/ulocatcom/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-lg px-2 py-2 text-gray-700 transition-colors hover:bg-gray-100/80"
+              >
+                <Instagram className="h-5 w-5" />
+                Instagram
+              </a>
+
+              <div className="mt-auto pt-8">
+                <div className="flex flex-wrap justify-center gap-4 border-t border-gray-100 pt-4 text-[11px] text-gray-500">
+                  <a
+                    href="https://obey24.com/agbs/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-gray-700"
+                  >
+                    Terms
+                  </a>
+                  <a
+                    href="https://obey24.com/datenschutz/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-gray-700"
+                  >
+                    Privacy
+                  </a>
+                  <a
+                    href="https://obey24.com/impressum/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-gray-700"
+                  >
+                    Imprint
+                  </a>
+                </div>
+                <div className="mt-2 text-center text-[11px] text-gray-500">
                   Ulocat is powered by{" "}
                   <a
                     href="https://obey24.com/"
@@ -224,7 +232,7 @@ export default function Header() {
                   >
                     Obey24.com
                   </a>
-                </span>
+                </div>
               </div>
             </div>
           </div>
