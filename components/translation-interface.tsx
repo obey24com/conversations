@@ -116,6 +116,10 @@ export function TranslationInterface() {
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
 
       if (data.translation) {
@@ -134,17 +138,25 @@ export function TranslationInterface() {
           timestamp: Date.now(),
         };
 
-        setMessages(prev => [...prev, newMessage]);
+        setMessages(prev => {
+          const updatedMessages = [...prev, newMessage];
+          localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(updatedMessages));
+          return updatedMessages;
+        });
+
         setInputText("");
         
         if (isSwapActive) {
           handleSwapLanguages();
         }
+      } else {
+        throw new Error('No translation in response');
       }
     } catch (error) {
+      console.error('Translation error:', error);
       toast({
         title: "Error",
-        description: "Failed to translate text",
+        description: error instanceof Error ? error.message : "Failed to translate text",
         variant: "destructive",
       });
     } finally {
@@ -373,14 +385,16 @@ export function TranslationInterface() {
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ 
-        behavior: messages.length === 1 ? "auto" : "smooth" 
+        behavior: "smooth"
       });
     }
   }, [messages]);
 
   useEffect(() => {
     if (mounted && messagesEndRef.current && messages.length > 0) {
-      messagesEndRef.current.scrollIntoView({ behavior: "auto" });
+      requestAnimationFrame(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+      });
     }
   }, [mounted]);
 
