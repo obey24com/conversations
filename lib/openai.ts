@@ -171,7 +171,8 @@ export async function textToSpeech(text: string) {
       model: 'tts-1-hd',
       voice: 'shimmer',
       input: text,
-      speed: 1.0,
+      speed: 0.7,
+      instructions: "Voice Affect: Slow speaking, Clear toning, no accent;.\n\nTone: In a way to make someone very clear what you are talking about. \n\nEmotion: Positive energy. \n\nPersonality: Relatable and engaging. \n\nPauses: Normal, like in a daily conversation use purposeful. Pauses after key moments.",
       response_format: "mp3"
     });
 
