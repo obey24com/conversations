@@ -106,11 +106,15 @@ export const supportedLanguages = [
   { code: "dog", name: "Woof (Dog)" },
 ] as const;
 
-export type LanguageCode = (typeof supportedLanguages)[number]["code"];
+export type LanguageCode = typeof supportedLanguages[number]["code"];
+export type LanguageName = typeof supportedLanguages[number]["name"];
 
-// Create a type guard for language codes
 export function isValidLanguageCode(code: string): code is LanguageCode {
   return supportedLanguages.some(lang => lang.code === code);
+}
+
+export function isValidLanguageName(name: string): name is LanguageName {
+  return supportedLanguages.some(lang => lang.name === name);
 }
 
 export const isPetLanguage = (code: string) => code === "cat" || code === "dog";
