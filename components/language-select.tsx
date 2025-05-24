@@ -45,6 +45,23 @@ export function LanguageSelect({
   const [open, setOpen] = React.useState(false);
   const [isChanging, setIsChanging] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
+  const [recentLanguages, setRecentLanguages] = React.useState<LanguageCode[]>([]);
+
+  React.useEffect(() => {
+    const stored = localStorage.getItem('recentLanguages');
+    if (stored) {
+      setRecentLanguages(JSON.parse(stored));
+    }
+  }, []);
+
+  const updateRecentLanguages = React.useCallback((code: LanguageCode) => {
+    setRecentLanguages(prev => {
+      const filtered = prev.filter(lang => lang !== code);
+      const updated = [code, ...filtered].slice(0, 4);
+      localStorage.setItem('recentLanguages', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
   
   const selectedLanguage = React.useMemo(() => {
     if (!isValidLanguageCode(value)) return null;
@@ -63,10 +80,11 @@ export function LanguageSelect({
       setIsChanging(true);
       setValue(selectedCode);
       onValueChange(selectedCode);
+      updateRecentLanguages(selectedCode);
       setTimeout(() => setIsChanging(false), 150); // Animation duration
     }
     setOpen(false);
-  }, [setValue, onValueChange]);
+  }, [setValue, onValueChange, updateRecentLanguages]);
 
   if (!mounted) {
     return (
@@ -103,7 +121,34 @@ export function LanguageSelect({
           <CommandInput placeholder="Search language..." />
           <CommandList className="max-h-[min(360px,_calc(100vh-320px))] overflow-y-auto">
             <CommandEmpty>No language found.</CommandEmpty>
-            <CommandGroup>
+            {recentLanguages.length > 0 && (
+              <CommandGroup heading="Recent">
+                <div className="grid grid-cols-2 gap-1.5 p-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                  {recentLanguages.map((code) => {
+                    const name = languageNameMap.get(code);
+                    if (!name) return null;
+                    return (
+                      <CommandItem
+                        key={code}
+                        value={name}
+                        onSelect={handleLanguageChange}
+                        className="flex items-center justify-between px-3 py-2.5 rounded-md cursor-pointer hover:bg-accent/50"
+                      >
+                        <span className="truncate">{name}</span>
+                        <Check
+                          className={cn(
+                            "ml-auto h-4 w-4",
+                            value === code ? "opacity-100 scale-100" : "opacity-0 scale-75",
+                            "transition-all duration-150"
+                          )}
+                        />
+                      </CommandItem>
+                    );
+                  })}
+                </div>
+              </CommandGroup>
+            )}
+            <CommandGroup heading="All Languages">
               <div className="grid grid-cols-2 gap-1.5 p-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                 {supportedLanguages.map((lang) => (
                   <CommandItem
