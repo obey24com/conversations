@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mic, Square, Send, ArrowLeftRight, ChevronUp } from "lucide-react";
+import { Mic, Square, Send, ArrowLeftRight, ChevronUp, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { supportedLanguages, isPetLanguage } from "@/lib/languages";
@@ -76,6 +76,7 @@ export function TranslationInterface() {
   const [isSwapping, setIsSwapping] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [showPrevious, setShowPrevious] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
   const { permissionState, requestPermission, AUDIO_CONSTRAINTS } = useMicrophonePermission();
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -105,6 +106,7 @@ export function TranslationInterface() {
   const handleSend = useCallback(async () => {
     if (!inputText.trim() || isLoading) return;
 
+    setIsTranslating(true);
     try {
       setIsLoading(true);
       const response = await fetch("/api/translate", {
@@ -150,6 +152,7 @@ export function TranslationInterface() {
       });
     } finally {
       setIsLoading(false);
+      setIsTranslating(false);
     }
   }, [inputText, isLoading, fromLang, toLang, isSwapActive, toast]);
 
@@ -497,6 +500,43 @@ export function TranslationInterface() {
           </div>
 
           <div className="flex w-full gap-2">
+            <div className="relative flex-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-accent",
+                  isTranslating && "opacity-50 pointer-events-none"
+                )}
+                onClick={async () => {
+                  try {
+                    const text = await navigator.clipboard.readText();
+                    setInputText(text);
+                  } catch (error) {
+                    toast({
+                      title: "Error",
+                      description: "Failed to paste text",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                  <path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1Z" />
+                </svg>
+              </Button>
             <Input
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
@@ -504,10 +544,97 @@ export function TranslationInterface() {
               onKeyDown={(e) =>
                 e.key === "Enter" && !e.shiftKey && handleSend()
               }
-              className="flex-1 text-lg"
-              style={{ fontSize: "16px" }}
+              className="text-lg pl-12"
+              style={{ 
+                fontSize: "16px",
+                background: isTranslating ? 
+                  "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)" : 
+                  "transparent" 
+              }}
               disabled={isLoading}
             />
+            </div>
+
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => document.getElementById('imageUpload').click()}
+              className="shrink-0"
+              disabled={isLoading}
+            >
+              <Camera className="h-4 w-4" />
+              <input
+                type="file"
+                id="imageUpload"
+                className="hidden"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+
+                  try {
+                    setIsLoading(true);
+                    const reader = new FileReader();
+                    toast({
+                      title: "Processing Image",
+                      description: "Analyzing and translating content...",
+                    });
+
+                    reader.onloadend = async () => {
+                      const base64Image = reader.result as string;
+                      
+                      const response = await fetch("/api/analyze-image", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          image: base64Image,
+                          toLang,
+                        }),
+                      });
+
+                      const data = await response.json();
+                      if (data.text && data.translation && data.detectedLang) {
+                        // Update the fromLang with detected language
+                        setFromLang(data.detectedLang);
+                        localStorage.setItem(STORAGE_KEYS.FROM_LANG, data.detectedLang);
+
+                        const [translation, ...culturalNotes] = 
+                          data.translation.split("\nCONTEXT:");
+
+                        const newMessage = {
+                          id: Math.random().toString(36).substr(2, 9),
+                          text: data.text,
+                          translation: translation.replace("TRANSLATION:", "").trim(),
+                          cultural: culturalNotes.length
+                            ? culturalNotes.join("\n").trim()
+                            : undefined,
+                          fromLang: data.detectedLang,
+                          toLang,
+                          timestamp: Date.now(),
+                        };
+
+                        setMessages(prev => [...prev, newMessage]);
+                        
+                        if (isSwapActive) {
+                          handleSwapLanguages();
+                        }
+                      }
+                    };
+                    reader.readAsDataURL(file);
+                  } catch (error) {
+                    console.error("Image analysis error:", error);
+                    toast({
+                      title: "Error",
+                      description: "Failed to analyze image",
+                      variant: "destructive",
+                    });
+                  } finally {
+                    setIsLoading(false);
+                    e.target.value = ''; // Reset file input
+                  }
+                }}
+              />
+            </Button>
 
             <Button
               variant="outline"
@@ -543,14 +670,30 @@ export function TranslationInterface() {
       <audio ref={audioRef} className="hidden" />
       
       {isLoading && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background/80 backdrop-blur-sm">
-          <div className="relative flex h-20 w-20 items-center justify-center">
-            <div className="absolute">
-              <Languages className="h-16 w-16 animate-spin text-primary/20" />
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background/80 backdrop-blur-sm transition-opacity duration-300">
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative flex h-32 w-32 items-center justify-center">
+              <div className="absolute animate-[spin_4s_linear_infinite]">
+                <Languages className="h-28 w-28 text-primary/20" />
+              </div>
+              <div className="relative animate-[pulse_1.5s_ease-in-out_infinite]">
+                <Languages className="h-12 w-12 text-primary" />
+              </div>
             </div>
-            <div className="relative">
-              <Languages className="h-8 w-8 animate-pulse text-primary" />
-            </div>
+            <p className="text-base font-medium text-primary/80 animate-pulse">
+              Processing your content...
+            </p>
+            <p className="text-sm text-muted-foreground animate-pulse">
+              This may take a few moments
+            </p>
+          </div>
+        </div>
+      )}
+      {isTranslating && !isLoading && (
+        <div className="fixed bottom-[120px] left-1/2 -translate-x-1/2 z-[100] bg-white/95 px-4 py-2 rounded-full shadow-lg backdrop-blur-sm">
+          <div className="flex items-center gap-2">
+            <Languages className="h-4 w-4 animate-spin" />
+            <span className="text-sm">Translating...</span>
           </div>
         </div>
       )}
