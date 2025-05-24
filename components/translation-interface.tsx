@@ -555,7 +555,12 @@ export function TranslationInterface() {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => document.getElementById('imageUpload').click()}
+              onClick={() => {
+                const imageUpload = document.getElementById('imageUpload');
+                if (imageUpload) {
+                  imageUpload.click();
+                }
+              }}
               className="shrink-0"
               disabled={isLoading}
             >
