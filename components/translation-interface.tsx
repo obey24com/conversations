@@ -83,22 +83,20 @@ export function TranslationInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (messages.length > 0) {
-      const recentMessages = messages.slice(-MAX_STORED_MESSAGES);
-      localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(recentMessages));
-    }
-  }, [messages]);
-
   const handleDeleteMessage = useCallback((messageId: string) => {
     setMessages(prevMessages => 
       prevMessages.filter(msg => msg.id !== messageId)
     ); 
   }, []); // No dependencies needed as setMessages is stable
+
+  const handleSwapLanguages = useCallback(() => {
+    const newFromLang = toLang;
+    const newToLang = fromLang;
+    setFromLang(newFromLang);
+    setToLang(newToLang);
+    localStorage.setItem(STORAGE_KEYS.FROM_LANG, newFromLang);
+    localStorage.setItem(STORAGE_KEYS.TO_LANG, newToLang);
+  }, [fromLang, toLang]);
 
   const handleSend = useCallback(async () => {
     if (!inputText.trim() || isLoading) return;
@@ -163,21 +161,12 @@ export function TranslationInterface() {
       setIsLoading(false);
       setIsTranslating(false);
     }
-  }, [inputText, isLoading, fromLang, toLang, isSwapActive, toast]);
+  }, [inputText, isLoading, fromLang, toLang, isSwapActive, toast, handleSwapLanguages]);
 
   const reversedMessages = useMemo(() => 
     [...messages].reverse(),
     [messages]
   );
-
-  const handleSwapLanguages = () => {
-    const newFromLang = toLang;
-    const newToLang = fromLang;
-    setFromLang(newFromLang);
-    setToLang(newToLang);
-    localStorage.setItem(STORAGE_KEYS.FROM_LANG, newFromLang);
-    localStorage.setItem(STORAGE_KEYS.TO_LANG, newToLang);
-  };
 
   const toggleSwapActive = () => {
     setIsSwapActive((prev) => {
@@ -397,6 +386,10 @@ export function TranslationInterface() {
       });
     }
   }, [mounted]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleShowPrevious = () => {
     setShowPrevious(!showPrevious);
