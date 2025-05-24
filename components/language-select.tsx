@@ -17,7 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { supportedLanguages } from "@/lib/languages";
+import { supportedLanguages, LanguageCode, isValidLanguageCode } from "@/lib/languages";
 
 // Pre-calculate language maps for better performance
 const languageNameMap = new Map(
@@ -28,24 +28,26 @@ const languageCodeMap = new Map(
   supportedLanguages.map(lang => [lang.name, lang.code])
 );
 
+interface LanguageSelectProps {
+  align?: "start" | "center" | "end";
+  value?: LanguageCode;
+  setValue?: (value: LanguageCode) => void;
+  onValueChange?: (value: LanguageCode) => void;
+  className?: string;
+}
+
 export function LanguageSelect({
   align = "start",
   value = "en",
   setValue = () => {},
   onValueChange = (value: string) => {},
-}: {
-  align?: "start" | "center" | "end";
-  value?: string;
-  setValue?: (value: string) => void;
-  onValueChange?: (value: string) => void;
-  className?: string;
-}) {
+}: LanguageSelectProps) {
   const [open, setOpen] = React.useState(false);
   const [isChanging, setIsChanging] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
   
   // Get selected language name from pre-calculated map
-  const selectedLanguage = languageNameMap.get(value);
+  const selectedLanguage = isValidLanguageCode(value) ? languageNameMap.get(value) : null;
 
   React.useEffect(() => {
     setMounted(true);
@@ -53,7 +55,7 @@ export function LanguageSelect({
 
   const handleLanguageChange = (currentValue: string) => {
     const selectedCode = languageCodeMap.get(currentValue);
-    if (selectedCode) {
+    if (selectedCode && isValidLanguageCode(selectedCode)) {
       setIsChanging(true);
       setValue(selectedCode);
       onValueChange(selectedCode);
