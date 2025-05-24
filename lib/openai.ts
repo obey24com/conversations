@@ -168,7 +168,7 @@ export async function textToSpeech(text: string) {
 
   try {
     const mp3 = await openai.audio.speech.create({
-      model: 'tts-1-hd',
+      model: 'gpt-4o-mini-tts',
       voice: 'shimmer',
       input: text,
       speed: 0.7,
