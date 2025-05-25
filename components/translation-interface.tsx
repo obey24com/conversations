@@ -275,7 +275,7 @@ export function TranslationInterface() {
       setIsLoading(true);
       const formData = new FormData();
       formData.append("audio", audioBlob);
-      formData.append("language", fromLang);
+      // Remove language parameter to let Whisper auto-detect
 
       const response = await fetch("/api/speech-to-text", {
         method: "POST",
@@ -288,12 +288,12 @@ export function TranslationInterface() {
 
       const data = await response.json();
       if (data.text) {
+        // Let the translation API auto-detect the language
         const translationResponse = await fetch("/api/translate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             text: data.text,
-            fromLang,
             toLang,
           }),
         });
@@ -304,6 +304,12 @@ export function TranslationInterface() {
           const [translation, ...culturalNotes] =
             translationData.translation.split("\nCONTEXT:");
 
+          const detectedFromLang = translationData.detectedLang || "en";
+
+          // Update the fromLang with detected language
+          setFromLang(detectedFromLang);
+          localStorage.setItem(STORAGE_KEYS.FROM_LANG, detectedFromLang);
+
           const newMessage = {
             id: Math.random().toString(36).substr(2, 9),
             text: data.text,
@@ -311,7 +317,7 @@ export function TranslationInterface() {
             cultural: culturalNotes.length
               ? culturalNotes.join("\n").trim()
               : undefined,
-            fromLang,
+            fromLang: detectedFromLang,
             toLang,
             timestamp: Date.now(),
           };
