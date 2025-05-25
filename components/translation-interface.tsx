@@ -7,7 +7,7 @@ import {
   Mic,
   Square,
   Send,
-  ArrowLeftRight,
+  RotateCcw,
   ChevronUp,
   Camera,
   Globe,
@@ -214,13 +214,13 @@ export function TranslationInterface() {
   };
 
   const handleSingleClick = () => {
-    if (messages.length > 0) {
-      const lastMessage = messages[messages.length - 1];
-      setFromLang(toLang);
-      setToLang(lastMessage.fromLang);
-      localStorage.setItem(STORAGE_KEYS.FROM_LANG, toLang);
-      localStorage.setItem(STORAGE_KEYS.TO_LANG, lastMessage.fromLang);
-    }
+    // Always swap current fromLang and toLang bidirectionally
+    const newFromLang = toLang;
+    const newToLang = fromLang;
+    setFromLang(newFromLang);
+    setToLang(newToLang);
+    localStorage.setItem(STORAGE_KEYS.FROM_LANG, newFromLang);
+    localStorage.setItem(STORAGE_KEYS.TO_LANG, newToLang);
   };
 
   const playTranslation = async (
@@ -452,7 +452,7 @@ export function TranslationInterface() {
             <Button
               variant="ghost"
               size="icon"
-              className="mb-4 mt-2 h-8 w-8 rounded-full border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 bg-white/95 backdrop-blur-sm"
+              className="mb-2 mt-1 h-8 w-8 rounded-full border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 bg-white/95 backdrop-blur-sm"
               onClick={handleShowPrevious}
             >
               <ChevronUp
@@ -557,9 +557,8 @@ export function TranslationInterface() {
                   "bg-transparent": isSwapActiveFirst,
                 })}
                 onClick={handleButtonClick}
-                disabled={!messages.length}
               >
-                <ArrowLeftRight />
+                <RotateCcw className="h-4 w-4" />
                 {swapMessage && (
                   <div className="absolute -top-10 left-1/2 w-[135px] -translate-x-1/2 transform rounded bg-black px-3 py-2 text-xs text-white">
                     {swapMessage}
