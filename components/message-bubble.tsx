@@ -152,7 +152,7 @@ export const MessageBubble = memo(function MessageBubble({
     >
       <div 
         className={cn(
-          "group relative p-8 rounded-2xl w-full max-w-[90%] mx-auto",
+          "group relative p-8 rounded-2xl w-full max-w-5xl mx-auto",
           "pr-20 md:pr-24", // Add right padding for icons
           "bg-white border border-gray-100 shadow-sm",
           "hover:shadow-lg transition-shadow duration-200"
