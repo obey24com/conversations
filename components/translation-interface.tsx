@@ -531,21 +531,11 @@ export function TranslationInterface() {
           <div className="flex w-full justify-between gap-2">
             <Button
               variant="outline"
-              className="w-32 justify-between bg-white hover:bg-accent relative text-sm opacity-75"
-              disabled
+              className="w-32 justify-between bg-white hover:bg-accent relative text-sm"
             >
               <div className="flex items-center gap-1.5">
-                {messages.length > 0 && messages[messages.length - 1]?.fromLang ? (
-                  <>
-                    <Globe className="h-3.5 w-3.5" />
-                    <span className="text-xs truncate">{supportedLanguages.find(l => l.code === messages[messages.length - 1].fromLang)?.name}</span>
-                  </>
-                ) : (
-                  <>
-                    <Globe className="h-3.5 w-3.5" />
-                    <span className="text-xs">Automatic</span>
-                  </>
-                )}
+                <Globe className="h-3.5 w-3.5" />
+                <span className="text-xs">Auto</span>
               </div>
             </Button>
             <div className="relative">
