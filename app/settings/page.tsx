@@ -114,7 +114,7 @@ export default function SettingsPage() {
                 Delete Account
               </CardTitle>
               <CardDescription>
-                Actions here can't be undone
+                Actions here can&apos;t be undone
               </CardDescription>
             </CardHeader>
             <CardContent>

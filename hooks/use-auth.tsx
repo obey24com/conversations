@@ -16,7 +16,6 @@ import {
   PhoneAuthProvider,
   PhoneMultiFactorGenerator,
   RecaptchaVerifier,
-  MultiFactorError,
   MultiFactorResolver,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -118,7 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Check if this is a MFA error
       if (err.code === 'auth/multi-factor-auth-required') {
         // Get the resolver for the MFA challenge
-        setResolver(MultiFactorError.fromError(err).resolver);
+        setResolver(err.resolver);
         throw err;
       } else {
         setError(err.message || 'Failed to sign in');

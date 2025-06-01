@@ -209,7 +209,7 @@ export function MFAEnrollment() {
                 onChange={(e) => setPhoneNumber(e.target.value)}
               />
               <p className="text-xs text-gray-500">
-                We'll send a verification code to this number when you sign in.
+                We&apos;ll send a verification code to this number when you sign in.
               </p>
             </div>
             <Button 

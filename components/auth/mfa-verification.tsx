@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
@@ -23,20 +23,8 @@ export function MFAVerification() {
   const [verificationId, setVerificationId] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
   
-  useEffect(() => {
-    if (resolver) {
-      // Get the phone number from the hint if available
-      const hint = resolver.hints[0];
-      if (hint && hint.phoneNumber) {
-        setPhoneNumber(hint.phoneNumber);
-      }
-      
-      // Start verification process automatically
-      handleStartVerification();
-    }
-  }, [resolver]);
-
-  const handleStartVerification = async () => {
+  // Memoize handleStartVerification to avoid dependency issues
+  const handleStartVerification = useCallback(async () => {
     if (!resolver) return;
     
     try {
@@ -66,7 +54,20 @@ export function MFAVerification() {
         document.body.removeChild(recaptchaContainer);
       }
     }
-  };
+  }, [resolver, phoneNumber, prepareMFAVerification, toast]);
+
+  useEffect(() => {
+    if (resolver) {
+      // Get the phone number from the hint if available
+      const hint = resolver.hints[0];
+      if (hint && hint.phoneNumber) {
+        setPhoneNumber(hint.phoneNumber);
+      }
+      
+      // Start verification process automatically
+      handleStartVerification();
+    }
+  }, [resolver, handleStartVerification]);
 
   const handleVerifyCode = async () => {
     if (!verificationCode) {
