@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Shield, ShieldAlert, ShieldCheck } from "lucide-react";
 
 export function MFAEnrollment() {
-  const { user, enrollMFA, verifyMFAEnrollment, unenrollMFA, isMFAEnabled } = useAuth();
+  const auth = useAuth();
   const { toast } = useToast();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
@@ -21,7 +21,7 @@ export function MFAEnrollment() {
   const [isUnenrolling, setIsUnenrolling] = useState(false);
   const [showVerificationForm, setShowVerificationForm] = useState(false);
 
-  const mfaEnabled = isMFAEnabled();
+  const mfaEnabled = auth.isMFAEnabled();
 
   const handleStartEnrollment = async () => {
     if (!phoneNumber || phoneNumber.trim().length < 10) {
@@ -35,13 +35,11 @@ export function MFAEnrollment() {
 
     setIsEnrolling(true);
     try {
-      // Create a div for the invisible reCAPTCHA
       const recaptchaContainer = document.createElement('div');
       recaptchaContainer.id = 'recaptcha-container';
       document.body.appendChild(recaptchaContainer);
 
-      // Start MFA enrollment with phone number
-      const verificationId = await enrollMFA(phoneNumber);
+      const verificationId = await auth.enrollMFA(phoneNumber);
       setVerificationId(verificationId);
       setShowVerificationForm(true);
 
@@ -57,7 +55,6 @@ export function MFAEnrollment() {
       });
     } finally {
       setIsEnrolling(false);
-      // Clean up the reCAPTCHA container
       const recaptchaContainer = document.getElementById('recaptcha-container');
       if (recaptchaContainer) {
         document.body.removeChild(recaptchaContainer);
@@ -77,14 +74,13 @@ export function MFAEnrollment() {
 
     setIsVerifying(true);
     try {
-      await verifyMFAEnrollment(verificationCode, verificationId);
+      await auth.verifyMFAEnrollment(verificationCode, verificationId);
 
       toast({
         title: "Two-factor authentication enabled",
         description: "Your account is now protected with two-factor authentication",
       });
 
-      // Reset form
       setPhoneNumber("");
       setVerificationCode("");
       setVerificationId(null);
@@ -103,7 +99,7 @@ export function MFAEnrollment() {
   const handleDisableMFA = async () => {
     setIsUnenrolling(true);
     try {
-      await unenrollMFA();
+      await auth.unenrollMFA();
 
       toast({
         title: "Two-factor authentication disabled",
@@ -136,7 +132,7 @@ export function MFAEnrollment() {
           <Switch
             id="mfa-enabled"
             checked={mfaEnabled}
-            onCheckedChange={(checked) => {
+            onCheckedChange={(checked: boolean) => {
               if (checked) {
                 // Don't do anything - enrollment requires more steps
               } else {
@@ -168,7 +164,7 @@ export function MFAEnrollment() {
                 id="verification-code"
                 placeholder="6-digit code"
                 value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value)}
+                onChange={(e: any) => setVerificationCode(e.target.value)}
                 maxLength={6}
               />
             </div>
@@ -206,7 +202,7 @@ export function MFAEnrollment() {
                 id="phone-number"
                 placeholder="+1 555 123 4567"
                 value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
+                onChange={(e: any) => setPhoneNumber(e.target.value)}
               />
               <p className="text-xs text-gray-500">
                 We&apos;ll send a verification code to this number when you sign in.

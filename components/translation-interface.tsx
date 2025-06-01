@@ -187,7 +187,6 @@ export function TranslationInterface() {
   }, [
     inputText,
     isLoading,
-    fromLang,
     toLang,
     isSwapActive,
     toast,
@@ -422,7 +421,7 @@ export function TranslationInterface() {
         behavior: "smooth",
       });
     }
-  }, [messages.length]); // Add messages.length as dependency
+  }, [messages.length]);
 
   useEffect(() => {
     if (mounted && messagesEndRef.current && messages.length > 0) {
@@ -430,7 +429,7 @@ export function TranslationInterface() {
         messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
       });
     }
-  }, [mounted]);
+  }, [mounted, messages.length]);
 
   useEffect(() => {
     setMounted(true);
