@@ -21,7 +21,8 @@ export function MFAEnrollment() {
   const [isUnenrolling, setIsUnenrolling] = useState(false);
   const [showVerificationForm, setShowVerificationForm] = useState(false);
 
-  const mfaEnabled = auth.isMFAEnabled();
+  // Use optional chaining and type assertion as fallback
+  const mfaEnabled = (auth as any).isMFAEnabled ? (auth as any).isMFAEnabled() : (auth.user?.mfaEnabled || false);
 
   const handleStartEnrollment = async () => {
     if (!phoneNumber || phoneNumber.trim().length < 10) {
@@ -39,7 +40,7 @@ export function MFAEnrollment() {
       recaptchaContainer.id = 'recaptcha-container';
       document.body.appendChild(recaptchaContainer);
 
-      const verificationId = await auth.enrollMFA(phoneNumber);
+      const verificationId = await (auth as any).enrollMFA(phoneNumber);
       setVerificationId(verificationId);
       setShowVerificationForm(true);
 
@@ -74,7 +75,7 @@ export function MFAEnrollment() {
 
     setIsVerifying(true);
     try {
-      await auth.verifyMFAEnrollment(verificationCode, verificationId);
+      await (auth as any).verifyMFAEnrollment(verificationCode, verificationId);
 
       toast({
         title: "Two-factor authentication enabled",
@@ -99,7 +100,7 @@ export function MFAEnrollment() {
   const handleDisableMFA = async () => {
     setIsUnenrolling(true);
     try {
-      await auth.unenrollMFA();
+      await (auth as any).unenrollMFA();
 
       toast({
         title: "Two-factor authentication disabled",
