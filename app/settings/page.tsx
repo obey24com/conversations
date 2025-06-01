@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { ProtectedRoute } from "@/components/auth";
+import { ProtectedRoute, MFAEnrollment } from "@/components/auth";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -58,11 +58,29 @@ export default function SettingsPage() {
         <h1 className="mb-6 text-2xl font-bold">Settings</h1>
         
         <div className="grid gap-6">
+          {/* Security Settings */}
+          <div className="space-y-2">
+            <h2 className="text-xl font-semibold">Security</h2>
+            <p className="text-sm text-gray-500">
+              Manage your account security settings
+            </p>
+          </div>
+          
+          {/* Two-Factor Authentication */}
+          <MFAEnrollment />
+
           {/* Notification Settings */}
+          <div className="space-y-2 pt-6">
+            <h2 className="text-xl font-semibold">Notifications</h2>
+            <p className="text-sm text-gray-500">
+              Manage how we contact you
+            </p>
+          </div>
+          
           <Card>
             <CardHeader>
-              <CardTitle>Notifications</CardTitle>
-              <CardDescription>Manage how we contact you</CardDescription>
+              <CardTitle>Email Preferences</CardTitle>
+              <CardDescription>Manage your email notifications</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between space-x-2">
@@ -82,11 +100,18 @@ export default function SettingsPage() {
           </Card>
 
           {/* Danger Zone */}
+          <div className="space-y-2 pt-6">
+            <h2 className="text-xl font-semibold text-red-500">Danger Zone</h2>
+            <p className="text-sm text-gray-500">
+              Irreversible account actions
+            </p>
+          </div>
+          
           <Card className="border-red-200">
             <CardHeader className="text-red-500">
               <CardTitle className="flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5" />
-                Danger Zone
+                Delete Account
               </CardTitle>
               <CardDescription>
                 Actions here can't be undone

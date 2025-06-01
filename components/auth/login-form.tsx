@@ -24,7 +24,7 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onSuccess, onForgotPassword }: LoginFormProps) {
-  const { signIn, signInWithGoogle } = useAuth();
+  const { signIn, signInWithGoogle, resolver } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -40,17 +40,28 @@ export function LoginForm({ onSuccess, onForgotPassword }: LoginFormProps) {
     setIsLoading(true);
     try {
       await signIn(data.email, data.password);
-      toast({
-        title: "Success",
-        description: "You have successfully logged in",
-      });
-      onSuccess();
+      
+      // If we're here and no MFA resolver was created, login was successful
+      if (!resolver) {
+        toast({
+          title: "Success",
+          description: "You have successfully logged in",
+        });
+        onSuccess();
+      }
+      // Otherwise, MFA verification will be handled by the MFAVerification component
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Login failed",
-        description: error.message || "There was an error logging in",
-      });
+      // If this is an MFA error, we don't show an error toast
+      // The MFAVerification component will handle the verification
+      if (error.code === 'auth/multi-factor-auth-required') {
+        // Do nothing, the MFAVerification component will take over
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Login failed",
+          description: error.message || "There was an error logging in",
+        });
+      }
     } finally {
       setIsLoading(false);
     }

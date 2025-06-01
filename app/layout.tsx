@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import Script from "next/script";
 import Header from "@/components/header";
 import { AuthProvider } from "@/hooks/use-auth";
+import { MFAVerification } from "@/components/auth";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -97,6 +98,8 @@ export default function RootLayout({
           </div>
           <div>{children}</div>
           <Toaster />
+          <div id="recaptcha-container"></div>
+          <MFAVerification />
         </AuthProvider>
       </body>
     </html>

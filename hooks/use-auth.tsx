@@ -12,6 +12,12 @@ import {
   sendPasswordResetEmail,
   updateProfile,
   sendEmailVerification,
+  multiFactor,
+  PhoneAuthProvider,
+  PhoneMultiFactorGenerator,
+  RecaptchaVerifier,
+  MultiFactorError,
+  MultiFactorResolver,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { AuthUser } from '@/lib/types';
@@ -27,6 +33,14 @@ interface AuthContextType {
   updateUserProfile: (displayName?: string, photoURL?: string) => Promise<void>;
   logout: () => Promise<void>;
   sendVerificationEmail: () => Promise<void>;
+  enrollMFA: (phoneNumber: string) => Promise<string>;
+  verifyMFAEnrollment: (verificationCode: string, verificationId: string) => Promise<void>;
+  unenrollMFA: () => Promise<void>;
+  isMFAEnabled: () => boolean;
+  resolver: MultiFactorResolver | null;
+  setResolver: (resolver: MultiFactorResolver | null) => void;
+  verifyMFALogin: (verificationCode: string) => Promise<void>;
+  prepareMFAVerification: (phoneNumber: string) => Promise<string>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,6 +49,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [resolver, setResolver] = useState<MultiFactorResolver | null>(null);
+  
+  // Create a RecaptchaVerifier instance
+  const getRecaptchaVerifier = (containerId: string = 'recaptcha-container') => {
+    return new RecaptchaVerifier(auth, containerId, {
+      size: 'invisible',
+      callback: () => {},
+    });
+  };
 
   // Listen for auth state changes
   useEffect(() => {
@@ -48,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           photoURL: user.photoURL,
           isAnonymous: user.isAnonymous,
           emailVerified: user.emailVerified,
+          mfaEnabled: multiFactor(user).enrolledFactors.length > 0,
         });
       } else {
         setUser(null);
@@ -85,8 +109,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setError(null);
       await signInWithEmailAndPassword(auth, email, password);
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in');
-      throw err;
+      // Check if this is a MFA error
+      if (err.code === 'auth/multi-factor-auth-required') {
+        // Get the resolver for the MFA challenge
+        setResolver(MultiFactorError.fromError(err).resolver);
+        throw err;
+      } else {
+        setError(err.message || 'Failed to sign in');
+        throw err;
+      }
     }
   };
 
@@ -161,6 +192,155 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Enroll in MFA with phone number
+  const enrollMFA = async (phoneNumber: string): Promise<string> => {
+    try {
+      setError(null);
+      if (!auth.currentUser) {
+        throw new Error('User not authenticated');
+      }
+
+      // Get the current user's multiFactor session
+      const multiFactorUser = multiFactor(auth.currentUser);
+      const session = await multiFactorUser.getSession();
+
+      // Create a phone auth provider
+      const phoneAuthProvider = new PhoneAuthProvider(auth);
+      
+      // Send verification code to the phone
+      const recaptchaVerifier = getRecaptchaVerifier();
+      const verificationId = await phoneAuthProvider.verifyPhoneNumber(
+        phoneNumber, 
+        recaptchaVerifier
+      );
+
+      // Return verification ID so it can be used to complete enrollment
+      return verificationId;
+    } catch (err: any) {
+      setError(err.message || 'Failed to start MFA enrollment');
+      throw err;
+    }
+  };
+
+  // Verify and complete MFA enrollment
+  const verifyMFAEnrollment = async (verificationCode: string, verificationId: string) => {
+    try {
+      setError(null);
+      if (!auth.currentUser) {
+        throw new Error('User not authenticated');
+      }
+
+      // Get the current user's multiFactor object
+      const multiFactorUser = multiFactor(auth.currentUser);
+      
+      // Create the phone auth credential using the verification ID and code
+      const credential = PhoneAuthProvider.credential(verificationId, verificationCode);
+      
+      // Complete enrollment
+      const multiFactorAssertion = PhoneMultiFactorGenerator.assertion(credential);
+      await multiFactorUser.enroll(multiFactorAssertion, "Phone number");
+      
+      // Update user state to reflect MFA status
+      if (user) {
+        setUser({
+          ...user,
+          mfaEnabled: true,
+        });
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to complete MFA enrollment');
+      throw err;
+    }
+  };
+
+  // Unenroll from MFA
+  const unenrollMFA = async () => {
+    try {
+      setError(null);
+      if (!auth.currentUser) {
+        throw new Error('User not authenticated');
+      }
+
+      const multiFactorUser = multiFactor(auth.currentUser);
+      const enrolledFactors = multiFactorUser.enrolledFactors;
+      
+      if (enrolledFactors.length > 0) {
+        // Unenroll the first factor (usually there's only one for phone MFA)
+        await multiFactorUser.unenroll(enrolledFactors[0]);
+        
+        // Update user state to reflect MFA status
+        if (user) {
+          setUser({
+            ...user,
+            mfaEnabled: false,
+          });
+        }
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to unenroll from MFA');
+      throw err;
+    }
+  };
+
+  // Check if MFA is enabled
+  const isMFAEnabled = (): boolean => {
+    return user?.mfaEnabled || false;
+  };
+
+  // Handle MFA verification during login
+  const prepareMFAVerification = async (phoneNumber: string): Promise<string> => {
+    try {
+      setError(null);
+      if (!resolver) {
+        throw new Error('No MFA resolver available');
+      }
+
+      // Get the available second factors
+      const hints = resolver.hints;
+      
+      // Send verification code
+      const recaptchaVerifier = getRecaptchaVerifier();
+      const phoneAuthProvider = new PhoneAuthProvider(auth);
+      
+      // Verify the phone number
+      const verificationId = await phoneAuthProvider.verifyPhoneNumber({
+        multiFactorHint: hints[0],
+        session: resolver.session
+      }, recaptchaVerifier);
+      
+      return verificationId;
+    } catch (err: any) {
+      setError(err.message || 'Failed to prepare MFA verification');
+      throw err;
+    }
+  };
+
+  // Complete MFA verification
+  const verifyMFALogin = async (verificationCode: string) => {
+    try {
+      setError(null);
+      if (!resolver) {
+        throw new Error('No MFA resolver available');
+      }
+      
+      // Create credential with the verification ID from preparePhoneVerification
+      const credential = PhoneAuthProvider.credential(
+        resolver.hints[0].uid, 
+        verificationCode
+      );
+      
+      // Complete sign-in
+      const multiFactorAssertion = PhoneMultiFactorGenerator.assertion(credential);
+      await resolver.resolveSignIn(multiFactorAssertion);
+      
+      // Reset the resolver after successful verification
+      setResolver(null);
+    } catch (err: any) {
+      setError(err.message || 'Failed to verify MFA code');
+      throw err;
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -172,6 +352,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     updateUserProfile,
     logout,
     sendVerificationEmail,
+    enrollMFA,
+    verifyMFAEnrollment,
+    unenrollMFA,
+    isMFAEnabled,
+    resolver,
+    setResolver,
+    verifyMFALogin,
+    prepareMFAVerification,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

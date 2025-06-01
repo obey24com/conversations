@@ -30,4 +30,5 @@ export interface AuthUser {
   photoURL: string | null;
   isAnonymous: boolean;
   emailVerified: boolean;
+  mfaEnabled?: boolean;
 }
