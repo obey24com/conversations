@@ -36,10 +36,8 @@ interface AuthContextType {
   verifyMFAEnrollment: (verificationCode: string, verificationId: string) => Promise<void>;
   unenrollMFA: () => Promise<void>;
   isMFAEnabled: () => boolean;
-  resolver: MultiFactorResolver | null;
-  setResolver: (resolver: MultiFactorResolver | null) => void;
-  verifyMFALogin: (verificationCode: string) => Promise<void>;
   prepareMFAVerification: (phoneNumber: string) => Promise<string>;
+  verifyMFALogin: (verificationCode: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -369,10 +367,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     verifyMFAEnrollment,
     unenrollMFA,
     isMFAEnabled,
-    resolver,
-    setResolver,
-    verifyMFALogin,
     prepareMFAVerification,
+    verifyMFALogin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

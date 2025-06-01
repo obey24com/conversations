@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 
 export function MFAVerification() {
-  const { resolver, verifyMFALogin, prepareMFAVerification } = useAuth();
+  const auth = useAuth();
   const { toast } = useToast();
   const [verificationCode, setVerificationCode] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
@@ -25,7 +25,7 @@ export function MFAVerification() {
   
   // Memoize handleStartVerification to avoid dependency issues
   const handleStartVerification = useCallback(async () => {
-    if (!resolver) return;
+    if (!auth.verifyMFALogin) return;
     
     try {
       // Create a div for the invisible reCAPTCHA
@@ -33,14 +33,16 @@ export function MFAVerification() {
       recaptchaContainer.id = 'recaptcha-container';
       document.body.appendChild(recaptchaContainer);
       
-      // Start verification process
-      const verificationId = await prepareMFAVerification(phoneNumber);
-      setVerificationId(verificationId);
-      
-      toast({
-        title: "Verification code sent",
-        description: "Please check your phone for the verification code",
-      });
+      // Start verification process - if this prepareMFAVerification is available
+      if (auth.prepareMFAVerification) {
+        const verificationId = await auth.prepareMFAVerification(phoneNumber);
+        setVerificationId(verificationId);
+        
+        toast({
+          title: "Verification code sent",
+          description: "Please check your phone for the verification code",
+        });
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -54,23 +56,31 @@ export function MFAVerification() {
         document.body.removeChild(recaptchaContainer);
       }
     }
-  }, [resolver, phoneNumber, prepareMFAVerification, toast]);
+  }, [phoneNumber, toast, auth]);
 
   useEffect(() => {
-    if (resolver) {
-      // Get the phone number from the hint if available
-      const hint = resolver.hints[0];
-      if (hint && hint.phoneNumber) {
-        setPhoneNumber(hint.phoneNumber);
+    // If MFA verification methods exist and there's a multi-factor challenge
+    const hasMultiFactorChallenge = auth.verifyMFALogin !== undefined;
+    
+    if (hasMultiFactorChallenge) {
+      // Try to get the phone number if available
+      try {
+        // Attempt to get phone number from any available source
+        const userPhone = phoneNumber || auth.user?.phoneNumber || "";
+        if (userPhone) {
+          setPhoneNumber(userPhone);
+        }
+      } catch (e) {
+        // Ignore errors when trying to get phone number
       }
       
       // Start verification process automatically
       handleStartVerification();
     }
-  }, [resolver, handleStartVerification]);
+  }, [handleStartVerification, auth, phoneNumber]);
 
   const handleVerifyCode = async () => {
-    if (!verificationCode) {
+    if (!verificationCode || !auth.verifyMFALogin) {
       toast({
         variant: "destructive",
         title: "Verification code required",
@@ -81,7 +91,7 @@ export function MFAVerification() {
 
     setIsVerifying(true);
     try {
-      await verifyMFALogin(verificationCode);
+      await auth.verifyMFALogin(verificationCode);
       
       toast({
         title: "Verification successful",
@@ -101,12 +111,15 @@ export function MFAVerification() {
     }
   };
 
-  if (!resolver) {
+  // Only show dialog if MFA verification is available
+  const showMFADialog = auth.verifyMFALogin !== undefined;
+  
+  if (!showMFADialog) {
     return null;
   }
 
   return (
-    <Dialog open={!!resolver} onOpenChange={() => {}}>
+    <Dialog open={showMFADialog} onOpenChange={() => {}}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
