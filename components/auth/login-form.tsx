@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import { FcGoogle } from "react-icons/fc";
 
 const loginFormSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -143,7 +142,7 @@ export function LoginForm({ onSuccess, onForgotPassword }: LoginFormProps) {
         onClick={handleGoogleSignIn}
         disabled={isLoading}
       >
-        <FcGoogle className="mr-2 h-4 w-4" />
+        <span className="mr-2 text-blue-500">G</span>
         Google
       </Button>
 

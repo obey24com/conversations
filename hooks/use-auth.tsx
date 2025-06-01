@@ -53,6 +53,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   // Create a RecaptchaVerifier instance
   const getRecaptchaVerifier = (containerId: string = 'recaptcha-container') => {
+    if (typeof window === 'undefined') return null; // Skip on server-side
+    
     return new RecaptchaVerifier(auth, containerId, {
       size: 'invisible',
       callback: () => {},
@@ -61,8 +63,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Listen for auth state changes
   useEffect(() => {
+    // Skip auth state listener on server-side
+    if (typeof window === 'undefined') return;
+    
     const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
       if (user) {
+        const mfUser = multiFactor(user);
         // Convert Firebase user to our AuthUser type
         setUser({
           uid: user.uid,
@@ -71,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           photoURL: user.photoURL,
           isAnonymous: user.isAnonymous,
           emailVerified: user.emailVerified,
-          mfaEnabled: multiFactor(user).enrolledFactors.length > 0,
+          mfaEnabled: mfUser?.enrolledFactors?.length > 0,
         });
       } else {
         setUser(null);
@@ -209,6 +215,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Send verification code to the phone
       const recaptchaVerifier = getRecaptchaVerifier();
+      if (!recaptchaVerifier) {
+        throw new Error('RecaptchaVerifier could not be created');
+      }
+      
       const verificationId = await phoneAuthProvider.verifyPhoneNumber(
         phoneNumber, 
         recaptchaVerifier
@@ -300,6 +310,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Send verification code
       const recaptchaVerifier = getRecaptchaVerifier();
+      if (!recaptchaVerifier) {
+        throw new Error('RecaptchaVerifier could not be created');
+      }
+      
       const phoneAuthProvider = new PhoneAuthProvider(auth);
       
       // Verify the phone number
