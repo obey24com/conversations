@@ -1,5 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
   throw new Error('Missing Firebase configuration');
@@ -17,3 +18,4 @@ const firebaseConfig = {
 // Initialize Firebase
 export const firebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 export const db = getFirestore(firebaseApp);
+export const auth = getAuth(firebaseApp);

@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/toaster";
 import Script from "next/script";
 import Header from "@/components/header";
+import { AuthProvider } from "@/hooks/use-auth";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -90,11 +91,13 @@ export default function RootLayout({
         <link rel="canonical" href="https://ulocat.com" />
       </head>
       <body className={inter.className}>
-        <div className="fixed inset-x-0 top-0 z-[150]">
-          <Header />
-        </div>
-        <div>{children}</div>
-        <Toaster />
+        <AuthProvider>
+          <div className="fixed inset-x-0 top-0 z-[150]">
+            <Header />
+          </div>
+          <div>{children}</div>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );

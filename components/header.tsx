@@ -2,15 +2,20 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "./ui/button";
-import { Menu, Instagram, X } from "lucide-react";
+import { Menu, Instagram, X, LogIn } from "lucide-react";
 import Image from "next/image";
 import Script from "next/script";
 import Link from "next/link";
+import { useAuth } from "@/hooks/use-auth";
+import { AuthDialog } from "./auth/auth-dialog";
+import { UserDropdown } from "./auth/user-dropdown";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { user, loading } = useAuth();
 
   const handleClickOutside = useCallback(
     (event: MouseEvent) => {
@@ -85,8 +90,25 @@ export default function Header() {
             </span>
           </div>
 
-          {/* Menu buttons */}
-          <div className="flex items-center">
+          {/* Auth and Menu buttons */}
+          <div className="flex items-center gap-2">
+            {!loading && (
+              <>
+                {user ? (
+                  <UserDropdown />
+                ) : (
+                  <Button 
+                    onClick={() => setAuthDialogOpen(true)} 
+                    variant="outline" 
+                    size="sm"
+                    className="hidden sm:flex"
+                  >
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Sign In
+                  </Button>
+                )}
+              </>
+            )}
             <Button 
               onClick={() => setMenuOpen(!menuOpen)} 
               variant="ghost" 
@@ -134,6 +156,21 @@ export default function Header() {
             <div className="mb-8 mt-2">
               <h2 className="text-xl font-semibold text-gray-900">Menu</h2>
             </div>
+
+            {!user && !loading && (
+              <div className="mb-4">
+                <Button
+                  className="w-full"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setAuthDialogOpen(true);
+                  }}
+                >
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Sign In / Create Account
+                </Button>
+              </div>
+            )}
 
             <div className="mb-6 rounded-xl border border-gray-200/50 bg-gray-50/50 p-4 text-center backdrop-blur-sm">
               <h3 className="mb-4 text-lg font-semibold text-gray-800">
@@ -237,6 +274,12 @@ export default function Header() {
             </div>
           </div>
         </div>
+
+        {/* Auth Dialog */}
+        <AuthDialog 
+          isOpen={authDialogOpen} 
+          onClose={() => setAuthDialogOpen(false)} 
+        />
 
         {/* Audio element for meow sound */}
         <audio ref={audioRef} preload="auto">

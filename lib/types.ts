@@ -22,3 +22,12 @@ export interface TranslationResponse {
 export interface SharedMessage extends TranslationMessage {
   shareId: string;
 }
+
+export interface AuthUser {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+  isAnonymous: boolean;
+  emailVerified: boolean;
+}
