@@ -65,8 +65,8 @@ export function MFAVerification() {
     if (hasMultiFactorChallenge) {
       // Try to get the phone number if available
       try {
-        // Attempt to get phone number from any available source
-        const userPhone = phoneNumber || auth.user?.phoneNumber || "";
+        // Use existing phoneNumber state or empty string
+        const userPhone = phoneNumber || "";
         if (userPhone) {
           setPhoneNumber(userPhone);
         }
