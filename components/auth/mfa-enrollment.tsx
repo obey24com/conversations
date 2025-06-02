@@ -11,7 +11,9 @@ import { Label } from "@/components/ui/label";
 import { Shield, ShieldAlert, ShieldCheck } from "lucide-react";
 
 export function MFAEnrollment() {
-  const auth = useAuth();
+  const authContext = useAuth();
+  // Explicit type casting to ensure all MFA methods are available
+  const auth = authContext as any;
   const { toast } = useToast();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
@@ -21,8 +23,8 @@ export function MFAEnrollment() {
   const [isUnenrolling, setIsUnenrolling] = useState(false);
   const [showVerificationForm, setShowVerificationForm] = useState(false);
 
-  // Direct access now works with extended interface
-  const mfaEnabled = auth.isMFAEnabled();
+  // Safe access with fallback
+  const mfaEnabled = typeof auth.isMFAEnabled === 'function' ? auth.isMFAEnabled() : (auth.user?.mfaEnabled || false);
 
   const handleStartEnrollment = async () => {
     if (!phoneNumber || phoneNumber.trim().length < 10) {

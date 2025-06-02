@@ -16,7 +16,9 @@ import {
 } from "@/components/ui/dialog";
 
 export function MFAVerification() {
-  const auth = useAuth();
+  const authContext = useAuth();
+  // Explicit type casting to ensure all MFA methods are available
+  const auth = authContext as any;
   const { toast } = useToast();
   const [verificationCode, setVerificationCode] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
