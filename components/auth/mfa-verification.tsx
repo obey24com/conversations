@@ -25,7 +25,7 @@ export function MFAVerification() {
   
   // Memoize handleStartVerification to avoid dependency issues
   const handleStartVerification = useCallback(async () => {
-    if (!(auth as any).verifyMFALogin) return;
+    if (!auth.verifyMFALogin) return;
     
     try {
       // Create a div for the invisible reCAPTCHA
@@ -34,8 +34,8 @@ export function MFAVerification() {
       document.body.appendChild(recaptchaContainer);
       
       // Start verification process - if this prepareMFAVerification is available
-      if ((auth as any).prepareMFAVerification) {
-        const verificationId = await (auth as any).prepareMFAVerification(phoneNumber);
+      if (auth.prepareMFAVerification) {
+        const verificationId = await auth.prepareMFAVerification(phoneNumber);
         setVerificationId(verificationId);
         
         toast({
@@ -60,7 +60,7 @@ export function MFAVerification() {
 
   useEffect(() => {
     // If MFA verification methods exist and there's a multi-factor challenge
-    const hasMultiFactorChallenge = (auth as any).verifyMFALogin !== undefined;
+    const hasMultiFactorChallenge = auth.verifyMFALogin !== undefined;
     
     if (hasMultiFactorChallenge) {
       // Try to get the phone number if available
@@ -80,7 +80,7 @@ export function MFAVerification() {
   }, [handleStartVerification, auth, phoneNumber]);
 
   const handleVerifyCode = async () => {
-    if (!verificationCode || !(auth as any).verifyMFALogin) {
+    if (!verificationCode || !auth.verifyMFALogin) {
       toast({
         variant: "destructive",
         title: "Verification code required",
@@ -91,7 +91,7 @@ export function MFAVerification() {
 
     setIsVerifying(true);
     try {
-      await (auth as any).verifyMFALogin(verificationCode);
+      await auth.verifyMFALogin(verificationCode);
       
       toast({
         title: "Verification successful",
@@ -112,7 +112,7 @@ export function MFAVerification() {
   };
 
   // Only show dialog if MFA verification is available
-  const showMFADialog = (auth as any).verifyMFALogin !== undefined;
+  const showMFADialog = auth.verifyMFALogin !== undefined;
   
   if (!showMFADialog) {
     return null;

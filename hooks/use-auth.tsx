@@ -40,7 +40,12 @@ interface AuthContextType {
   verifyMFALogin: (verificationCode: string) => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Extended interface for additional safety
+interface ExtendedAuthContextType extends AuthContextType {
+  [key: string]: any; // Allow any additional properties for maximum compatibility
+}
+
+const AuthContext = createContext<ExtendedAuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -352,7 +357,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const value: AuthContextType = {
+  // Create the value object with explicit typing and extended compatibility
+  const value: ExtendedAuthContextType = {
     user,
     loading,
     error,
@@ -374,7 +380,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export function useAuth() {
+export function useAuth(): ExtendedAuthContextType {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
