@@ -38,6 +38,7 @@ interface AuthContextType {
   isMFAEnabled: () => boolean;
   prepareMFAVerification: (phoneNumber: string) => Promise<string>;
   verifyMFALogin: (verificationCode: string) => Promise<void>;
+  hasMFAChallenge: boolean;
 }
 
 // Extended interface for additional safety
@@ -375,6 +376,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isMFAEnabled,
     prepareMFAVerification,
     verifyMFALogin,
+    hasMFAChallenge: !!resolver,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

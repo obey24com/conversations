@@ -25,9 +25,12 @@ export function MFAVerification() {
   const [verificationId, setVerificationId] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
   
+  // Get MFA challenge status from auth context
+  const hasMFAChallenge = auth.hasMFAChallenge || false;
+  
   // Memoize handleStartVerification to avoid dependency issues
   const handleStartVerification = useCallback(async () => {
-    if (!auth.verifyMFALogin) return;
+    if (!auth.prepareMFAVerification || !hasMFAChallenge) return;
     
     try {
       // Create a div for the invisible reCAPTCHA
@@ -35,16 +38,14 @@ export function MFAVerification() {
       recaptchaContainer.id = 'recaptcha-container';
       document.body.appendChild(recaptchaContainer);
       
-      // Start verification process - if this prepareMFAVerification is available
-      if (auth.prepareMFAVerification) {
-        const verificationId = await auth.prepareMFAVerification(phoneNumber);
-        setVerificationId(verificationId);
-        
-        toast({
-          title: "Verification code sent",
-          description: "Please check your phone for the verification code",
-        });
-      }
+      // Start verification process
+      const verificationId = await auth.prepareMFAVerification(phoneNumber);
+      setVerificationId(verificationId);
+      
+      toast({
+        title: "Verification code sent",
+        description: "Please check your phone for the verification code",
+      });
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -58,28 +59,14 @@ export function MFAVerification() {
         document.body.removeChild(recaptchaContainer);
       }
     }
-  }, [phoneNumber, toast, auth]);
+  }, [phoneNumber, toast, auth, hasMFAChallenge]);
 
+  // Automatically start verification when MFA challenge is detected
   useEffect(() => {
-    // If MFA verification methods exist and there's a multi-factor challenge
-    const hasMultiFactorChallenge = auth.verifyMFALogin !== undefined;
-    
-    if (hasMultiFactorChallenge) {
-      // Try to get the phone number if available
-      try {
-        // Use existing phoneNumber state or empty string
-        const userPhone = phoneNumber || "";
-        if (userPhone) {
-          setPhoneNumber(userPhone);
-        }
-      } catch (e) {
-        // Ignore errors when trying to get phone number
-      }
-      
-      // Start verification process automatically
+    if (hasMFAChallenge) {
       handleStartVerification();
     }
-  }, [handleStartVerification, auth, phoneNumber]);
+  }, [hasMFAChallenge, handleStartVerification]);
 
   const handleVerifyCode = async () => {
     if (!verificationCode || !auth.verifyMFALogin) {
@@ -113,15 +100,13 @@ export function MFAVerification() {
     }
   };
 
-  // Only show dialog if MFA verification is available
-  const showMFADialog = auth.verifyMFALogin !== undefined;
-  
-  if (!showMFADialog) {
+  // Only show dialog if there's an actual MFA challenge
+  if (!hasMFAChallenge) {
     return null;
   }
 
   return (
-    <Dialog open={showMFADialog} onOpenChange={() => {}}>
+    <Dialog open={hasMFAChallenge} onOpenChange={() => {}}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
