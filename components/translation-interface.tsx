@@ -58,9 +58,11 @@ export function TranslationInterface() {
   const { toast } = useToast();
 
   const handleDeleteMessage = useCallback((messageId: string) => {
-    setMessages((prevMessages) =>
-      prevMessages.filter((msg) => msg.id !== messageId),
-    );
+    setMessages((prevMessages) => {
+      const filteredMessages = prevMessages.filter((msg) => msg.id !== messageId);
+      storeMessages(filteredMessages);
+      return filteredMessages;
+    });
   }, []); // No dependencies needed as setMessages is stable
 
   const handleSwapLanguages = useCallback(() => {
@@ -94,20 +96,39 @@ export function TranslationInterface() {
       const data = await response.json();
 
       if (data.translation) {
-        const [beforeContext, ...culturalNotes] =
-          data.translation.split("\nCONTEXT:");
-        const [translationPart, phoneticPart] = beforeContext.split("\nPHONETIC:");
+        // More robust parsing of OpenAI response
+        let translationText = "";
+        let phoneticText = "";
+        let culturalText = "";
+
+        const response = data.translation;
+        
+        // Extract TRANSLATION
+        const translationMatch = response.match(/TRANSLATION:\s*(.*?)(?=\n(?:PHONETIC|CONTEXT):|$)/s);
+        if (translationMatch) {
+          translationText = translationMatch[1].trim();
+        }
+
+        // Extract PHONETIC
+        const phoneticMatch = response.match(/PHONETIC:\s*(.*?)(?=\n(?:CONTEXT):|$)/s);
+        if (phoneticMatch) {
+          phoneticText = phoneticMatch[1].trim();
+        }
+
+        // Extract CONTEXT
+        const contextMatch = response.match(/CONTEXT:\s*(.*?)$/s);
+        if (contextMatch) {
+          culturalText = contextMatch[1].trim();
+        }
 
         const detectedFromLang = data.detectedLang || "en";
 
         const newMessage = {
           id: Math.random().toString(36).substr(2, 9),
           text: inputText,
-          translation: translationPart.replace("TRANSLATION:", "").trim(),
-          phonetic: phoneticPart?.trim() || undefined,
-          cultural: culturalNotes.length
-            ? culturalNotes.join("\n").trim()
-            : undefined,
+          translation: translationText || response.replace("TRANSLATION:", "").trim(),
+          phonetic: phoneticText || undefined,
+          cultural: culturalText || undefined,
           fromLang: detectedFromLang,
           toLang,
           timestamp: Date.now(),
@@ -115,10 +136,7 @@ export function TranslationInterface() {
 
         setMessages((prev) => {
           const updatedMessages = [...prev, newMessage];
-          localStorage.setItem(
-            STORAGE_KEYS.MESSAGES,
-            JSON.stringify(updatedMessages),
-          );
+          storeMessages(updatedMessages);
           return updatedMessages;
         });
 
@@ -257,9 +275,30 @@ export function TranslationInterface() {
         const translationData = await translationResponse.json();
 
         if (translationData.translation) {
-          const [beforeContext, ...culturalNotes] =
-            translationData.translation.split("\nCONTEXT:");
-          const [translation, phonetic] = beforeContext.split("\nPHONETIC:");
+          // More robust parsing of OpenAI response
+          let translationText = "";
+          let phoneticText = "";
+          let culturalText = "";
+
+          const response = translationData.translation;
+          
+          // Extract TRANSLATION
+          const translationMatch = response.match(/TRANSLATION:\s*(.*?)(?=\n(?:PHONETIC|CONTEXT):|$)/s);
+          if (translationMatch) {
+            translationText = translationMatch[1].trim();
+          }
+
+          // Extract PHONETIC
+          const phoneticMatch = response.match(/PHONETIC:\s*(.*?)(?=\n(?:CONTEXT):|$)/s);
+          if (phoneticMatch) {
+            phoneticText = phoneticMatch[1].trim();
+          }
+
+          // Extract CONTEXT
+          const contextMatch = response.match(/CONTEXT:\s*(.*?)$/s);
+          if (contextMatch) {
+            culturalText = contextMatch[1].trim();
+          }
 
           const detectedFromLang = translationData.detectedLang || "en";
 
@@ -270,17 +309,19 @@ export function TranslationInterface() {
           const newMessage = {
             id: Math.random().toString(36).substr(2, 9),
             text: data.text,
-            translation: translation.replace("TRANSLATION:", "").trim(),
-            phonetic: phonetic?.trim() || undefined,
-            cultural: culturalNotes.length
-              ? culturalNotes.join("\n").trim()
-              : undefined,
+            translation: translationText || response.replace("TRANSLATION:", "").trim(),
+            phonetic: phoneticText || undefined,
+            cultural: culturalText || undefined,
             fromLang: detectedFromLang,
             toLang,
             timestamp: Date.now(),
           };
 
-          setMessages((prev) => [...prev, newMessage]);
+          setMessages((prev) => {
+            const updatedMessages = [...prev, newMessage];
+            storeMessages(updatedMessages);
+            return updatedMessages;
+          });
 
           if (isSwapActive) {
             handleSwapLanguages();
@@ -497,22 +538,45 @@ export function TranslationInterface() {
                             data.detectedLang,
                           );
 
-                          const [beforeContext, ...culturalNotes] =
-                            data.translation.split("\nCONTEXT:");
-                          const [translation, phonetic] = beforeContext.split("\nPHONETIC:");
+                          // More robust parsing of OpenAI response
+                          let translationText = "";
+                          let phoneticText = "";
+                          let culturalText = "";
+
+                          const response = data.translation;
+                          
+                          // Extract TRANSLATION
+                          const translationMatch = response.match(/TRANSLATION:\s*(.*?)(?=\n(?:PHONETIC|CONTEXT):|$)/s);
+                          if (translationMatch) {
+                            translationText = translationMatch[1].trim();
+                          }
+
+                          // Extract PHONETIC
+                          const phoneticMatch = response.match(/PHONETIC:\s*(.*?)(?=\n(?:CONTEXT):|$)/s);
+                          if (phoneticMatch) {
+                            phoneticText = phoneticMatch[1].trim();
+                          }
+
+                          // Extract CONTEXT
+                          const contextMatch = response.match(/CONTEXT:\s*(.*?)$/s);
+                          if (contextMatch) {
+                            culturalText = contextMatch[1].trim();
+                          }
 
                           const newMessage = createMessage({
                             text: data.text,
-                            translation: translation.replace("TRANSLATION:", ""),
-                            phonetic: phonetic?.trim(),
-                            cultural: culturalNotes.length
-                              ? culturalNotes.join("\n")
-                              : undefined,
+                            translation: translationText || response.replace("TRANSLATION:", "").trim(),
+                            phonetic: phoneticText || undefined,
+                            cultural: culturalText || undefined,
                             fromLang: data.detectedLang,
                             toLang,
                           });
 
-                          setMessages((prev) => [...prev, newMessage]);
+                          setMessages((prev) => {
+                            const updatedMessages = [...prev, newMessage];
+                            storeMessages(updatedMessages);
+                            return updatedMessages;
+                          });
 
                           if (isSwapActive) {
                             handleSwapLanguages();
