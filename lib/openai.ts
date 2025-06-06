@@ -94,8 +94,9 @@ Follow these strict rules:
 1. Translate the message naturally into ${toLang} as if originally written in ${toLang}.
 2. Format:
    TRANSLATION: [Your ${toLang} translation]
+   PHONETIC: [${toLang} pronunciation written using ${fromLang} script. If the scripts are the same, repeat the translation.]
    CONTEXT: [Cultural notes and explanations in ${toLang}. If no additional context is needed, just leave it empty.]
-3. Keep "TRANSLATION:" and "CONTEXT:" in English, do not translate these headings.
+3. Keep "TRANSLATION:", "PHONETIC:" and "CONTEXT:" in English, do not translate these headings.
 4. CRITICAL: ALL text after TRANSLATION: and CONTEXT: MUST be in proper ${toLang} script.
 5. For Burmese and similar languages:
    - Use the native script (e.g., မြန်မာအက္ခရာ for Burmese)

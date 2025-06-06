@@ -57,6 +57,7 @@ export function MessageList({ messages, isPlaying, onPlay, onDelete }: MessageLi
                 <MessageBubble
                   text={message.text}
                   translation={message.translation}
+                  phonetic={message.phonetic}
                   fromLang={message.fromLang}
                   toLang={message.toLang}
                   cultural={message.cultural}
@@ -76,6 +77,7 @@ export function MessageList({ messages, isPlaying, onPlay, onDelete }: MessageLi
             <MessageBubble
               text={reversedMessages[0].text}
               translation={reversedMessages[0].translation}
+              phonetic={reversedMessages[0].phonetic}
               fromLang={reversedMessages[0].fromLang}
               toLang={reversedMessages[0].toLang}
               cultural={reversedMessages[0].cultural}

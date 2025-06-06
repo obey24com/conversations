@@ -67,6 +67,7 @@ export function SharedMessageContent({ params }: SharedMessageContentProps) {
         <MessageBubble
           text={message.text}
           translation={message.translation}
+          phonetic={message.phonetic}
           fromLang={message.fromLang}
           toLang={message.toLang}
           cultural={message.cultural}
