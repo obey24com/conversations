@@ -434,9 +434,7 @@ export function TranslationInterface() {
             isLoading={isLoading}
             onInputChange={setInputText}
             onSend={handleSend}
-          />
-
-          <div className="flex gap-2 justify-end">
+          >
             <Button
               variant="outline"
               size="icon"
@@ -551,7 +549,7 @@ export function TranslationInterface() {
               isLoading={isLoading}
               onToggle={toggleRecording}
             />
-          </div>
+          </InputControls>
         </div>
       </div>
 

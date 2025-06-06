@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ReactNode } from 'react';
 
 interface InputControlsProps {
   inputText: string;
   isLoading: boolean;
   onInputChange: (value: string) => void;
   onSend: () => void;
+  children?: ReactNode;
 }
 
 export function InputControls({
@@ -17,9 +19,10 @@ export function InputControls({
   isLoading,
   onInputChange,
   onSend,
+  children,
 }: InputControlsProps) {
   return (
-    <div className="flex gap-2 w-full">
+    <div className="flex items-center gap-2 w-full">
       <Input
         value={inputText}
         onChange={(e) => onInputChange(e.target.value)}
@@ -28,10 +31,11 @@ export function InputControls({
         className="flex-1"
         disabled={isLoading}
       />
-      
-      
-      <Button 
-        onClick={onSend} 
+
+      {children}
+
+      <Button
+        onClick={onSend}
         disabled={!inputText.trim() || isLoading}
         className={cn(
           "shrink-0 transition-all duration-200",
