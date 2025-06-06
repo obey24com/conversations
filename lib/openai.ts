@@ -1,8 +1,8 @@
 import OpenAI from 'openai';
 
-// Initialize OpenAI with dummy key for development if not provided
+// Create OpenAI instance with better error handling for build time
 export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || 'dummy-key',
+  apiKey: process.env.OPENAI_API_KEY || 'sk-dummy-key-for-build',
   baseURL: process.env.OPENAI_API_BASE_URL || 'https://api.openai.com/v1',
 });
 
@@ -21,6 +21,11 @@ export async function translateText(
       toLang,
     });
     throw new Error('Missing required parameters for translation');
+  }
+
+  // Check if OpenAI is properly configured
+  if (!isOpenAIConfigured()) {
+    throw new Error('OpenAI API key not configured');
   }
 
   const isPetFrom = fromLang === 'cat' || fromLang === 'dog';
