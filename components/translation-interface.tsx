@@ -94,15 +94,17 @@ export function TranslationInterface() {
       const data = await response.json();
 
       if (data.translation) {
-        const [translation, ...culturalNotes] =
+        const [beforeContext, ...culturalNotes] =
           data.translation.split("\nCONTEXT:");
+        const [translationPart, phoneticPart] = beforeContext.split("\nPHONETIC:");
 
         const detectedFromLang = data.detectedLang || "en";
-        
+
         const newMessage = {
           id: Math.random().toString(36).substr(2, 9),
           text: inputText,
-          translation: translation.replace("TRANSLATION:", "").trim(),
+          translation: translationPart.replace("TRANSLATION:", "").trim(),
+          phonetic: phoneticPart?.trim() || undefined,
           cultural: culturalNotes.length
             ? culturalNotes.join("\n").trim()
             : undefined,
@@ -255,8 +257,9 @@ export function TranslationInterface() {
         const translationData = await translationResponse.json();
 
         if (translationData.translation) {
-          const [translation, ...culturalNotes] =
+          const [beforeContext, ...culturalNotes] =
             translationData.translation.split("\nCONTEXT:");
+          const [translation, phonetic] = beforeContext.split("\nPHONETIC:");
 
           const detectedFromLang = translationData.detectedLang || "en";
 
@@ -268,6 +271,7 @@ export function TranslationInterface() {
             id: Math.random().toString(36).substr(2, 9),
             text: data.text,
             translation: translation.replace("TRANSLATION:", "").trim(),
+            phonetic: phonetic?.trim() || undefined,
             cultural: culturalNotes.length
               ? culturalNotes.join("\n").trim()
               : undefined,
@@ -493,12 +497,14 @@ export function TranslationInterface() {
                             data.detectedLang,
                           );
 
-                          const [translation, ...culturalNotes] =
+                          const [beforeContext, ...culturalNotes] =
                             data.translation.split("\nCONTEXT:");
+                          const [translation, phonetic] = beforeContext.split("\nPHONETIC:");
 
                           const newMessage = createMessage({
                             text: data.text,
                             translation: translation.replace("TRANSLATION:", ""),
+                            phonetic: phonetic?.trim(),
                             cultural: culturalNotes.length
                               ? culturalNotes.join("\n")
                               : undefined,

@@ -3,12 +3,14 @@ import type { TranslationMessage } from './types';
 export function createMessage({
   text,
   translation,
+  phonetic,
   fromLang,
   toLang,
   cultural,
 }: {
   text: string;
   translation: string;
+  phonetic?: string;
   fromLang: string;
   toLang: string;
   cultural?: string;
@@ -17,6 +19,7 @@ export function createMessage({
     id: Math.random().toString(36).substr(2, 9),
     text,
     translation: translation.trim(),
+    phonetic: phonetic?.trim() || undefined,
     cultural: cultural?.trim() || undefined,
     fromLang,
     toLang,
