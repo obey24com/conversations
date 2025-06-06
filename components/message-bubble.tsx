@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from '@/components/ui/button';
-import { Volume2, Copy, X, Share2 } from 'lucide-react';
+import { Volume2, Copy, X, Share2, Languages } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
 import { useState, useRef, useEffect, memo } from 'react';
@@ -13,6 +13,7 @@ import { Loader2 } from 'lucide-react';
 export interface MessageBubbleProps {
   text: string;
   translation: string;
+  phonetic?: string;
   fromLang: string;
   toLang: string;
   cultural?: string;
@@ -23,12 +24,13 @@ export interface MessageBubbleProps {
   hideShare?: boolean;
 }
 
-export const MessageBubble = memo(function MessageBubble({ 
-  text, 
+export const MessageBubble = memo(function MessageBubble({
+  text,
   translation,
+  phonetic,
   fromLang,
-  toLang, 
-  cultural, 
+  toLang,
+  cultural,
   isPlaying, 
   onPlay,
   onDelete,
@@ -42,6 +44,7 @@ export const MessageBubble = memo(function MessageBubble({
   const [shareLoading, setShareLoading] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const [showPhonetic, setShowPhonetic] = useState(false);
   const heightRef = useRef<number>(0);
 
   useEffect(() => {
@@ -180,6 +183,17 @@ export const MessageBubble = memo(function MessageBubble({
           >
             <Copy className="h-4 w-4 text-gray-400 hover:text-gray-600" />
           </Button>
+
+          {phonetic && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 bg-white/95 shadow-sm hover:shadow-md backdrop-blur-sm"
+              onClick={() => setShowPhonetic(!showPhonetic)}
+            >
+              <Languages className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+            </Button>
+          )}
           
           {!hideShare && (
             <Button
@@ -220,6 +234,17 @@ export const MessageBubble = memo(function MessageBubble({
           >
             <Copy className="h-4 w-4 text-gray-400 hover:text-gray-600 hover:scale-110" />
           </Button>
+
+          {phonetic && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 bg-white/95 shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-sm"
+              onClick={() => setShowPhonetic(!showPhonetic)}
+            >
+              <Languages className="h-4 w-4 text-gray-400 hover:text-gray-600 hover:scale-110" />
+            </Button>
+          )}
           
           {!hideShare && (
             <Button
@@ -258,6 +283,9 @@ export const MessageBubble = memo(function MessageBubble({
         <p className="text-sm text-gray-500 mb-4">{text}</p>
         <div className="mt-3 pr-2">
           <p className="text-lg font-medium text-gray-900 leading-relaxed">{translation}</p>
+          {showPhonetic && phonetic && (
+            <p className="mt-2 text-sm text-gray-600 italic">{phonetic}</p>
+          )}
 
           {cultural && (
             <p className="mt-4 pt-4 border-t border-gray-100 text-sm text-gray-600 italic leading-relaxed">
