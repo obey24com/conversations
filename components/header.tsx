@@ -2,7 +2,9 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "./ui/button";
-import { Menu, Instagram, X, LogIn } from "lucide-react";
+import { Menu, Instagram, X, LogIn, History } from "lucide-react";
+import { getStoredMessages } from "@/lib/storage";
+import type { TranslationMessage } from "@/lib/types";
 import Image from "next/image";
 import Script from "next/script";
 import Link from "next/link";
@@ -13,7 +15,10 @@ import { UserDropdown } from "./auth/user-dropdown";
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyMessages, setHistoryMessages] = useState<TranslationMessage[]>([]);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const historyRef = useRef<HTMLDivElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { user, loading } = useAuth();
 
@@ -22,8 +27,11 @@ export default function Header() {
       if (menuOpen && menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setMenuOpen(false);
       }
+      if (historyOpen && historyRef.current && !historyRef.current.contains(event.target as Node)) {
+        setHistoryOpen(false);
+      }
     },
-    [menuOpen],
+    [menuOpen, historyOpen],
   );
 
   const playMeow = (e: React.MouseEvent) => {
@@ -35,6 +43,12 @@ export default function Header() {
       });
     }
   };
+
+  useEffect(() => {
+    if (historyOpen) {
+      setHistoryMessages(getStoredMessages());
+    }
+  }, [historyOpen]);
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
@@ -109,9 +123,16 @@ export default function Header() {
                 )}
               </>
             )}
-            <Button 
-              onClick={() => setMenuOpen(!menuOpen)} 
-              variant="ghost" 
+            <Button
+              onClick={() => setHistoryOpen(!historyOpen)}
+              variant="ghost"
+              className="hover:bg-black/5"
+            >
+              <History className="h-6 w-6" />
+            </Button>
+            <Button
+              onClick={() => setMenuOpen(!menuOpen)}
+              variant="ghost"
               className="hover:bg-black/5"
             >
               <Menu className="h-6 w-6" />
@@ -125,6 +146,14 @@ export default function Header() {
             menuOpen ? "pointer-events-auto opacity-50" : "pointer-events-none opacity-0"
           }`}
           onClick={() => setMenuOpen(false)}
+        />
+
+        {/* History Overlay */}
+        <div
+          className={`fixed inset-0 z-50 bg-black/50 transition-opacity duration-300 ${
+            historyOpen ? "pointer-events-auto opacity-50" : "pointer-events-none opacity-0"
+          }`}
+          onClick={() => setHistoryOpen(false)}
         />
 
         {/* Menu Content */}
@@ -271,6 +300,50 @@ export default function Header() {
                   </a>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* History Content */}
+        <div
+          className={`fixed inset-y-0 left-0 z-50 w-full max-w-sm transform transition-all duration-300 ease-in-out ${
+            historyOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+          style={{ zIndex: 100 }}
+        >
+          <div
+            ref={historyRef}
+            className="h-full w-full bg-white/95 p-6 shadow-2xl backdrop-blur-xl"
+            style={{
+              WebkitBackdropFilter: 'saturate(180%) blur(20px)',
+              backdropFilter: 'saturate(180%) blur(20px)',
+              position: 'relative'
+            }}
+          >
+            <Button
+              onClick={() => setHistoryOpen(false)}
+              variant="ghost"
+              size="icon"
+              className="absolute right-4 top-4 h-8 w-8 rounded-full bg-white/95 shadow-lg transition-colors hover:bg-gray-100/80"
+              style={{ zIndex: 110 }}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+
+            <div className="mb-4 mt-2">
+              <h2 className="text-xl font-semibold text-gray-900">History</h2>
+            </div>
+
+            <div className="overflow-y-auto h-full space-y-4 pb-10">
+              {historyMessages.length === 0 && (
+                <p className="text-sm text-gray-500">No history yet.</p>
+              )}
+              {historyMessages.map((msg) => (
+                <div key={msg.id} className="border-b border-gray-100 pb-2">
+                  <p className="text-sm text-gray-500">{msg.text}</p>
+                  <p className="text-sm font-medium text-gray-900">{msg.translation}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>

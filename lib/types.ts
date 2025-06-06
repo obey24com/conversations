@@ -2,6 +2,7 @@ export interface TranslationMessage {
   id: string;
   text: string;
   translation: string;
+  phonetic?: string;
   cultural?: string;
   fromLang: string;
   toLang: string;
