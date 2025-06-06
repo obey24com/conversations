@@ -1,70 +1,28 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Mic,
-  Square,
-  Send,
-  RotateCcw,
-  ChevronUp,
-  Camera,
-  Globe,
-  Languages,
-} from "lucide-react";
+import { Mic, RotateCcw, Camera, Globe, Languages } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  supportedLanguages,
-  isPetLanguage,
-  LanguageCode,
-  isValidLanguageCode,
-} from "@/lib/languages";
+import { supportedLanguages, isPetLanguage, LanguageCode } from "@/lib/languages";
 import { useZoomControl } from "@/hooks/use-zoom-control";
 import { LanguageSelect } from "./language-select";
-import { MessageBubble } from "./message-bubble";
+import { InputControls } from "./input-controls";
+import { AudioControls } from "./audio-controls";
+import { MessageList } from "./message-list";
 import { STORAGE_KEYS } from "@/lib/constants";
 import { useMicrophonePermission } from "@/hooks/use-microphone-permission";
+import type { TranslationMessage } from "@/lib/types";
+import {
+  getStoredLanguage,
+  getStoredAutoSwitch,
+  getStoredMessages,
+  storeMessages,
+} from "@/lib/storage";
+import { createMessage } from "@/lib/message-utils";
 
 
-interface Message {
-  id: string;
-  text: string;
-  translation: string;
-  fromLang: LanguageCode;
-  toLang: LanguageCode;
-  cultural?: string;
-  timestamp?: number;
-}
-
-const MAX_STORED_MESSAGES = 50;
-
-function getStoredLanguage(key: string, fallback: LanguageCode): LanguageCode {
-  if (typeof window === "undefined") return fallback;
-  const stored = localStorage.getItem(key);
-  return stored && isValidLanguageCode(stored) ? stored : fallback;
-}
-
-function getStoredAutoSwitch(): boolean {
-  if (typeof window === "undefined") return false;
-  return localStorage.getItem(STORAGE_KEYS.AUTO_SWITCH) === "true";
-}
-
-function getStoredMessages(): Message[] {
-  if (typeof window === "undefined") return [];
-  const stored = localStorage.getItem(STORAGE_KEYS.MESSAGES);
-  if (!stored) return [];
-  try {
-    const messages = JSON.parse(stored);
-    return messages.map((msg: Message) => ({
-      ...msg,
-      id: msg.id || Math.random().toString(36).substr(2, 9),
-    }));
-  } catch {
-    return [];
-  }
-}
 
 export function TranslationInterface() {
   useZoomControl();
@@ -76,7 +34,7 @@ export function TranslationInterface() {
     getStoredLanguage(STORAGE_KEYS.TO_LANG, "es"),
   );
   const [inputText, setInputText] = useState("");
-  const [messages, setMessages] = useState<Message[]>(() =>
+  const [messages, setMessages] = useState<TranslationMessage[]>(() =>
     getStoredMessages(),
   );
   const [isRecording, setIsRecording] = useState(false);
@@ -88,7 +46,6 @@ export function TranslationInterface() {
   const [swapMessage, setSwapMessage] = useState("");
   const [isSwapping, setIsSwapping] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [showPrevious, setShowPrevious] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
   const [isImageProcessing, setIsImageProcessing] = useState(false);
   const { permissionState, requestPermission, AUDIO_CONSTRAINTS } =
@@ -98,7 +55,6 @@ export function TranslationInterface() {
   const audioChunksRef = useRef<Blob[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   const handleDeleteMessage = useCallback((messageId: string) => {
@@ -193,7 +149,6 @@ export function TranslationInterface() {
     handleSwapLanguages,
   ]);
 
-  const reversedMessages = useMemo(() => [...messages].reverse(), [messages]);
 
   const toggleSwapActive = () => {
     setIsSwapActive((prev) => {
@@ -415,29 +370,11 @@ export function TranslationInterface() {
     }
   };
 
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({
-        behavior: "smooth",
-      });
-    }
-  }, [messages.length]);
-
-  useEffect(() => {
-    if (mounted && messagesEndRef.current && messages.length > 0) {
-      requestAnimationFrame(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
-      });
-    }
-  }, [mounted, messages.length]);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const handleShowPrevious = () => {
-    setShowPrevious(!showPrevious);
-  };
 
   if (!mounted) {
     return null;
@@ -445,85 +382,12 @@ export function TranslationInterface() {
 
   return (
     <div className="flex grow flex-col">
-      <div className="relative flex-1 overflow-y-auto">
-        <div className="mx-auto w-full max-w-5xl px-4 pt-20 flex flex-col items-center">
-          {reversedMessages.length > 1 && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="mb-2 mt-1 h-8 w-8 rounded-full border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 bg-white/95 backdrop-blur-sm"
-              onClick={handleShowPrevious}
-            >
-              <ChevronUp
-                className={cn(
-                  "h-4 w-4 text-gray-400 transition-transform duration-200",
-                  showPrevious && "rotate-180",
-                )}
-              />
-            </Button>
-          )}
-
-          {/* Previous translation */}
-          <div className="w-full">
-            {showPrevious &&
-              reversedMessages.length > 1 &&
-              reversedMessages.slice(1).map((message, index) => (
-                <div
-                  key={message.id}
-                  className={cn(
-                    "w-full transition-all duration-300",
-                    "opacity-0 translate-y-4",
-                    showPrevious && "opacity-100 translate-y-0",
-                  )}
-                >
-                  <MessageBubble
-                    text={message.text}
-                    translation={message.translation}
-                    fromLang={message.fromLang}
-                    toLang={message.toLang}
-                    cultural={message.cultural}
-                    isPlaying={isPlaying === index + 1}
-                    onPlay={() =>
-                      playTranslation(
-                        message.translation,
-                        index + 1,
-                        message.toLang,
-                      )
-                    }
-                    onDelete={() => handleDeleteMessage(message.id)}
-                  />
-                </div>
-              ))}
-          </div>
-        </div>
-
-        {/* Current translation */}
-        <div className="flex-1 flex items-center justify-center px-4 pb-8 mt-4">
-          <div ref={messagesEndRef} />
-          {reversedMessages.length > 0 && (
-            <div className="w-full">
-              {reversedMessages[0] && (
-                <MessageBubble
-                  text={reversedMessages[0].text}
-                  translation={reversedMessages[0].translation}
-                  fromLang={reversedMessages[0].fromLang}
-                  toLang={reversedMessages[0].toLang}
-                  cultural={reversedMessages[0].cultural}
-                  isPlaying={isPlaying === 0}
-                  onPlay={() =>
-                    playTranslation(
-                      reversedMessages[0].translation,
-                      0,
-                      reversedMessages[0].toLang,
-                    )
-                  }
-                  onDelete={() => handleDeleteMessage(reversedMessages[0].id)}
-                />
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+      <MessageList
+        messages={messages}
+        isPlaying={isPlaying}
+        onPlay={playTranslation}
+        onDelete={handleDeleteMessage}
+      />
 
       <div className="bg-background fixed inset-x-0 bottom-0 space-y-3 px-4 py-3 shadow-[0_-1px_3px_rgba(0,0,0,0.1)]">
         <div className="mx-auto w-full max-w-5xl space-y-3">
@@ -565,62 +429,14 @@ export function TranslationInterface() {
             />
           </div>
 
-          <div className="flex w-full gap-2">
-            <div className="relative flex-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-accent",
-                  isTranslating && "opacity-50 pointer-events-none",
-                )}
-                onClick={async () => {
-                  try {
-                    const text = await navigator.clipboard.readText();
-                    setInputText(text);
-                  } catch (error) {
-                    toast({
-                      title: "Error",
-                      description: "Failed to paste text",
-                      variant: "destructive",
-                    });
-                  }
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-                  <path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1Z" />
-                </svg>
-              </Button>
-              <Input
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                placeholder="Type to translate..."
-                onKeyDown={(e) =>
-                  e.key === "Enter" && !e.shiftKey && handleSend()
-                }
-                className="text-lg pl-12"
-                style={{
-                  fontSize: "16px",
-                  background: isTranslating
-                    ? "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)"
-                    : "transparent",
-                }}
-                disabled={isLoading}
-              />
-            </div>
+          <InputControls
+            inputText={inputText}
+            isLoading={isLoading}
+            onInputChange={setInputText}
+            onSend={handleSend}
+          />
 
+          <div className="flex gap-2 justify-end">
             <Button
               variant="outline"
               size="icon"
@@ -656,7 +472,6 @@ export function TranslationInterface() {
                       try {
                         const base64Image = reader.result as string;
 
-                        // Show loading state before API call
                         setIsTranslating(true);
 
                         const response = await fetch("/api/analyze-image", {
@@ -674,7 +489,6 @@ export function TranslationInterface() {
                           data.translation &&
                           data.detectedLang
                         ) {
-                          // Update the fromLang with detected language
                           setFromLang(data.detectedLang);
                           localStorage.setItem(
                             STORAGE_KEYS.FROM_LANG,
@@ -684,19 +498,15 @@ export function TranslationInterface() {
                           const [translation, ...culturalNotes] =
                             data.translation.split("\nCONTEXT:");
 
-                          const newMessage = {
-                            id: Math.random().toString(36).substr(2, 9),
+                          const newMessage = createMessage({
                             text: data.text,
-                            translation: translation
-                              .replace("TRANSLATION:", "")
-                              .trim(),
+                            translation: translation.replace("TRANSLATION:", ""),
                             cultural: culturalNotes.length
-                              ? culturalNotes.join("\n").trim()
+                              ? culturalNotes.join("\n")
                               : undefined,
                             fromLang: data.detectedLang,
                             toLang,
-                            timestamp: Date.now(),
-                          };
+                          });
 
                           setMessages((prev) => [...prev, newMessage]);
 
@@ -729,45 +539,21 @@ export function TranslationInterface() {
                     setIsTranslating(false);
                     setIsLoading(false);
                   } finally {
-                    e.target.value = ""; // Reset file input
+                    e.target.value = "";
                   }
                 }}
               />
             </Button>
 
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={toggleRecording}
-              className={cn(
-                "shrink-0 transition-colors duration-200",
-                isRecording &&
-                  "bg-red-500 border-red-500 hover:bg-red-600 hover:border-red-600",
-              )}
-              disabled={isLoading}
-            >
-              {isRecording ? (
-                <Square className="h-4 w-4 fill-white text-white" />
-              ) : (
-                <Mic className="h-4 w-4" />
-              )}
-            </Button>
-
-            <Button
-              onClick={handleSend}
-              disabled={!inputText.trim() || isLoading}
-              className={cn(
-                "shrink-0 transition-all duration-200",
-                isLoading && "opacity-70",
-              )}
-            >
-              <Send className="h-4 w-4" />
-            </Button>
+            <AudioControls
+              ref={audioRef}
+              isRecording={isRecording}
+              isLoading={isLoading}
+              onToggle={toggleRecording}
+            />
           </div>
         </div>
       </div>
-
-      <audio ref={audioRef} className="hidden" />
 
       {isLoading && (
         <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[150] bg-white/95 px-6 py-3 rounded-full shadow-lg backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-300">
