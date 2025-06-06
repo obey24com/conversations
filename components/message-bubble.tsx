@@ -88,41 +88,35 @@ export const MessageBubble = memo(function MessageBubble({
         timestamp: Date.now(),
       };
 
-      const { success, shareUrl } = await createSharedMessage(sharedMessage);
+      const shareId = await createSharedMessage(sharedMessage);
 
-      if (success && shareUrl) {
+      if (shareId) {
+        const shareUrl = `${window.location.origin}/share/${shareId}`;
         setShareUrl(shareUrl);
 
         // Try to copy to clipboard first
         try {
           await navigator.clipboard.writeText(shareUrl);
-          if (success) {
-            toast({
-              title: "Link copied!",
-              description:
-                "Share this link with others to show them your translation",
-            });
-          }
+          toast({
+            title: "Link copied!",
+            description:
+              "Share this link with others to show them your translation",
+          });
         } catch (clipboardError) {
           console.error("Clipboard error:", clipboardError);
           // Still show dialog even if copy fails
-          if (success) {
-            setShowShareDialog(true);
-          }
+          setShowShareDialog(true);
         }
       } else {
         throw new Error("Could not generate share link");
       }
     } catch (error) {
       console.error("Share error:", error);
-      // Only show error toast if we actually failed to generate the link
-      if (!shareUrl) {
-        toast({
-          title: "Error",
-          description: "Please try sharing again",
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Error",
+        description: "Please try sharing again",
+        variant: "destructive",
+      });
     } finally {
       setShareLoading(false);
     }
