@@ -184,9 +184,10 @@ export const MessageBubble = memo(function MessageBubble({
           <p className="text-lg font-medium text-gray-900 leading-relaxed">{translation}</p>
           <p
             className={cn(
-              "mt-2 text-sm text-gray-600 italic transition-all duration-300 overflow-hidden",
+              "mt-2 text-sm text-gray-600 italic overflow-hidden transition-all duration-300 ease-in-out",
               showPhonetic ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
             )}
+            aria-hidden={!showPhonetic}
           >
             {phonetic}
           </p>
