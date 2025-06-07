@@ -61,6 +61,8 @@ export function TranslationInterface() {
     setMessages((prevMessages) => {
       const filteredMessages = prevMessages.filter((msg) => msg.id !== messageId);
       storeMessages(filteredMessages);
+      // Notify header to update badge count
+      window.dispatchEvent(new CustomEvent('messageListUpdated'));
       return filteredMessages;
     });
   }, []); // No dependencies needed as setMessages is stable
@@ -137,6 +139,8 @@ export function TranslationInterface() {
         setMessages((prev) => {
           const updatedMessages = [...prev, newMessage];
           storeMessages(updatedMessages);
+          // Notify header to update badge count
+          window.dispatchEvent(new CustomEvent('messageListUpdated'));
           return updatedMessages;
         });
 
@@ -321,6 +325,8 @@ export function TranslationInterface() {
           setMessages((prev) => {
             const updatedMessages = [...prev, newMessage];
             storeMessages(updatedMessages);
+            // Notify header to update badge count
+            window.dispatchEvent(new CustomEvent('messageListUpdated'));
             return updatedMessages;
           });
 

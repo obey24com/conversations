@@ -226,35 +226,27 @@
   }
 }
 
-/* History item animations */
+/* History item animations - Optimized for performance */
 @keyframes historyItemDelete {
   0% {
     opacity: 1;
     transform: translateX(0) scale(1);
-    max-height: 120px;
-    margin-bottom: 8px;
-  }
-  20% {
-    opacity: 0.8;
-    transform: translateX(-10px) scale(0.98);
   }
   100% {
     opacity: 0;
-    transform: translateX(-100%) scale(0.9);
-    max-height: 0;
-    margin-bottom: 0;
+    transform: translateX(-100%) scale(0.95);
   }
 }
 
 .history-item-delete {
-  animation: historyItemDelete 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  overflow: hidden;
+  animation: historyItemDelete 250ms cubic-bezier(0.4, 0, 1, 1) forwards;
+  will-change: transform, opacity;
 }
 
 @keyframes swipeReveal {
   from {
     opacity: 0;
-    transform: translateX(100%);
+    transform: translateX(20px);
   }
   to {
     opacity: 1;
@@ -263,53 +255,50 @@
 }
 
 .swipe-delete-bg {
-  animation: swipeReveal 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: swipeReveal 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
 }
 
 /* Improved history sidebar animations */
 @keyframes slideInFromLeft {
   from {
     transform: translateX(-100%);
-    opacity: 0;
   }
   to {
     transform: translateX(0);
-    opacity: 1;
   }
 }
 
 @keyframes slideOutToLeft {
   from {
     transform: translateX(0);
-    opacity: 1;
   }
   to {
     transform: translateX(-100%);
-    opacity: 0;
   }
 }
 
 .history-sidebar-enter {
-  animation: slideInFromLeft 350ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation: slideInFromLeft 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .history-sidebar-exit {
-  animation: slideOutToLeft 300ms cubic-bezier(0.55, 0.06, 0.68, 0.19);
+  animation: slideOutToLeft 200ms cubic-bezier(0.55, 0.06, 0.68, 0.19);
 }
 
-/* Smooth transitions for touch interactions */
+/* Smooth transitions for touch interactions - Optimized */
 .touch-smooth {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 }
 
-/* History item hover effects */
+/* History item hover effects - Lighter */
 @keyframes historyItemPulse {
   0% {
     transform: scale(1);
   }
   50% {
-    transform: scale(1.02);
+    transform: scale(1.01);
   }
   100% {
     transform: scale(1);
@@ -317,30 +306,28 @@
 }
 
 .history-item-hover {
-  animation: historyItemPulse 200ms ease-out;
+  animation: historyItemPulse 150ms ease-out;
 }
 
-/* Backdrop animations */
+/* Backdrop animations - Faster */
 @keyframes backdropFadeIn {
   from {
     opacity: 0;
-    backdrop-filter: blur(0px);
   }
   to {
     opacity: 1;
-    backdrop-filter: blur(8px);
   }
 }
 
 .backdrop-animate-in {
-  animation: backdropFadeIn 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  animation: backdropFadeIn 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Translation card animations */
+/* Translation card animations - Snappier */
 @keyframes translateCardEnter {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(0.95);
+    transform: translateY(10px) scale(0.98);
   }
   to {
     opacity: 1;
@@ -349,5 +336,16 @@
 }
 
 .translate-card-enter {
-  animation: translateCardEnter 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation: translateCardEnter 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform, opacity;
+}
+
+/* High-performance swipe animation */
+.swipe-item {
+  will-change: transform;
+  transition: transform 0.1s ease-out;
+}
+
+.swipe-item.dragging {
+  transition: none;
 }

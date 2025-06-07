@@ -28,6 +28,8 @@ function HistoryItem({ message, onDelete, onSelect }: HistoryItemProps) {
   const [showDeleteZone, setShowDeleteZone] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
   const startXRef = useRef(0);
+  const startYRef = useRef(0);
+  const isHorizontalSwipeRef = useRef(false);
   const { toast } = useToast();
 
   const handleDelete = useCallback(() => {
@@ -38,19 +40,20 @@ function HistoryItem({ message, onDelete, onSelect }: HistoryItemProps) {
         title: "Translation deleted",
         description: "The translation has been removed from history",
       });
-    }, 300);
+    }, 250); // Match the optimized animation duration
   }, [onDelete, message.id, toast]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
     startXRef.current = e.clientX;
+    startYRef.current = e.clientY;
     setShowDeleteZone(true);
   };
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isDragging) return;
     const deltaX = e.clientX - startXRef.current;
-    const clampedX = Math.max(-100, Math.min(0, deltaX));
+    const clampedX = Math.max(-120, Math.min(0, deltaX));
     setSwipeX(clampedX);
   }, [isDragging]);
 
@@ -58,36 +61,62 @@ function HistoryItem({ message, onDelete, onSelect }: HistoryItemProps) {
     if (!isDragging) return;
     setIsDragging(false);
     
-    if (swipeX < -50) {
+    if (swipeX < -60) {
       handleDelete();
     } else {
       setSwipeX(0);
-      setTimeout(() => setShowDeleteZone(false), 200);
+      setTimeout(() => setShowDeleteZone(false), 150);
     }
   }, [isDragging, swipeX, handleDelete]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    setIsDragging(true);
-    startXRef.current = e.touches[0].clientX;
-    setShowDeleteZone(true);
+    const touch = e.touches[0];
+    startXRef.current = touch.clientX;
+    startYRef.current = touch.clientY;
+    isHorizontalSwipeRef.current = false;
   };
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
-    if (!isDragging) return;
-    const deltaX = e.touches[0].clientX - startXRef.current;
-    const clampedX = Math.max(-100, Math.min(0, deltaX));
-    setSwipeX(clampedX);
+    if (!e.touches[0]) return;
+    
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - startXRef.current;
+    const deltaY = touch.clientY - startYRef.current;
+    
+    // Determine gesture direction on first significant movement
+    if (!isDragging && !isHorizontalSwipeRef.current) {
+      const absX = Math.abs(deltaX);
+      const absY = Math.abs(deltaY);
+      
+      if (absX > 10 || absY > 10) {
+        isHorizontalSwipeRef.current = absX > absY;
+        
+        if (isHorizontalSwipeRef.current && deltaX < 0) {
+          // Start horizontal swipe
+          setIsDragging(true);
+          setShowDeleteZone(true);
+          e.preventDefault(); // Prevent scrolling only for horizontal swipes
+        }
+      }
+    }
+    
+    if (isDragging && isHorizontalSwipeRef.current) {
+      const clampedX = Math.max(-120, Math.min(0, deltaX));
+      setSwipeX(clampedX);
+      e.preventDefault();
+    }
   }, [isDragging]);
 
   const handleTouchEnd = useCallback(() => {
     if (!isDragging) return;
     setIsDragging(false);
+    isHorizontalSwipeRef.current = false;
     
-    if (swipeX < -50) {
+    if (swipeX < -60) {
       handleDelete();
     } else {
       setSwipeX(0);
-      setTimeout(() => setShowDeleteZone(false), 200);
+      setTimeout(() => setShowDeleteZone(false), 150);
     }
   }, [isDragging, swipeX, handleDelete]);
 
@@ -124,8 +153,8 @@ function HistoryItem({ message, onDelete, onSelect }: HistoryItemProps) {
     <div 
       ref={itemRef}
       className={cn(
-        "relative mb-2 rounded-xl overflow-hidden transition-all duration-300",
-        isDeleting && "opacity-0 scale-95 -translate-x-full"
+        "relative mb-2 rounded-xl overflow-hidden",
+        isDeleting && "history-item-delete"
       )}
     >
       {/* Delete background - only show when swiping */}
@@ -145,13 +174,12 @@ function HistoryItem({ message, onDelete, onSelect }: HistoryItemProps) {
       <div
         className={cn(
           "relative bg-white/80 backdrop-blur-sm border border-gray-100/60 rounded-xl p-4",
-          "cursor-pointer transition-all duration-200 hover:bg-white/90 hover:shadow-md",
-          "hover:border-gray-200/60 group",
-          isDragging && "shadow-lg scale-[0.98]"
+          "cursor-pointer hover:bg-white/90 hover:shadow-md transition-colors duration-150",
+          "hover:border-gray-200/60 group swipe-item",
+          isDragging && "dragging shadow-lg scale-[0.99]"
         )}
         style={{
           transform: `translateX(${swipeX}px)`,
-          transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
@@ -205,11 +233,41 @@ export default function Header() {
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historyMessages, setHistoryMessages] = useState<TranslationMessage[]>([]);
+  const [historyCount, setHistoryCount] = useState(0);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const historyRef = useRef<HTMLDivElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { user, loading } = useAuth();
   const { toast } = useToast();
+
+  // Sync badge count with actual stored messages
+  useEffect(() => {
+    const updateHistoryCount = () => {
+      const storedMessages = getStoredMessages();
+      setHistoryCount(storedMessages.length);
+    };
+
+    // Update immediately
+    updateHistoryCount();
+
+    // Listen for storage changes (when messages are added/deleted from other parts of the app)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'translation_messages') {
+        updateHistoryCount();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also listen for custom events from the translation interface
+    const handleMessageUpdate = () => updateHistoryCount();
+    window.addEventListener('messageListUpdated', handleMessageUpdate);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('messageListUpdated', handleMessageUpdate);
+    };
+  }, []);
 
   const handleClickOutside = useCallback(
     (event: MouseEvent) => {
@@ -237,6 +295,7 @@ export default function Header() {
     const updatedMessages = historyMessages.filter(msg => msg.id !== messageId);
     setHistoryMessages(updatedMessages);
     storeMessages(updatedMessages);
+    setHistoryCount(updatedMessages.length); // Update badge immediately
   };
 
   const handleSelectMessage = (message: TranslationMessage) => {
@@ -341,9 +400,9 @@ export default function Header() {
               className="hover:bg-black/5 relative"
             >
               <History className="h-6 w-6" />
-              {historyMessages.length > 0 && (
+              {historyCount > 0 && (
                 <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center">
-                  {Math.min(historyMessages.length, 99)}
+                  {Math.min(historyCount, 99)}
                 </span>
               )}
             </Button>
