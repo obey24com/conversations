@@ -420,6 +420,24 @@ export function TranslationInterface() {
     setMounted(true);
   }, []);
 
+  // Listen for history message selection events
+  useEffect(() => {
+    const handleHistorySelection = (event: CustomEvent) => {
+      const message = event.detail as TranslationMessage;
+      setInputText(message.text);
+      setFromLang(message.fromLang);
+      setToLang(message.toLang);
+      localStorage.setItem(STORAGE_KEYS.FROM_LANG, message.fromLang);
+      localStorage.setItem(STORAGE_KEYS.TO_LANG, message.toLang);
+    };
+
+    window.addEventListener('selectHistoryMessage', handleHistorySelection as EventListener);
+    
+    return () => {
+      window.removeEventListener('selectHistoryMessage', handleHistorySelection as EventListener);
+    };
+  }, []);
+
 
   if (!mounted) {
     return null;

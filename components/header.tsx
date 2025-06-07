@@ -2,8 +2,8 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "./ui/button";
-import { Menu, Instagram, X, LogIn, History } from "lucide-react";
-import { getStoredMessages } from "@/lib/storage";
+import { Menu, Instagram, X, LogIn, History, Trash2, Volume2 } from "lucide-react";
+import { getStoredMessages, storeMessages } from "@/lib/storage";
 import type { TranslationMessage } from "@/lib/types";
 import Image from "next/image";
 import Script from "next/script";
@@ -11,6 +11,173 @@ import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import { AuthDialog } from "./auth/auth-dialog";
 import { UserDropdown } from "./auth/user-dropdown";
+import { ScrollArea } from "./ui/scroll-area";
+import { cn } from "@/lib/utils";
+import { useToast } from "./ui/use-toast";
+
+interface HistoryItemProps {
+  message: TranslationMessage;
+  onDelete: (id: string) => void;
+  onSelect: (message: TranslationMessage) => void;
+}
+
+function HistoryItem({ message, onDelete, onSelect }: HistoryItemProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [swipeX, setSwipeX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const itemRef = useRef<HTMLDivElement>(null);
+  const startXRef = useRef(0);
+  const { toast } = useToast();
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    startXRef.current = e.clientX;
+  };
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!isDragging) return;
+    const deltaX = e.clientX - startXRef.current;
+    const clampedX = Math.max(-120, Math.min(0, deltaX));
+    setSwipeX(clampedX);
+  }, [isDragging]);
+
+  const handleMouseUp = useCallback(() => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    
+    if (swipeX < -60) {
+      // Swipe threshold reached - delete
+      handleDelete();
+    } else {
+      // Snap back
+      setSwipeX(0);
+    }
+  }, [isDragging, swipeX]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true);
+    startXRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    if (!isDragging) return;
+    const deltaX = e.touches[0].clientX - startXRef.current;
+    const clampedX = Math.max(-120, Math.min(0, deltaX));
+    setSwipeX(clampedX);
+  }, [isDragging]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    
+    if (swipeX < -60) {
+      handleDelete();
+    } else {
+      setSwipeX(0);
+    }
+  }, [isDragging, swipeX]);
+
+  const handleDelete = () => {
+    setIsDeleting(true);
+    setTimeout(() => {
+      onDelete(message.id);
+      toast({
+        title: "Translation deleted",
+        description: "The translation has been removed from history",
+      });
+    }, 200);
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchmove', handleTouchMove);
+      document.addEventListener('touchend', handleTouchEnd);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
+
+  const formatTime = (timestamp: number) => {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return 'now';
+    if (minutes < 60) return `${minutes}m`;
+    if (hours < 24) return `${hours}h`;
+    return `${days}d`;
+  };
+
+  return (
+    <div 
+      ref={itemRef}
+      className={cn(
+        "relative overflow-hidden rounded-lg transition-all duration-200",
+        isDeleting && "opacity-0 scale-95 translate-x-[-100%]"
+      )}
+    >
+      {/* Delete background */}
+      <div className="absolute inset-y-0 right-0 w-24 bg-red-500 flex items-center justify-center">
+        <Trash2 className="h-5 w-5 text-white" />
+      </div>
+
+      {/* Main content */}
+      <div
+        className={cn(
+          "relative bg-white/50 border border-gray-100/50 p-3 cursor-pointer transition-all duration-200",
+          "hover:bg-white/80 hover:shadow-sm",
+          isDragging && "shadow-md"
+        )}
+        style={{
+          transform: `translateX(${swipeX}px)`,
+          transition: isDragging ? 'none' : 'transform 0.2s ease-out'
+        }}
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+        onClick={() => !isDragging && Math.abs(swipeX) < 5 && onSelect(message)}
+      >
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-gray-500 truncate mb-1">
+              {message.text}
+            </p>
+            <p className="text-sm font-medium text-gray-900 truncate">
+              {message.translation}
+            </p>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-xs text-gray-400">
+                {message.fromLang.toUpperCase()} → {message.toLang.toUpperCase()}
+              </span>
+              <span className="text-xs text-gray-400">
+                {formatTime(message.timestamp)}
+              </span>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete();
+            }}
+          >
+            <Trash2 className="h-3 w-3 text-gray-400" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -21,6 +188,7 @@ export default function Header() {
   const historyRef = useRef<HTMLDivElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { user, loading } = useAuth();
+  const { toast } = useToast();
 
   const handleClickOutside = useCallback(
     (event: MouseEvent) => {
@@ -42,6 +210,29 @@ export default function Header() {
         console.error('Error playing sound:', error);
       });
     }
+  };
+
+  const handleDeleteMessage = (messageId: string) => {
+    const updatedMessages = historyMessages.filter(msg => msg.id !== messageId);
+    setHistoryMessages(updatedMessages);
+    storeMessages(updatedMessages);
+  };
+
+  const handleSelectMessage = (message: TranslationMessage) => {
+    // Close history sidebar
+    setHistoryOpen(false);
+    
+    // You could emit an event or use a callback to populate the main interface
+    // For now, we'll just show a toast
+    toast({
+      title: "Translation selected",
+      description: "Translation loaded in main interface",
+    });
+    
+    // Trigger custom event to notify the main interface
+    window.dispatchEvent(new CustomEvent('selectHistoryMessage', {
+      detail: message
+    }));
   };
 
   useEffect(() => {
@@ -126,9 +317,14 @@ export default function Header() {
             <Button
               onClick={() => setHistoryOpen(!historyOpen)}
               variant="ghost"
-              className="hover:bg-black/5"
+              className="hover:bg-black/5 relative"
             >
               <History className="h-6 w-6" />
+              {historyMessages.length > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center">
+                  {Math.min(historyMessages.length, 99)}
+                </span>
+              )}
             </Button>
             <Button
               onClick={() => setMenuOpen(!menuOpen)}
@@ -304,7 +500,7 @@ export default function Header() {
           </div>
         </div>
 
-        {/* History Content */}
+        {/* History Content - Improved */}
         <div
           className={`fixed inset-y-0 left-0 z-50 w-full max-w-sm transform transition-all duration-300 ease-in-out ${
             historyOpen ? "translate-x-0" : "-translate-x-full"
@@ -313,38 +509,59 @@ export default function Header() {
         >
           <div
             ref={historyRef}
-            className="h-full w-full bg-white/95 p-6 shadow-2xl backdrop-blur-xl"
+            className="h-full w-full bg-white/95 shadow-2xl backdrop-blur-xl"
             style={{
               WebkitBackdropFilter: 'saturate(180%) blur(20px)',
               backdropFilter: 'saturate(180%) blur(20px)',
               position: 'relative'
             }}
           >
-            <Button
-              onClick={() => setHistoryOpen(false)}
-              variant="ghost"
-              size="icon"
-              className="absolute right-4 top-4 h-8 w-8 rounded-full bg-white/95 shadow-lg transition-colors hover:bg-gray-100/80"
-              style={{ zIndex: 110 }}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-
-            <div className="mb-4 mt-2">
-              <h2 className="text-xl font-semibold text-gray-900">History</h2>
-            </div>
-
-            <div className="overflow-y-auto h-full space-y-4 pb-10">
-              {historyMessages.length === 0 && (
-                <p className="text-sm text-gray-500">No history yet.</p>
+            <div className="p-4 border-b border-gray-100/50">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-900">Translation History</h2>
+                <Button
+                  onClick={() => setHistoryOpen(false)}
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-full bg-white/95 shadow-sm transition-colors hover:bg-gray-100/80"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              {historyMessages.length > 0 && (
+                <p className="text-sm text-gray-500 mt-1">
+                  {historyMessages.length} translation{historyMessages.length !== 1 ? 's' : ''}
+                </p>
               )}
-              {historyMessages.map((msg) => (
-                <div key={msg.id} className="border-b border-gray-100 pb-2">
-                  <p className="text-sm text-gray-500">{msg.text}</p>
-                  <p className="text-sm font-medium text-gray-900">{msg.translation}</p>
-                </div>
-              ))}
             </div>
+
+            <ScrollArea className="h-[calc(100vh-80px)]">
+              <div className="p-4 space-y-3">
+                {historyMessages.length === 0 ? (
+                  <div className="text-center py-12">
+                    <History className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-500 mb-2">No history yet</h3>
+                    <p className="text-sm text-gray-400">
+                      Your translations will appear here
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-xs text-gray-500 mb-3 px-1">
+                      Tap to view • Swipe left to delete
+                    </p>
+                    {historyMessages.map((msg) => (
+                      <HistoryItem
+                        key={msg.id}
+                        message={msg}
+                        onDelete={handleDeleteMessage}
+                        onSelect={handleSelectMessage}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
           </div>
         </div>
 

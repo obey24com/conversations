@@ -225,3 +225,76 @@
     background-size: 30px 30px;
   }
 }
+
+/* History item animations */
+@keyframes historyItemDelete {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    max-height: 100px;
+    margin-bottom: 8px;
+  }
+  50% {
+    opacity: 0.3;
+    transform: translateX(-20px) scale(0.95);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-100%) scale(0.9);
+    max-height: 0;
+    margin-bottom: 0;
+  }
+}
+
+.history-item-delete {
+  animation: historyItemDelete 300ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  overflow: hidden;
+}
+
+@keyframes swipeReveal {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.swipe-delete-bg {
+  animation: swipeReveal 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* History sidebar animations */
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutToLeft {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.history-sidebar-enter {
+  animation: slideInFromLeft 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.history-sidebar-exit {
+  animation: slideOutToLeft 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth transitions for touch interactions */
+.touch-smooth {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
