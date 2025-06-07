@@ -42,55 +42,9 @@ export function MessageList({
               onPlay={() => onPlay(message.translation, index, message.toLang)}
               onDelete={() => onDelete(message.id)}
             />
-
           ))}
-
-          </Button>
-        )}
-        <div className="w-full">
-          {showPrevious &&
-            reversedMessages.slice(1).map((message, index) => (
-              <div
-                key={message.id}
-                className={cn(
-                  'w-full transition-all duration-300',
-                  'opacity-0 translate-y-4',
-                  showPrevious && 'opacity-100 translate-y-0',
-                )}
-              >
-                <MessageBubble
-                  text={message.text}
-                  translation={message.translation}
-                  phonetic={message.phonetic}
-                  fromLang={message.fromLang}
-                  toLang={message.toLang}
-                  cultural={message.cultural}
-                  isPlaying={isPlaying === index + 1}
-                  onPlay={() => onPlay(message.translation, index + 1, message.toLang)}
-                  onDelete={() => onDelete(message.id)}
-                />
-              </div>
-            ))}
         </div>
-      </div>
-
-      <div className="flex-1 flex items-center justify-center px-4 pb-8 mt-4">
         <div ref={messagesEndRef} />
-        {reversedMessages[0] && (
-          <div className="w-full">
-            <MessageBubble
-              text={reversedMessages[0].text}
-              translation={reversedMessages[0].translation}
-              phonetic={reversedMessages[0].phonetic}
-              fromLang={reversedMessages[0].fromLang}
-              toLang={reversedMessages[0].toLang}
-              cultural={reversedMessages[0].cultural}
-              isPlaying={isPlaying === 0}
-              onPlay={() => onPlay(reversedMessages[0].translation, 0, reversedMessages[0].toLang)}
-              onDelete={() => onDelete(reversedMessages[0].id)}
-            />
-          </div>
-        )}
       </div>
     </div>
   );
