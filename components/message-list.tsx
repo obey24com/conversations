@@ -6,6 +6,7 @@ import type { TranslationMessage } from "@/lib/types";
 
 interface MessageListProps {
   messages: TranslationMessage[];
+  totalCount: number;
   isPlaying: number | null;
   onPlay: (text: string, index: number, targetLang: string) => void;
   onDelete: (id: string) => void;
@@ -13,6 +14,7 @@ interface MessageListProps {
 
 export function MessageList({
   messages,
+  totalCount,
   isPlaying,
   onPlay,
   onDelete,
@@ -44,8 +46,8 @@ export function MessageList({
     );
   }
 
-  // If there's only one message, center it (except on mobile)
-  if (messages.length === 1) {
+  // If there's only one message total (not just displayed), center it
+  if (totalCount === 1 && messages.length === 1) {
     return (
       <div className="relative flex-1 overflow-y-auto">
         <div className="flex h-full items-center justify-center min-h-[60vh] px-4">
@@ -68,7 +70,7 @@ export function MessageList({
     );
   }
 
-  // For multiple messages, show normal scrollable list
+  // For multiple messages total OR when showing latest of many, show normal layout
   return (
     <div className="relative flex-1 overflow-y-auto">
       <div className="mx-auto w-full max-w-5xl px-4 pt-20 flex flex-col items-center">
