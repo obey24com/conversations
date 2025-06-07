@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Mic, RotateCcw, Camera, Globe, Languages } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
-import { supportedLanguages, isPetLanguage, LanguageCode } from "@/lib/languages";
+import { supportedLanguages, isPetLanguage, LanguageCode, isValidLanguageCode } from "@/lib/languages";
 import { useZoomControl } from "@/hooks/use-zoom-control";
 import { LanguageSelect } from "./language-select";
 import { InputControls } from "./input-controls";
@@ -302,9 +302,10 @@ export function TranslationInterface() {
 
           const detectedFromLang = translationData.detectedLang || "en";
 
-          // Update the fromLang with detected language
-          setFromLang(detectedFromLang);
-          localStorage.setItem(STORAGE_KEYS.FROM_LANG, detectedFromLang);
+          // Update the fromLang with detected language - validate first
+          const validDetectedLang = isValidLanguageCode(detectedFromLang) ? detectedFromLang : "en";
+          setFromLang(validDetectedLang);
+          localStorage.setItem(STORAGE_KEYS.FROM_LANG, validDetectedLang);
 
           const newMessage = {
             id: Math.random().toString(36).substr(2, 9),
@@ -425,10 +426,15 @@ export function TranslationInterface() {
     const handleHistorySelection = (event: CustomEvent) => {
       const message = event.detail as TranslationMessage;
       setInputText(message.text);
-      setFromLang(message.fromLang);
-      setToLang(message.toLang);
-      localStorage.setItem(STORAGE_KEYS.FROM_LANG, message.fromLang);
-      localStorage.setItem(STORAGE_KEYS.TO_LANG, message.toLang);
+      
+      // Validate and set language codes with fallbacks
+      const validFromLang = isValidLanguageCode(message.fromLang) ? message.fromLang : "en";
+      const validToLang = isValidLanguageCode(message.toLang) ? message.toLang : "es";
+      
+      setFromLang(validFromLang);
+      setToLang(validToLang);
+      localStorage.setItem(STORAGE_KEYS.FROM_LANG, validFromLang);
+      localStorage.setItem(STORAGE_KEYS.TO_LANG, validToLang);
     };
 
     window.addEventListener('selectHistoryMessage', handleHistorySelection as EventListener);
@@ -550,10 +556,12 @@ export function TranslationInterface() {
                           data.translation &&
                           data.detectedLang
                         ) {
-                          setFromLang(data.detectedLang);
+                          // Validate detected language before setting
+                          const validDetectedLang = isValidLanguageCode(data.detectedLang) ? data.detectedLang : "en";
+                          setFromLang(validDetectedLang);
                           localStorage.setItem(
                             STORAGE_KEYS.FROM_LANG,
-                            data.detectedLang,
+                            validDetectedLang,
                           );
 
                           // More robust parsing of OpenAI response

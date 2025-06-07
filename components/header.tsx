@@ -29,6 +29,17 @@ function HistoryItem({ message, onDelete, onSelect }: HistoryItemProps) {
   const startXRef = useRef(0);
   const { toast } = useToast();
 
+  const handleDelete = useCallback(() => {
+    setIsDeleting(true);
+    setTimeout(() => {
+      onDelete(message.id);
+      toast({
+        title: "Translation deleted",
+        description: "The translation has been removed from history",
+      });
+    }, 200);
+  }, [onDelete, message.id, toast]);
+
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
     startXRef.current = e.clientX;
@@ -52,7 +63,7 @@ function HistoryItem({ message, onDelete, onSelect }: HistoryItemProps) {
       // Snap back
       setSwipeX(0);
     }
-  }, [isDragging, swipeX]);
+  }, [isDragging, swipeX, handleDelete]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setIsDragging(true);
@@ -75,18 +86,7 @@ function HistoryItem({ message, onDelete, onSelect }: HistoryItemProps) {
     } else {
       setSwipeX(0);
     }
-  }, [isDragging, swipeX]);
-
-  const handleDelete = () => {
-    setIsDeleting(true);
-    setTimeout(() => {
-      onDelete(message.id);
-      toast({
-        title: "Translation deleted",
-        description: "The translation has been removed from history",
-      });
-    }, 200);
-  };
+  }, [isDragging, swipeX, handleDelete]);
 
   useEffect(() => {
     if (isDragging) {
