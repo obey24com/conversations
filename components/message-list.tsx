@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useRef, useEffect } from 'react';
-import { MessageBubble } from './message-bubble';
-import type { TranslationMessage } from '@/lib/types';
+import { useMemo, useRef, useEffect } from "react";
+import { MessageBubble } from "./message-bubble";
+import type { TranslationMessage } from "@/lib/types";
 
 interface MessageListProps {
   messages: TranslationMessage[];
@@ -11,13 +11,18 @@ interface MessageListProps {
   onDelete: (id: string) => void;
 }
 
-export function MessageList({ messages, isPlaying, onPlay, onDelete }: MessageListProps) {
+export function MessageList({
+  messages,
+  isPlaying,
+  onPlay,
+  onDelete,
+}: MessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const reversedMessages = useMemo(() => [...messages].reverse(), [messages]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length]);
 
   return (
