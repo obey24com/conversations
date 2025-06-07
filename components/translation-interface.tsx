@@ -110,7 +110,7 @@ export function TranslationInterface() {
         }
 
         // Extract PHONETIC
-        const phoneticMatch = response.match(/PHONETIC:\s*(.*?)(?=\n(?:CONTEXT):|$)/s);
+        const phoneticMatch = response.match(/PHONETIC:\s*(.*?)(?=\n(?:CONTEXT):|$)/is);
         if (phoneticMatch) {
           phoneticText = phoneticMatch[1].trim();
         }
@@ -289,7 +289,7 @@ export function TranslationInterface() {
           }
 
           // Extract PHONETIC
-          const phoneticMatch = response.match(/PHONETIC:\s*(.*?)(?=\n(?:CONTEXT):|$)/s);
+          const phoneticMatch = response.match(/PHONETIC:\s*(.*?)(?=\n(?:CONTEXT):|$)/is);
           if (phoneticMatch) {
             phoneticText = phoneticMatch[1].trim();
           }
@@ -428,7 +428,7 @@ export function TranslationInterface() {
   return (
     <div className="flex grow flex-col">
       <MessageList
-        messages={messages}
+        messages={messages.slice(-1)}
         isPlaying={isPlaying}
         onPlay={playTranslation}
         onDelete={handleDeleteMessage}
@@ -552,7 +552,7 @@ export function TranslationInterface() {
                           }
 
                           // Extract PHONETIC
-                          const phoneticMatch = response.match(/PHONETIC:\s*(.*?)(?=\n(?:CONTEXT):|$)/s);
+                          const phoneticMatch = response.match(/PHONETIC:\s*(.*?)(?=\n(?:CONTEXT):|$)/is);
                           if (phoneticMatch) {
                             phoneticText = phoneticMatch[1].trim();
                           }
