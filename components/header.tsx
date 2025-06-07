@@ -25,6 +25,7 @@ function HistoryItem({ message, onDelete, onSelect }: HistoryItemProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [swipeX, setSwipeX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [showDeleteZone, setShowDeleteZone] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
   const startXRef = useRef(0);
   const { toast } = useToast();
@@ -37,18 +38,19 @@ function HistoryItem({ message, onDelete, onSelect }: HistoryItemProps) {
         title: "Translation deleted",
         description: "The translation has been removed from history",
       });
-    }, 200);
+    }, 300);
   }, [onDelete, message.id, toast]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
     startXRef.current = e.clientX;
+    setShowDeleteZone(true);
   };
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isDragging) return;
     const deltaX = e.clientX - startXRef.current;
-    const clampedX = Math.max(-120, Math.min(0, deltaX));
+    const clampedX = Math.max(-100, Math.min(0, deltaX));
     setSwipeX(clampedX);
   }, [isDragging]);
 
@@ -56,24 +58,24 @@ function HistoryItem({ message, onDelete, onSelect }: HistoryItemProps) {
     if (!isDragging) return;
     setIsDragging(false);
     
-    if (swipeX < -60) {
-      // Swipe threshold reached - delete
+    if (swipeX < -50) {
       handleDelete();
     } else {
-      // Snap back
       setSwipeX(0);
+      setTimeout(() => setShowDeleteZone(false), 200);
     }
   }, [isDragging, swipeX, handleDelete]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setIsDragging(true);
     startXRef.current = e.touches[0].clientX;
+    setShowDeleteZone(true);
   };
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
     if (!isDragging) return;
     const deltaX = e.touches[0].clientX - startXRef.current;
-    const clampedX = Math.max(-120, Math.min(0, deltaX));
+    const clampedX = Math.max(-100, Math.min(0, deltaX));
     setSwipeX(clampedX);
   }, [isDragging]);
 
@@ -81,10 +83,11 @@ function HistoryItem({ message, onDelete, onSelect }: HistoryItemProps) {
     if (!isDragging) return;
     setIsDragging(false);
     
-    if (swipeX < -60) {
+    if (swipeX < -50) {
       handleDelete();
     } else {
       setSwipeX(0);
+      setTimeout(() => setShowDeleteZone(false), 200);
     }
   }, [isDragging, swipeX, handleDelete]);
 
@@ -121,58 +124,76 @@ function HistoryItem({ message, onDelete, onSelect }: HistoryItemProps) {
     <div 
       ref={itemRef}
       className={cn(
-        "relative overflow-hidden rounded-lg transition-all duration-200",
-        isDeleting && "opacity-0 scale-95 translate-x-[-100%]"
+        "relative mb-2 rounded-xl overflow-hidden transition-all duration-300",
+        isDeleting && "opacity-0 scale-95 -translate-x-full"
       )}
     >
-      {/* Delete background */}
-      <div className="absolute inset-y-0 right-0 w-24 bg-red-500 flex items-center justify-center">
-        <Trash2 className="h-5 w-5 text-white" />
-      </div>
+      {/* Delete background - only show when swiping */}
+      {showDeleteZone && (
+        <div 
+          className={cn(
+            "absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-red-500 to-red-400",
+            "flex items-center justify-center transition-opacity duration-200",
+            Math.abs(swipeX) > 20 ? "opacity-100" : "opacity-60"
+          )}
+        >
+          <Trash2 className="h-5 w-5 text-white" />
+        </div>
+      )}
 
       {/* Main content */}
       <div
         className={cn(
-          "relative bg-white/50 border border-gray-100/50 p-3 cursor-pointer transition-all duration-200",
-          "hover:bg-white/80 hover:shadow-sm",
-          isDragging && "shadow-md"
+          "relative bg-white/80 backdrop-blur-sm border border-gray-100/60 rounded-xl p-4",
+          "cursor-pointer transition-all duration-200 hover:bg-white/90 hover:shadow-md",
+          "hover:border-gray-200/60 group",
+          isDragging && "shadow-lg scale-[0.98]"
         )}
         style={{
           transform: `translateX(${swipeX}px)`,
-          transition: isDragging ? 'none' : 'transform 0.2s ease-out'
+          transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         onClick={() => !isDragging && Math.abs(swipeX) < 5 && onSelect(message)}
       >
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-500 truncate mb-1">
+            {/* Original text */}
+            <p className="text-xs text-gray-600 truncate mb-2 font-medium">
               {message.text}
             </p>
-            <p className="text-sm font-medium text-gray-900 truncate">
+            
+            {/* Translation */}
+            <p className="text-sm font-semibold text-gray-900 truncate mb-3 leading-relaxed">
               {message.translation}
             </p>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-xs text-gray-400">
-                {message.fromLang.toUpperCase()} → {message.toLang.toUpperCase()}
-              </span>
-              <span className="text-xs text-gray-400">
-                {formatTime(message.timestamp)}
-              </span>
+            
+            {/* Metadata */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xs px-2 py-1 bg-blue-50 text-blue-600 rounded-full font-medium">
+                  {message.fromLang.toUpperCase()} → {message.toLang.toUpperCase()}
+                </span>
+                <span className="text-xs text-gray-400">
+                  {formatTime(message.timestamp)}
+                </span>
+              </div>
+              
+              {/* Delete button - visible on hover */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shrink-0 hover:bg-red-50 hover:text-red-600"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete();
+                }}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete();
-            }}
-          >
-            <Trash2 className="h-3 w-3 text-gray-400" />
-          </Button>
         </div>
       </div>
     </div>
@@ -535,21 +556,27 @@ export default function Header() {
               )}
             </div>
 
-            <ScrollArea className="h-[calc(100vh-80px)]">
-              <div className="p-4 space-y-3">
-                {historyMessages.length === 0 ? (
+            <ScrollArea className="h-[calc(100vh-100px)]">
+              {historyMessages.length === 0 ? (
+                <div className="flex items-center justify-center h-full px-6">
                   <div className="text-center py-12">
-                    <History className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-500 mb-2">No history yet</h3>
-                    <p className="text-sm text-gray-400">
-                      Your translations will appear here
+                    <div className="w-20 h-20 mx-auto bg-gradient-to-br from-blue-50 to-purple-50 rounded-full flex items-center justify-center mb-6">
+                      <History className="h-10 w-10 text-gray-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-600 mb-3">No history yet</h3>
+                    <p className="text-sm text-gray-500 leading-relaxed max-w-xs">
+                      Your translations will appear here for quick access
                     </p>
                   </div>
-                ) : (
-                  <div className="space-y-2">
-                    <p className="text-xs text-gray-500 mb-3 px-1">
-                      Tap to view • Swipe left to delete
+                </div>
+              ) : (
+                <div className="px-4 py-2">
+                  <div className="mb-4 p-3 bg-blue-50/50 rounded-lg border border-blue-100/50">
+                    <p className="text-xs text-blue-600 font-medium text-center">
+                      💡 Tap to load • Swipe left to delete
                     </p>
+                  </div>
+                  <div className="space-y-3">
                     {historyMessages.map((msg) => (
                       <HistoryItem
                         key={msg.id}
@@ -559,8 +586,9 @@ export default function Header() {
                       />
                     ))}
                   </div>
-                )}
-              </div>
+                  <div className="h-4" />
+                </div>
+              )}
             </ScrollArea>
           </div>
         </div>

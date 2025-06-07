@@ -452,7 +452,7 @@ export function TranslationInterface() {
   return (
     <div className="flex grow flex-col">
       <MessageList
-        messages={messages.slice(-1)}
+        messages={messages}
         isPlaying={isPlaying}
         onPlay={playTranslation}
         onDelete={handleDeleteMessage}
